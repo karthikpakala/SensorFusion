@@ -47,10 +47,14 @@ class Lidar
         // Bounding Box determination
         void createBoundingBox();
 
+        // Project BB onto camera image and estimate velocity. 
+
         // remove Lidar points based on distance properties
         // float minZ = -1.5, maxZ = -0.9, minX = 2.0, maxX = 20.0, maxY = 2.0, minR = 0.1; // focus on ego lane
 
     private:
+
+        vector<LidarPoint> lidarPoints;
 
     // Private functions
 };

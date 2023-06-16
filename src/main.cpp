@@ -6,6 +6,7 @@
 
 using namespace std;
 
+
 int main(int argv, char **argc)
 {
 
@@ -58,6 +59,9 @@ int main(int argv, char **argc)
     // Initiate Lidar points vector
     vector<LidarPoint> lidarPoints;
 
+    // Initiate ac image
+    cv::Mat inputImage;
+
     // PCL File counter
     for(auto& file : filesystem::directory_iterator(fullPCLFolderPath))
     {
@@ -79,16 +83,26 @@ int main(int argv, char **argc)
     }
     else
     {     
-           
+        // Load Lidatr data into buffer. 
         for(auto& file : filesystem::directory_iterator(fullPCLFolderPath))
-        {
+        {            
             Lidar lidar;
             lidar.readPCLDataFile(lidarPoints, file.path());
             cout << "Lidar PCD size = " << lidarPoints.size() << endl;
 
+            // Write code to process lidar points
             //lidar.cropLidarPoints(lidarPoints);
             cout << "Lidar Points after cropping = " << lidarPoints.size() << endl;
+        }
 
+        // Load input image into the buffer. 
+        for(auto& file : filesystem::directory_iterator(fullImageFolderPath))
+        {
+            inputImage = cv::imread(file.path());
+            //cout << "Camera image size = " << inputImage.size() << endl;
+            cv::imshow("input Image", inputImage);
+            cv::waitKey(100);
+            
         }
     }
 }

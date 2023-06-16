@@ -16,5 +16,12 @@
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/xfeatures2d/nonfree.hpp>
 
+// Step 1: Input image into memory
 void inputCameraImage();
+
+// Step 2: Convert image into a grey scale image
+// Step 3: Detect key points and descriptors
+// Step 4: Track Objects 
+// Step 5: Estimate vehicle velocity
+
 #endif
