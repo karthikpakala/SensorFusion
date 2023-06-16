@@ -7,7 +7,7 @@
 #include <pcl/common/common.h>
 #include <fstream>
 
-
+using namespace std;
 struct LidarPoint
 {
     // x = x coordinate // y = y coordinate // z = z coordinate // i = intensity
@@ -33,7 +33,6 @@ struct BoundingBox
     // Confidence
     double confidence;
 
-
     // Lidar Point Vector
     std::vector<LidarPoint> lidarPoints;
 
@@ -42,4 +41,16 @@ struct BoundingBox
 
     // Key Point Matches
     std::vector<cv::DMatch> keyPointMatches;
+};
+
+struct DataStruct
+{
+    std::vector<LidarPoint> lidarPoints;
+
+    std::vector<BoundingBox> boundingBoxes;
+
+    std::vector<cv::KeyPoint> keyPoints;
+
+    std::vector<cv::DMatch> keyPointMatches;
+
 };

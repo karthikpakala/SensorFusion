@@ -19,6 +19,8 @@ int main(int argv, char **argc)
     // Initialize calibration object
     Calibration calibration;
 
+    // calibration.initializeMatrices();
+
     // Data file path definitions.
     string baseDataFolderPath = "../KITTI-data";
     string pclDataFolderPath = "/velodyne_points/data/";

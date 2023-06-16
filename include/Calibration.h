@@ -27,4 +27,5 @@ class Calibration
     cv::Mat R_rect_00 {4,4,cv::DataType<double>::type}; // 3x3 rectifying rotation to make image planes co-planar
     cv::Mat RT {4,4,cv::DataType<double>::type}; // rotation matrix and translation vector
 
+    void initializeMatrices();
 };
