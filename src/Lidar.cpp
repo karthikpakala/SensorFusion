@@ -1,6 +1,6 @@
 #include "Lidar.h"
 
-void Lidar::readPCLDataFile(vector<LidarPoint> &lidarPoints, std::string inputFile)
+void Lidar::readPCLDataFile(std::vector<LidarPoint> &lidarPoints, std::string inputFile)
 {   
     // Number of Lidar Points in a Frame
     unsigned long numOfPoints = 1000000;
@@ -45,13 +45,13 @@ void Lidar::readPCLDataFile(vector<LidarPoint> &lidarPoints, std::string inputFi
     fclose(stream);
 }
 
-vector<LidarPoint> Lidar::cropLidarPoints(vector<LidarPoint> &lidarPoints)
+std::vector<LidarPoint> Lidar::cropLidarPoints(std::vector<LidarPoint> &lidarPoints)
 {
 
     // remove Lidar points based on distance properties
     float minZ = -1.5, maxZ = -0.9, minX = 2.0, maxX = 20.0, maxY = 2.0, minR = 0.1; // focus on ego lane
     
-    vector<LidarPoint> tempLidarPoints;
+    std::vector<LidarPoint> tempLidarPoints;
     for(auto it = lidarPoints.begin(); it < lidarPoints.end(); ++it)
     {
         if((*it).x_coordinate >= minX && (*it).x_coordinate <= maxX && abs((*it).y_coordinate) <= maxY && (*it).z_coordinate >= minZ && (*it).z_coordinate <= maxZ && (*it).intensity >= minR)

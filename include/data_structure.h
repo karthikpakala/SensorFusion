@@ -7,7 +7,6 @@
 #include <pcl/common/common.h>
 #include <fstream>
 
-using namespace std;
 struct LidarPoint
 {
     // x = x coordinate // y = y coordinate // z = z coordinate // i = intensity

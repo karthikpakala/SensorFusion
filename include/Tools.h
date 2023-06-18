@@ -6,6 +6,8 @@
 #include "Camera.h"
 //#include <pcl/visualization/cloud_viewer.h>
 //#include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/visualization/pcl_visualizer.h>
+
 
 class Tools
 {
@@ -18,7 +20,7 @@ class Tools
 
         //void initCamera(pcl::visualization::PCLVisualizer *pclViewer, CameraAngle cameraAngle);
 
-        //void pclViewer(pcl::PointCloud<LidarPoint> &cloud);
+        void pclViewer(pcl::PointCloud<LidarPoint> &cloud);
 
 };
 #endif

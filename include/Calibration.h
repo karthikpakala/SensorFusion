@@ -11,19 +11,17 @@
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/xfeatures2d/nonfree.hpp>
 
-using namespace std;
-using namespace cv;
 
 class Calibration
 {
     public:
 
     // object detection
-    string dataPath = "..KITTI-data/"; // Update with correct path once available.
-    string yoloBasePath = dataPath + "dat/yolo/";
-    string yoloClassesFile = yoloBasePath + "coco.names";
-    string yoloModelConfiguration = yoloBasePath + "yolov3.cfg";
-    string yoloModelWeights = yoloBasePath + "yolov3.weights";
+    std::string dataPath = "..KITTI-data/"; // Update with correct path once available.
+    std::string yoloBasePath = dataPath + "dat/yolo/";
+    std::string yoloClassesFile = yoloBasePath + "coco.names";
+    std::string yoloModelConfiguration = yoloBasePath + "yolov3.cfg";
+    std::string yoloModelWeights = yoloBasePath + "yolov3.weights";
 
     // calibration data for camera and lidar
     cv::Mat P_rect_00 {3,4,cv::DataType<double>::type}; // 3x4 projection matrix after rectification

@@ -16,17 +16,15 @@
 //#include <pcl/segmentation/sac_segmentation.h>
 //#include <pcl/segmentation/extract_clusters.h>
 //#include <pcl/common/transforms.h>
-using namespace pcl;
-using namespace std;
 
 class Lidar
 {
 
     public:
 
-        void readPCLDataFile(vector<LidarPoint> &lidarPoints, std::string inputFile);
+        void readPCLDataFile(std::vector<LidarPoint> &lidarPoints, std::string inputFile);
 
-        vector<LidarPoint> cropLidarPoints(vector<LidarPoint> &lidarPoints);
+        std::vector<LidarPoint> cropLidarPoints(std::vector<LidarPoint> &lidarPoints);
 
         // Process Lidar Input
         void processLidarInput();
