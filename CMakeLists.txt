@@ -23,6 +23,6 @@ link_directories(${OpenCV_LIBRARY_DIRS})
 add_definitions(${OpenCV_DEFINITIONS})
 
 ##add_executable (environment src/environment.cpp src/render/render.cpp src/processPointClouds.cpp src/ransac.cpp src/cluster_3d.cpp src/kdtree.h)
-add_executable (SensorFusion src/main.cpp src/Camera.cpp src/Lidar.cpp src/Radar.cpp src/KalmanFilter.cpp include/Camera.h include/Lidar.h include/Radar.h include/KalmanFilter.h)
+add_executable (SensorFusion src/Camera.cpp src/Lidar.cpp src/Radar.cpp src/KalmanFilter.cpp src/Tools.cpp src/Calibration.cpp include/Camera.h include/Lidar.h include/Radar.h include/KalmanFilter.h src/main.cpp include/Tools.h include/Calibration.h )
 
 target_link_libraries(SensorFusion ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} z ssl uv uWS)

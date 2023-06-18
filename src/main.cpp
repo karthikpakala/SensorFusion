@@ -4,22 +4,23 @@
 #include "Radar.h"
 #include "Camera.h"
 #include "Calibration.h"
+#include "Tools.h"
 
 using namespace std;
 
 
 int main(int argv, char **argc)
 {
-    // misc
-    //double sensorFrameRate = 10.0 / imgStepWidth; // frames per second for Lidar and camera
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     //vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
-    bool bVis = false;            // visualize results
 
     // Initialize calibration object
     Calibration calibration;
 
-    // calibration.initializeMatrices();
+    // Tools Object
+    Tools tools;
+
+    //calibration.initializeMatrices();
 
     // Data file path definitions.
     string baseDataFolderPath = "../KITTI-data";
@@ -70,17 +71,31 @@ int main(int argv, char **argc)
             cout << "Lidar PCD size = " << lidarPoints.size() << endl;
 
             // Write code to process lidar points
-            //lidar.cropLidarPoints(lidarPoints);
+            lidar.cropLidarPoints(lidarPoints);
             cout << "Lidar Points after cropping = " << lidarPoints.size() << endl;
+
+
+            //tools.pclViewer(lidarPoints);
+            //pcl::visualization::PCLVisualizer::Ptr pclViewer (new pcl::visualization::PCLVisualizer ("Point Cloud Visualizer"));
+            //CameraAngle cameraAngle = XY;
+
+            //tools.initCamera(pclVeiwer, cameraAngle);
+            
+
+            //pcl::visualization::CloudViewer cloudViewer;
+            //string cloudTitle ("Cloud Viewer");
+            //cloudViewer.showCloud(&lidarPoints, &cloudTitle);
+
+
         }
 
         // Load input image into the buffer. 
         for(auto& file : filesystem::directory_iterator(fullImageFolderPath))
         {
-            inputImage = cv::imread(file.path());
+            //inputImage = cv::imread(file.path());
             //cout << "Camera image size = " << inputImage.size() << endl;
-            cv::imshow("input Image", inputImage);
-            cv::waitKey(100);
+            //cv::imshow("input Image", inputImage);
+            //cv::waitKey(100);
             
         }
     }

@@ -33,6 +33,9 @@ void Lidar::readPCLDataFile(vector<LidarPoint> &lidarPoints, std::string inputFi
         lidarPoint.index = i + 1;
 
         lidarPoints.push_back(lidarPoint);
+
+        //cout << "Lidar Point [X = " << lidarPoints.at(i).x_coordinate << " Y = " << lidarPoints.at(i).y_coordinate << "  Z = " << lidarPoints.at(i).z_coordinate << " I = " << lidarPoints.at(i).intensity << endl;
+
         px+=4;
         py+=4;
         pz+=4;
@@ -51,7 +54,7 @@ vector<LidarPoint> Lidar::cropLidarPoints(vector<LidarPoint> &lidarPoints)
     vector<LidarPoint> tempLidarPoints;
     for(auto it = lidarPoints.begin(); it < lidarPoints.end(); ++it)
     {
-        if((*it).x_coordinate >= minX && (*it).x_coordinate <= maxX && abs((*it).y_coordinate) <= maxY && (*it).z_coordinate <= minZ && (*it).z_coordinate >= maxZ)
+        if((*it).x_coordinate >= minX && (*it).x_coordinate <= maxX && abs((*it).y_coordinate) <= maxY && (*it).z_coordinate >= minZ && (*it).z_coordinate <= maxZ && (*it).intensity >= minR)
         {
             tempLidarPoints.push_back(*it);
         }

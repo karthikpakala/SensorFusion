@@ -16,7 +16,6 @@
 //#include <pcl/segmentation/sac_segmentation.h>
 //#include <pcl/segmentation/extract_clusters.h>
 //#include <pcl/common/transforms.h>
-
 using namespace pcl;
 using namespace std;
 
@@ -54,7 +53,8 @@ class Lidar
 
     private:
 
-        vector<LidarPoint> lidarPoints;
+        //vector<LidarPoint> lidarPoints;
+        pcl::PointCloud<LidarPoint> lidarPoints;
 
     // Private functions
 };

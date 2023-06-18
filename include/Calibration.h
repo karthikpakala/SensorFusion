@@ -1,3 +1,6 @@
+#ifndef CALIBRATION_H
+#define CALIBRATION_H
+
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -29,3 +32,5 @@ class Calibration
 
     void initializeMatrices();
 };
+
+#endif

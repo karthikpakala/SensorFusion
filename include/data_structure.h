@@ -34,7 +34,7 @@ struct BoundingBox
     double confidence;
 
     // Lidar Point Vector
-    std::vector<LidarPoint> lidarPoints;
+    pcl::PointCloud<LidarPoint> lidarPoints;
 
     // Key Point Vector
     std::vector<cv::KeyPoint> keyPoints;
@@ -45,7 +45,7 @@ struct BoundingBox
 
 struct DataStruct
 {
-    std::vector<LidarPoint> lidarPoints;
+    pcl::PointCloud<LidarPoint> lidarPoints;
 
     std::vector<BoundingBox> boundingBoxes;
 
