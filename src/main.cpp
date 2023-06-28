@@ -37,7 +37,7 @@ int main(int argv, char **argc)
     uint16_t pclFileCount = 0;
 
     // Initiate Lidar points vector
-    vector<LidarPoint> lidarPoints;
+    pcl::PointCloud<LidarPoint> cloud;
 
     // Initiate ac image
     cv::Mat inputImage;
@@ -63,29 +63,57 @@ int main(int argv, char **argc)
     }
     else
     {     
-        // Load Lidatr data into buffer. 
+        std::set<filesystem::path> sorted_by_name;
+
         for(auto& file : filesystem::directory_iterator(fullPCLFolderPath))
-        {            
-            Lidar lidar;
-            lidar.readPCLDataFile(lidarPoints, file.path());
-            cout << "Lidar PCD size = " << lidarPoints.size() << endl;
+        {
+            sorted_by_name.insert(file.path());
+        }
+        // Load Lidatr data into buffer. 
+        for(auto& fileName : sorted_by_name)
+        {
+            // Initialize a Lidar Object to load ane process the Lidar Data
+            Lidar *lidar;
+            //lidar.readPCLDataFile(cloud, file.path());
+            
+            //  TODO: Read files in ascending order to read them coprrectly.
+            pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
+            cout << "File Path = " << fileName.c_str() << endl;
+
+            
+            cloud = lidar->readPCLDataFile(fileName.c_str());
+
+            for(int i = 0; i < cloud->points.size(); i++)
+            {
+                //cout << " X = " << cloud->points.at(i).x << " Y = " << cloud->points.at(i).y << " Z = " << cloud->points.at(i).z << " Intensity = " << cloud->points.at(i).intensity << endl;
+            }
+
+            cout << "Lidar PCD size = " << cloud->points.size() << endl;
 
             // Write code to process lidar points
-            lidar.cropLidarPoints(lidarPoints);
-            cout << "Lidar Points after cropping = " << lidarPoints.size() << endl;
+            //lidar->cropLidarPoints(cloud);
+            // cout << "Lidar Points after cropping = " << cloud->points.size() << endl;
 
+            pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
+            // Filter point clouds
+            filteredCloud = lidar->filterCloud(cloud, 0.1, Vector4f(-20, -6 , -3 , 1), Vector4f(25, 6.5, 3, 1));
 
-            //tools.pclViewer(lidarPoints);
-            //pcl::visualization::PCLVisualizer::Ptr pclViewer (new pcl::visualization::PCLVisualizer ("Point Cloud Visualizer"));
-            //CameraAngle cameraAngle = XY;
+            cout << "Filtered cloud Size = " << filteredCloud->points.size() << endl;
 
-            //tools.initCamera(pclVeiwer, cameraAngle);
-            
+            float distThreshold = 0.3;
+            int numOfIterations = 200;
+            //std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds (new std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr>);
+            std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
 
-            //pcl::visualization::CloudViewer cloudViewer;
-            //string cloudTitle ("Cloud Viewer");
-            //cloudViewer.showCloud(&lidarPoints, &cloudTitle);
+            cout << "inlier Cloud size = " << segmentedClouds.first->points.size() << " | outlier Cloud size = " << segmentedClouds.second->points.size() << endl;
+            //pcl::PointCloud<pcl::PointXYZI>::Ptr inlierCloud (new pcl::PointCloud<pcl::PointXYZI>);
+            //pcl::PointCloud<pcl::PointXYZI>::Ptr outlierCloud (new pcl::PointCloud<pcl::PointXYZI>);
 
+            //std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedCloud = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
+           // segmentedCloud  = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
+            //std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedCloud (new )
+            //std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedCloud (new (std::pair<pcl::PointCloud<pcl::PointXYZI>, pcl::PointCloud<pcl::PointXYZI>));
+            //cout << "Segmented cloud sizes | inliers size =" << segmentedClouds.first->points.size() << segmentedClouds.second->points.size() << endl;
 
         }
 

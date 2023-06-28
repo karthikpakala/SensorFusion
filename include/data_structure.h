@@ -9,6 +9,7 @@
 
 struct LidarPoint
 {
+    
     // x = x coordinate // y = y coordinate // z = z coordinate // i = intensity
     double x_coordinate, y_coordinate, z_coordinate, intensity;
     // index
@@ -33,7 +34,7 @@ struct BoundingBox
     double confidence;
 
     // Lidar Point Vector
-    pcl::PointCloud<LidarPoint> lidarPoints;
+    pcl::PointCloud<LidarPoint> cloud;
 
     // Key Point Vector
     std::vector<cv::KeyPoint> keyPoints;
@@ -44,12 +45,18 @@ struct BoundingBox
 
 struct DataStruct
 {
-    pcl::PointCloud<LidarPoint> lidarPoints;
+    cv::Mat image; // Camera Image
 
-    std::vector<BoundingBox> boundingBoxes;
+    pcl::PointCloud<LidarPoint> cloud; // Associated Lidar Points
 
-    std::vector<cv::KeyPoint> keyPoints;
+    std::vector<cv::KeyPoint> keyPoints; //  Key Points
 
-    std::vector<cv::DMatch> keyPointMatches;
+    std::vector<cv::DMatch> keyPointMatches; // Key point matches
+    cv::Mat descriptors; // Key point descriptors
+
+    std::map<int, int> bbMatches; // bounding box matches
+    std::vector<BoundingBox> boundingBoxes; // bounding boxes
+
+
 
 };

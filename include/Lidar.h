@@ -4,35 +4,51 @@
 #include <iostream>
 #include <algorithm>
 #include <string>
+#include <fstream>
+#include <cstdlib>
+#include <unordered_set>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
 #include "data_structure.h"
 //#include "Calibration.h"
-//#include <pcl/filters/extract_indices.h>
-//#include <pcl/filters/voxel_grid.h>
-//#include <pcl/filters/crop_box.h>
-//#include <pcl/kdtree/kdtree.h>
-//#include <pcl/segmentation/sac_segmentation.h>
-//#include <pcl/segmentation/extract_clusters.h>
-//#include <pcl/common/transforms.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/crop_box.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/segmentation/extract_clusters.h>
+#include <pcl/common/transforms.h>
+#include <pcl/impl/point_types.hpp>
 
+#include "eigen3/Eigen/Dense"
+
+using Eigen::Vector4f;
 class Lidar
 {
+    
 
     public:
 
-        void readPCLDataFile(std::vector<LidarPoint> &lidarPoints, std::string inputFile);
+        //void readPCLDataFile(pcl::PointCloud<LidarPoint> &cloud, std::string inputFile);
+        // Read files in correct order
+        pcl::PointCloud<pcl::PointXYZI>::Ptr readPCLDataFile(std::string inputFile);
 
-        std::vector<LidarPoint> cropLidarPoints(std::vector<LidarPoint> &lidarPoints);
 
-        // Process Lidar Input
-        void processLidarInput();
+        // Filter point cloud to remove outliers
+        pcl::PointCloud<pcl::PointXYZI>::Ptr cropLidarPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud);
+
+
+        // Filter Cloud
+        pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint);
 
         // Lidar Functions
         // Steps:
         // Step 1: Point Cloud Segmentation - RANSAC
-        void ransac();
+        std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> ransacPlaneSegmentation(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, int numOfIterations, float distanceThreshold);
+
+        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> Clustering(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, float distThreshold, int minCount, int maxCount);
+
 
         // Step 2: Point Cloud Clustering - 
         //         Insert points into KDTree
@@ -51,9 +67,8 @@ class Lidar
 
     private:
 
-        //vector<LidarPoint> lidarPoints;
-        pcl::PointCloud<LidarPoint> lidarPoints;
-
+        pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
+        //pcl::PointCloud<LidarPoint> cloud;
     // Private functions
 };
 #endif

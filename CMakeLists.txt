@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 add_definitions(-std=c++17)
 
@@ -21,6 +21,16 @@ find_package(OpenCV 4.1 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 add_definitions(${OpenCV_DEFINITIONS})
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
+
+include_directories(/usr/local/include)
+include_directories(/usr/local/opt/openssl/include)
+link_directories(/usr/local/lib)
+link_directories(/usr/local/opt/openssl/lib)
+link_directories(/usr/local/Cellar/libuv/1*/lib)
+
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
 ##add_executable (environment src/environment.cpp src/render/render.cpp src/processPointClouds.cpp src/ransac.cpp src/cluster_3d.cpp src/kdtree.h)
 add_executable (SensorFusion src/Camera.cpp src/Lidar.cpp src/Radar.cpp src/KalmanFilter.cpp src/Tools.cpp src/Calibration.cpp include/Camera.h include/Lidar.h include/Radar.h include/KalmanFilter.h src/main.cpp include/Tools.h include/Calibration.h )

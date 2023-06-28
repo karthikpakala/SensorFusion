@@ -4,7 +4,7 @@
 
 #include "Lidar.h"
 #include "Camera.h"
-//#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/cloud_viewer.h>
 //#include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/pcl_visualizer.h>
 

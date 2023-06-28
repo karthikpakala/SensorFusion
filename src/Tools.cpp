@@ -39,8 +39,10 @@ void Tools::pclViewer(pcl::PointCloud<LidarPoint> &cloud)
 {
     pcl::visualization::PCLVisualizer::Ptr cloudViewer (new pcl::visualization::PCLVisualizer);
     cloudViewer->setBackgroundColor(0,0,0);
-    
-
-
-
+    cloudViewer->initCameraParameters();
+    cloudViewer->setCameraPosition(-20, -20, 20, 1, 1, 0);
+    cloudViewer->addCoordinateSystem(1.0);
+    //cloudViewer->addPointCloud(cloud, "Cloud");
+    //std::string name = "cloud";
+    //cloudViewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, color.r, color.g, color.b, name);
 }

@@ -4,9 +4,10 @@ Project Goals:
 
 2. process Lidar Data to do the following:
     1. Read the Lidar data. 
-    2. Process Lidar Points to segment various parts of the point clouds into road and objects
-    3. Process the point clouds into different objects using clustering algorithms -  use KD-Tree 
-    4. Create bounding boxes around the clustered objects and store them as needed. 
+    2. Filtering Point clouds.
+    3. Process Lidar Points to segment various parts of the point clouds into road and objects
+    4. Process the point clouds into different objects using clustering algorithms -  use KD-Tree 
+    5. Create bounding boxes around the clustered objects and store them as needed. 
 
 3. Process camera data to do the following
     1. Read camera image
