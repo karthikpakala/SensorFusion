@@ -1,52 +1,16 @@
 #include "Lidar.h"
 
 using namespace std;
-/*
-void Lidar::readPCLDataFile(pcl::PointCloud<LidarPoint> &cloud, std::string inputFile)
-{   
-    // Number of Lidar Points in a Frame
-    unsigned long numOfPoints = 1000000;
-    unsigned long bufferSize = 0;
 
-    // Allocate memory to hold the data
-    float *data = (float*)malloc(numOfPoints*sizeof(float));
-
-    //Lidar variable Pointers
-    float *px = data + 0;
-    float *py = data + 1;
-    float *pz = data + 2;
-    float *pi = data + 3;
-
-    // Create a file stream to read data into
-    FILE *stream;
-
-    // Open the file stream and read the input file
-    stream = fopen(inputFile.c_str(), "rb");
-    numOfPoints = fread(data, sizeof(float), numOfPoints, stream) / 4;
-
-    // iterate through all the data and create a vector of Lidar points
-    for(int32_t i = 0; i < numOfPoints; i++)
-    {
-        LidarPoint lidarPoint;
-        lidarPoint.x_coordinate = *px;
-        lidarPoint.y_coordinate = *py;
-        lidarPoint.z_coordinate = *pz;
-        lidarPoint.intensity = *pi;
-        lidarPoint.index = i + 1;
-
-        cloud.push_back(lidarPoint);
-
-        //cout << "Lidar Point [X = " << cloud.at(i).x_coordinate << " Y = " << cloud.at(i).y_coordinate << "  Z = " << cloud.at(i).z_coordinate << " I = " << cloud.at(i).intensity << endl;
-
-        px+=4;
-        py+=4;
-        pz+=4;
-        pi+=4;
-    }
-
-    fclose(stream);
+void Lidar::setPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
+{
+    pointCloud = cloud;
 }
-*/
+
+pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::getPointCloud()
+{
+    return pointCloud;
+}
 
 pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::readPCLDataFile(std::string inputFile)
 {   
@@ -66,8 +30,10 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::readPCLDataFile(std::string inputFil
         input.read((char *) &point.x, 3*sizeof(float));
         input.read((char *) &point.intensity, sizeof(float));
         cloud->push_back(point);
-        //std::cerr << " Data = X = " << cloud->points.at(i).x << " Y = " << cloud->points.at(i).y << " Z = " << cloud->points.at(i).z << " Intensity = " << cloud ->points.at(i).intensity << endl;
     }
+
+    // Use setter to set the the point cloud to this class. 
+    // setPointCloud(cloud);
     std::cerr << "Loaded " << cloud->points.size () << " data points from "+inputFile << std::endl;
 
     return cloud;
@@ -79,28 +45,19 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::cropLidarPoints(pcl::PointCloud<pcl:
 
     // remove Lidar points based on distance properties
     float minZ = -1.5, maxZ = -0.9, minX = 2.0, maxX = 20.0, maxY = 2.0, minR = 0.1; // focus on ego lane
-    //cout << "after limit values definition" << endl;
     pcl::PointCloud<pcl::PointXYZI>::Ptr tempLidarPoints (new pcl::PointCloud<pcl::PointXYZI>);
-    //cout << "after temp variable definition" << endl;
     
     int index = 0;
     for(auto it = cloud->points.begin(); it < cloud->points.end(); ++it)
     {
-        //cout << "Cloud size = " << cloud->points.size() << endl;
-        //cout << "Inside crop points for loop" << endl;
+
         if((*it).x >= minX && (*it).x <= maxX && abs((*it).y) <= maxY && (*it).z >= minZ && (*it).z <= maxZ && (*it).intensity >= minR)
         {
-            //cout << "inside if loop" << endl;
             tempLidarPoints->points.push_back(*it);
         }
-        //cout << "after if loop in for loop" << endl;
-        //cout <<"Index = " << index++ << endl;
     }
-    //cout << "after for loop" << endl;
-    //cloud->points.clear();
-    //cout << "after clear cloud" << endl;
+
     cloud->points = tempLidarPoints->points;
-    //cout << "cloud points size = " << cloud->points.size() << endl;
     return cloud;
 }
 
@@ -193,15 +150,12 @@ std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>:
 
         float denominator = sqrt(A*A + B*B + C*C);
 
-        //for(auto itr = cloud->points.begin(); itr < cloud->points.end(); ++itr)
         for(int i = 0; i < cloud->points.size(); i++)
         {
-            //float distance = fabs(A*((*itr).x) + B*((*itr).y) + C*((*itr).z) + D)/denominator;
             float distance = fabs(A*(cloud->points.at(i).x) + B*(cloud->points.at(i).y) + C*(cloud->points.at(i).z) + D)/denominator;
 
             if(distance <= distanceThreshold)
             {
-                //inliers.insert(*itr);
                 inliers.insert(i);
             }
         }
@@ -215,18 +169,14 @@ std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>:
     pcl::PointCloud<pcl::PointXYZI>::Ptr inlierCloud (new pcl::PointCloud<pcl::PointXYZI>);
     pcl::PointCloud<pcl::PointXYZI>::Ptr outlierCloud (new pcl::PointCloud<pcl::PointXYZI>);
 
-    //for(auto itr = cloud->points.begin(); cloud->points.end(); ++itr)
     for(int i = 0; i < cloud->points.size(); i++)
     {
-        //if(tempInliers.count(*itr))
         if(tempInliers.count(i))
         {
-            //inlierCloud->points.push_back(*itr);
             inlierCloud->points.push_back(cloud->points.at(i));
         }
         else
         {
-            //outlierCloud->points.push_back(*itr);
             outlierCloud->points.push_back(cloud->points.at(i));
         }
     }
@@ -235,5 +185,38 @@ std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>:
     segmentedClouds.second = outlierCloud;
     
     return segmentedClouds; 
+}
+
+std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> Clustering(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, float distThreshold, int minCount, int maxCount)
+{
+    vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusteredObjects;
+
+    pcl::search::KdTree<pcl::PointXYZI>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZI>);
+
+    tree->setInputCloud(cloud);
+
+    vector<pcl::PointIndices> clusterIndices;
+    pcl::EuclideanClusterExtraction<pcl::PointXYZI> ecObject;
+    ecObject.setClusterTolerance(distThreshold);
+    ecObject.setMinClusterSize(minCount);
+    ecObject.setMaxClusterSize(maxCount);
+    ecObject.setSearchMethod(tree);
+    ecObject.setInputCloud(cloud);
+    ecObject.extract(clusterIndices);
+
+    for(auto& indice : clusterIndices)
+    {
+        pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZI>);
+        for(const auto& idx : clusterIndices)
+        {
+            //cloud_cluster->push_back((*cloud).idx);
+        }
+        cloud_cluster->width = cloud_cluster->size();
+        cloud_cluster->height = 1;
+        cloud_cluster->is_dense = true;
+
+        cout << "Point Cloud representing the cluster: " << cloud_cluster->size() << endl;
+    }
+    return clusteredObjects;
 }
 

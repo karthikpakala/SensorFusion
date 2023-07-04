@@ -26,12 +26,25 @@
 using Eigen::Vector4f;
 class Lidar
 {
-    
-
     public:
+        
+        // Remove Default class declarations.
+        //Lidar() = delete;
+        ~Lidar() = delete;
+        Lidar(const Lidar&) = delete;
+        Lidar& operator=(const Lidar&) = delete;
 
-        //void readPCLDataFile(pcl::PointCloud<LidarPoint> &cloud, std::string inputFile);
-        // Read files in correct order
+        // Define default class constructor/destructor definitions
+        Lidar() {};
+        Lidar(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
+        {
+            pointCloud = cloud;
+        }
+
+        // Add setters and getters to the class.
+        void setPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
+        pcl::PointCloud<pcl::PointXYZI>::Ptr getPointCloud();
+
         pcl::PointCloud<pcl::PointXYZI>::Ptr readPCLDataFile(std::string inputFile);
 
 
@@ -65,8 +78,9 @@ class Lidar
         // remove Lidar points based on distance properties
         // float minZ = -1.5, maxZ = -0.9, minX = 2.0, maxX = 20.0, maxY = 2.0, minR = 0.1; // focus on ego lane
 
-    private:
+    private:        
 
+        //TODO: Use Heap to initialize the new cloud. 
         pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
         //pcl::PointCloud<LidarPoint> cloud;
     // Private functions
