@@ -20,7 +20,7 @@ class Tools
 
         //void initCamera(pcl::visualization::PCLVisualizer *pclViewer, CameraAngle cameraAngle);
 
-        void pclViewer(pcl::PointCloud<LidarPoint> &cloud);
+        //void pclViewer(pcl::PointCloud<LidarPoint> &cloud);
 
 };
 #endif

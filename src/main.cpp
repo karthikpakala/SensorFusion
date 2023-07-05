@@ -68,15 +68,15 @@ int main(int argv, char **argc)
         for(auto& fileName : sortedPCLFiles)
         {
             // Initialize a Lidar Object to load ane process the Lidar Data
-            Lidar *lidar;
+            LidarProcessing::Lidar *lidar;
             
             pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
             cout << "File Path = " << fileName.c_str() << endl;
 
-            
             cloud = lidar->readPCLDataFile(fileName.c_str());
             
             // TODO: Move everything below this inside Lidar class. all function calls need to happen inside Lidar class.
+            
             // Test Loop for Debug
             //for(int i = 0; i < cloud->points.size(); i++)
             //{
@@ -85,7 +85,7 @@ int main(int argv, char **argc)
 
             cout << "Lidar PCD size = " << cloud->points.size() << endl;
 
-            // Write code to process lidar points
+            //TODO:  move all the following functions to Lidar class
             pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
             // Filter point clouds
             filteredCloud = lidar->filterCloud(cloud, 0.1, Vector4f(-20, -6 , -3 , 1), Vector4f(25, 6.5, 3, 1));

@@ -35,6 +35,7 @@ void Tools::initCamera(pcl::visualization::PCLVisualizer *pclViewer, CameraAngle
 }
 */
 
+/*
 void Tools::pclViewer(pcl::PointCloud<LidarPoint> &cloud)
 {
     pcl::visualization::PCLVisualizer::Ptr cloudViewer (new pcl::visualization::PCLVisualizer);
@@ -46,3 +47,4 @@ void Tools::pclViewer(pcl::PointCloud<LidarPoint> &cloud)
     //std::string name = "cloud";
     //cloudViewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, color.r, color.g, color.b, name);
 }
+*/

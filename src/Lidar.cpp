@@ -2,17 +2,30 @@
 
 using namespace std;
 
-void Lidar::setPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
+// Default Constructor.
+LidarProcessing::Lidar::Lidar(){}
+
+// Lidar Constructor
+LidarProcessing::Lidar::Lidar(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
+{
+    // Set Point cloud to the point cloud object
+    // TODO: Could possibly remove this as the point cloud will be set in the readPCLData function.
+    setPointCloud(cloud);
+}
+
+// Set input cloud to be processed 
+void LidarProcessing::Lidar::setPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
 {
     pointCloud = cloud;
 }
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::getPointCloud()
+pcl::PointCloud<pcl::PointXYZI>::Ptr const LidarProcessing::Lidar::getPointCloud()
 {
     return pointCloud;
 }
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::readPCLDataFile(std::string inputFile)
+// read PCL file from the file file. 
+pcl::PointCloud<pcl::PointXYZI>::Ptr LidarProcessing::Lidar::readPCLDataFile(std::string inputFile)
 {   
     
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
@@ -39,8 +52,8 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::readPCLDataFile(std::string inputFil
     return cloud;
 }
 
-
-pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::cropLidarPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud)
+// crop Lidar Points to capture only pints in the camera image frame.
+pcl::PointCloud<pcl::PointXYZI>::Ptr LidarProcessing::Lidar::cropLidarPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud)
 {
 
     // remove Lidar points based on distance properties
@@ -61,8 +74,8 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::cropLidarPoints(pcl::PointCloud<pcl:
     return cloud;
 }
 
-
-pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::filterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint)
+// Filter point cloud to remove unnecessary points
+pcl::PointCloud<pcl::PointXYZI>::Ptr LidarProcessing::Lidar::filterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint)
 {
     pcl::VoxelGrid<pcl::PointXYZI> vg;
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloudFiltered (new pcl::PointCloud<pcl::PointXYZI>);
@@ -104,8 +117,8 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr Lidar::filterCloud(pcl::PointCloud<pcl::Poi
 
 }
 
-
-std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> Lidar::ransacPlaneSegmentation(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, int maxIterations, float distanceThreshold)
+// segment the point cloud to define points corresponding to the road and points corresponding tot the objects. 
+std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> LidarProcessing::Lidar::ransacPlaneSegmentation(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, int maxIterations, float distanceThreshold)
 {
     std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds;
 
@@ -187,7 +200,8 @@ std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>:
     return segmentedClouds; 
 }
 
-std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> Clustering(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, float distThreshold, int minCount, int maxCount)
+// Apply clustering on the point cloud to classify all the points in the cloud and create various objects out of the cloud. 
+std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> LidarProcessing::Lidar::Clustering(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, float distThreshold, int minCount, int maxCount)
 {
     vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusteredObjects;
 
