@@ -1,4 +1,7 @@
 #include <iostream>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/path_traits.hpp>
 #include <filesystem>
 #include "Lidar.h"
 #include "Radar.h"
@@ -37,13 +40,13 @@ int main(int argv, char **argc)
     uint16_t pclFileCount = 0;
 
     // PCL File counter
-    for(auto& file : filesystem::directory_iterator(fullPCLFolderPath))
+    for(auto& file : std::filesystem::directory_iterator(fullPCLFolderPath))
     {
         ++pclFileCount;
     }
     
     // Image File Counter
-    for(auto& file : filesystem::directory_iterator(fullImageFolderPath))
+    for(auto& file : std::filesystem::directory_iterator(fullImageFolderPath))
     {
         ++imageFileCount;
     }
@@ -57,9 +60,9 @@ int main(int argv, char **argc)
     }
     else
     {     
-        std::set<filesystem::path> sortedPCLFiles;
+        std::set<std::filesystem::path> sortedPCLFiles;
 
-        for(auto& file : filesystem::directory_iterator(fullPCLFolderPath))
+        for(auto& file : std::filesystem::directory_iterator(fullPCLFolderPath))
         {
             sortedPCLFiles.insert(file.path());
         }
