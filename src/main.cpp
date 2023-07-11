@@ -10,6 +10,8 @@
 #include "Tools.h"
 
 using namespace std;
+using namespace Tooling;
+using namespace LidarProcessing;
 
 
 int main(int argv, char **argc)
@@ -71,8 +73,8 @@ int main(int argv, char **argc)
         for(auto& fileName : sortedPCLFiles)
         {
             // Initialize a Lidar Object to load ane process the Lidar Data
-            LidarProcessing::Lidar *lidar;
-            
+            Lidar *lidar;
+
             pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
             cout << "File Path = " << fileName.c_str() << endl;
 
@@ -95,6 +97,23 @@ int main(int argv, char **argc)
 
             cout << "Filtered cloud Size = " << filteredCloud->points.size() << endl;
 
+            // Visualize the filtered Cloud in
+            Tools *tools;
+            pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
+
+            CameraAngle cameraAngle = XY;
+
+            tools->initCamera(cameraAngle, viewer);
+            while(!viewer->wasStopped())
+            {
+                viewer->removeAllPointClouds();
+                viewer->removeAllShapes();
+
+                // Render Point Cloud
+                //Color color(0,1,0);
+                tools->renderPointCloud(viewer, filteredCloud, "Filtered Cloud", Color(0,1,0));
+            }
+            
             float distThreshold = 0.3;
             int numOfIterations = 200;
             std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
