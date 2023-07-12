@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "Calibration.h"
 #include "Tools.h"
+#include <thread>
 
 using namespace std;
 using namespace Tooling;
@@ -79,14 +80,11 @@ int main(int argv, char **argc)
             cout << "File Path = " << fileName.c_str() << endl;
 
             cloud = lidar->readPCLDataFile(fileName.c_str());
-            
-            // TODO: Move everything below this inside Lidar class. all function calls need to happen inside Lidar class.
-            
-            // Test Loop for Debug
-            //for(int i = 0; i < cloud->points.size(); i++)
-            //{
-                //cout << " X = " << cloud->points.at(i).x << " Y = " << cloud->points.at(i).y << " Z = " << cloud->points.at(i).z << " Intensity = " << cloud->points.at(i).intensity << endl;
-            //}
+
+            // Visualize the filtered Cloud in
+            Tools *tools;
+            pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
+            //viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK warnings
 
             cout << "Lidar PCD size = " << cloud->points.size() << endl;
 
@@ -97,29 +95,29 @@ int main(int argv, char **argc)
 
             cout << "Filtered cloud Size = " << filteredCloud->points.size() << endl;
 
-            // Visualize the filtered Cloud in
-            Tools *tools;
-            pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
 
+            float distThreshold = 0.261; // Calibrate to ensure correct segmentation
+            int numOfIterations = 250; // calibrate to 
+            std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
+
+            cout << "inlier Cloud size = " << segmentedClouds.first->points.size() << " | outlier Cloud size = " << segmentedClouds.second->points.size() << endl;
+            
+            // PCL Visualization
             CameraAngle cameraAngle = XY;
-
             tools->initCamera(cameraAngle, viewer);
+
             while(!viewer->wasStopped())
             {
                 viewer->removeAllPointClouds();
                 viewer->removeAllShapes();
 
-                // Render Point Cloud
-                //Color color(0,1,0);
-                tools->renderPointCloud(viewer, filteredCloud, "Filtered Cloud", Color(0,1,0));
+                //tools->renderPointCloud(viewer, filteredCloud, "sample cloud", Color(1,0,0));
+                tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud", Color(0,1,0));
+                tools->renderPointCloud(viewer, segmentedClouds.second, "object cloud", Color(1,0,0));
+                viewer->spin();
+                continue;
+            //    std::this_thread::sleep_for(100ms);
             }
-            
-            float distThreshold = 0.3;
-            int numOfIterations = 200;
-            std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
-
-            cout << "inlier Cloud size = " << segmentedClouds.first->points.size() << " | outlier Cloud size = " << segmentedClouds.second->points.size() << endl;
-
         }
 
         std::set<filesystem::path> sortedCameraFiles;

@@ -73,6 +73,7 @@ void Tooling::Tools::initCamera(CameraAngle setAngle, pcl::visualization::PCLVis
 
 void Tooling::Tools::renderPointCloud(pcl::visualization::PCLVisualizer::Ptr& viewer, pcl::PointCloud<pcl::PointXYZI>::Ptr& cloud, std::string name, Color color)
 {
+    /*
     bool bVis = true;
 	if(color.r==-1)
 	{
@@ -87,5 +88,16 @@ void Tooling::Tools::renderPointCloud(pcl::visualization::PCLVisualizer::Ptr& vi
 		viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, color.r, color.g, color.b, name);
 	}
 
-	viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, name);
+	viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, name);
+    */
+
+    viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK warnings        
+    pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> intensity_distribution(cloud, "intensity");
+    //viewer->addPointCloud<pcl::PointXYZI> (cloud, intensity_distribution, "sample cloud");
+    viewer->addPointCloud<pcl::PointXYZI> (cloud, name);            	
+    viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, color.r, color.g, color.b, name);
+    viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, name);
+    //viewer->addPointCloudNormals<pcl::PointXYZI, pcl::Normal> (cloud, normals, 10, 0.05, "normals");
+    viewer->addCoordinateSystem(1.0);
+    //viewer->initCameraParameters();
 }
