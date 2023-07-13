@@ -29,7 +29,7 @@ int main(int argv, char **argc)
     //calibration.initializeMatrices();
 
     // Data file path definitions.
-    string baseDataFolderPath = "../KITTI-data";
+    string baseDataFolderPath = "../KITTI-data2";
     string pclDataFolderPath = "/velodyne_points/data/";
     string imageDataFolderPath = "/image_02/data/";
     string fileNamePre = "000000";
@@ -65,11 +65,16 @@ int main(int argv, char **argc)
     {     
         std::set<std::filesystem::path> sortedPCLFiles;
 
+        bool useLidar = true;
+        bool useCamera = false;
+
         for(auto& file : std::filesystem::directory_iterator(fullPCLFolderPath))
         {
             sortedPCLFiles.insert(file.path());
         }
         
+        if(useLidar)
+        {
         // Load Lidatr data into buffer. 
         for(auto& fileName : sortedPCLFiles)
         {
@@ -77,37 +82,38 @@ int main(int argv, char **argc)
             Lidar *lidar;
 
             pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
-            cout << "File Path = " << fileName.c_str() << endl;
+            //cout << "File Path = " << fileName.c_str() << endl;
 
             cloud = lidar->readPCLDataFile(fileName.c_str());
 
             // Visualize the filtered Cloud in
             Tools *tools;
             pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-            //viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK warnings
+            viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK warnings
 
-            cout << "Lidar PCD size = " << cloud->points.size() << endl;
+            //cout << "Lidar PCD size = " << cloud->points.size() << endl;
 
             //TODO:  move all the following functions to Lidar class
             pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
+
             // Filter point clouds
             filteredCloud = lidar->filterCloud(cloud, 0.1, Vector4f(-20, -6 , -3 , 1), Vector4f(25, 6.5, 3, 1));
 
-            cout << "Filtered cloud Size = " << filteredCloud->points.size() << endl;
+            //cout << "Filtered cloud Size = " << filteredCloud->points.size() << endl;
 
 
             float distThreshold = 0.261; // Calibrate to ensure correct segmentation
             int numOfIterations = 250; // calibrate to 
             std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
 
-            cout << "inlier Cloud size = " << segmentedClouds.first->points.size() << " | outlier Cloud size = " << segmentedClouds.second->points.size() << endl;
+            //cout << "inlier Cloud size = " << segmentedClouds.first->points.size() << " | outlier Cloud size = " << segmentedClouds.second->points.size() << endl;
             
             // PCL Visualization
-            CameraAngle cameraAngle = XY;
-            tools->initCamera(cameraAngle, viewer);
-
+            
             while(!viewer->wasStopped())
             {
+                CameraAngle cameraAngle = XY;
+                tools->initCamera(cameraAngle, viewer);
                 viewer->removeAllPointClouds();
                 viewer->removeAllShapes();
 
@@ -115,25 +121,34 @@ int main(int argv, char **argc)
                 tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud", Color(0,1,0));
                 tools->renderPointCloud(viewer, segmentedClouds.second, "object cloud", Color(1,0,0));
                 viewer->spin();
-                continue;
-            //    std::this_thread::sleep_for(100ms);
+                //viewer->spinOnce(100);
+                //continue;
+                std::this_thread::sleep_for(10ms);
             }
+            
+            
         }
-
+        }
         std::set<filesystem::path> sortedCameraFiles;
 
+
+        // Camera data sort.
         for(auto& file : filesystem::directory_iterator(fullImageFolderPath))
         {
             sortedCameraFiles.insert(file.path());
         }
+
+        if(useCamera)
+        {
         // Load input image into the buffer. 
         for(auto& fileName : sortedCameraFiles)
         {
-            //inputImage = cv::imread(file.path());
-            //cout << "Camera image size = " << inputImage.size() << endl;
-            //cv::imshow("input Image", inputImage);
-            //cv::waitKey(100);
+            cv::Mat inputImage = cv::imread(fileName.c_str());
+            cout << "Camera image name = " << fileName.c_str() << endl;
+            cv::imshow("input Image", inputImage);
+            cv::waitKey(100);
             
+        }
         }
     }
 }
