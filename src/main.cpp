@@ -29,7 +29,7 @@ int main(int argv, char **argc)
     //calibration.initializeMatrices();
 
     // Data file path definitions.
-    string baseDataFolderPath = "../KITTI-data2";
+    string baseDataFolderPath = "../KITTI-data";
     string pclDataFolderPath = "/velodyne_points/data/";
     string imageDataFolderPath = "/image_02/data/";
     string fileNamePre = "000000";
@@ -89,7 +89,7 @@ int main(int argv, char **argc)
             // Visualize the filtered Cloud in
             Tools *tools;
             pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-            viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK warnings
+            // viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK warnings
 
             //cout << "Lidar PCD size = " << cloud->points.size() << endl;
 

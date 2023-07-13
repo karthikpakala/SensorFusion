@@ -91,7 +91,7 @@ void Tooling::Tools::renderPointCloud(pcl::visualization::PCLVisualizer::Ptr& vi
 	viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, name);
     */
 
-    viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK warnings        
+    //viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK warnings        
     pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> intensity_distribution(cloud, "intensity");
     //viewer->addPointCloud<pcl::PointXYZI> (cloud, intensity_distribution, "sample cloud");
     viewer->addPointCloud<pcl::PointXYZI> (cloud, name);            	
