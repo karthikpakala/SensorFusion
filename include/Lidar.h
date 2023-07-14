@@ -60,7 +60,7 @@ class Lidar
         pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint);
 
         // Step 1: Point Cloud Segmentation - RANSAC
-        std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> ransacPlaneSegmentation(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, int numOfIterations, float distanceThreshold);
+        std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> ransacPlaneSegmentation(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, int numOfIterations, float distThreshold);
 
         // Step 2: Add point cloud into a KDTree data structure to perform clustering.
         //         Insert points into KDTree
@@ -84,6 +84,10 @@ class Lidar
 
         //TODO: Use Heap to initialize the new cloud. 
         pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
+
+
+        //static constexpr float distThreshold = 0.261; // Calibrate to ensure correct segmentation
+        //int numOfIterations = 250; // calibrate to 
 };
 } // namespace LidarProcessing 
 #endif

@@ -118,12 +118,12 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr LidarProcessing::Lidar::filterCloud(pcl::Po
 }
 
 // segment the point cloud to define points corresponding to the road and points corresponding tot the objects. 
-std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> LidarProcessing::Lidar::ransacPlaneSegmentation(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, int maxIterations, float distanceThreshold)
+std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> LidarProcessing::Lidar::ransacPlaneSegmentation(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, int numOfIterations, float distThreshold)
 {
     std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds;
 
     std::unordered_set<int> tempInliers;
-    while(maxIterations--)
+    while(numOfIterations--)
     {
         // Create a plane using random points in the cloud
         std::unordered_set<int> inliers;
@@ -167,7 +167,7 @@ std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>:
         {
             float distance = fabs(A*(cloud->points.at(i).x) + B*(cloud->points.at(i).y) + C*(cloud->points.at(i).z) + D)/denominator;
 
-            if(distance <= distanceThreshold)
+            if(distance <= distThreshold)
             {
                 inliers.insert(i);
             }

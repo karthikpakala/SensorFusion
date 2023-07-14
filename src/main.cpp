@@ -29,7 +29,8 @@ int main(int argv, char **argc)
     //calibration.initializeMatrices();
 
     // Data file path definitions.
-    string baseDataFolderPath = "../KITTI-data";
+    //string baseDataFolderPath = "../KITTI-data";
+    string baseDataFolderPath = "/home/karthik/Projects/Data/KITTI-data2";
     string pclDataFolderPath = "/velodyne_points/data/";
     string imageDataFolderPath = "/image_02/data/";
     string fileNamePre = "000000";
@@ -63,12 +64,12 @@ int main(int argv, char **argc)
     }
     else
     {     
-        std::set<std::filesystem::path> sortedPCLFiles;
+        std::set<boost::filesystem::path> sortedPCLFiles;
 
         bool useLidar = true;
         bool useCamera = false;
 
-        for(auto& file : std::filesystem::directory_iterator(fullPCLFolderPath))
+        for(auto& file : boost::filesystem::directory_iterator(fullPCLFolderPath))
         {
             sortedPCLFiles.insert(file.path());
         }
@@ -82,10 +83,7 @@ int main(int argv, char **argc)
             Lidar *lidar;
 
             pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
-            //cout << "File Path = " << fileName.c_str() << endl;
-
-            cloud = lidar->readPCLDataFile(fileName.c_str());
-
+            
             // Visualize the filtered Cloud in
             Tools *tools;
             pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
@@ -96,19 +94,15 @@ int main(int argv, char **argc)
             //TODO:  move all the following functions to Lidar class
             pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
 
-            // Filter point clouds
-            filteredCloud = lidar->filterCloud(cloud, 0.1, Vector4f(-20, -6 , -3 , 1), Vector4f(25, 6.5, 3, 1));
-
-            //cout << "Filtered cloud Size = " << filteredCloud->points.size() << endl;
-
-
             float distThreshold = 0.261; // Calibrate to ensure correct segmentation
             int numOfIterations = 250; // calibrate to 
-            std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
+
+            //cout << "Filtered cloud Size = " << filteredCloud->points.size() << endl;
 
             //cout << "inlier Cloud size = " << segmentedClouds.first->points.size() << " | outlier Cloud size = " << segmentedClouds.second->points.size() << endl;
             
             // PCL Visualization
+            auto fileIterator = sortedPCLFiles.begin();
             
             while(!viewer->wasStopped())
             {
@@ -116,12 +110,29 @@ int main(int argv, char **argc)
                 tools->initCamera(cameraAngle, viewer);
                 viewer->removeAllPointClouds();
                 viewer->removeAllShapes();
+                
+                cloud = lidar->readPCLDataFile((*fileIterator).string());
+                cout << "Lidar PCD size = " << cloud->points.size() << endl;
+
+                // Filter point clouds
+                filteredCloud = lidar->filterCloud(cloud, 0.1, Vector4f(-20, -6 , -3 , 1), Vector4f(25, 6.5, 3, 1));
+
+                std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
 
                 //tools->renderPointCloud(viewer, filteredCloud, "sample cloud", Color(1,0,0));
                 tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud", Color(0,1,0));
                 tools->renderPointCloud(viewer, segmentedClouds.second, "object cloud", Color(1,0,0));
-                viewer->spin();
-                //viewer->spinOnce(100);
+                //viewer->spin();
+
+                fileIterator++;
+                if(fileIterator == sortedPCLFiles.end())
+                {
+                    return 0;
+                    //fileIterator = sortedPCLFiles.begin();
+                }
+                viewer->spinOnce();
+
+
                 //continue;
                 std::this_thread::sleep_for(10ms);
             }
