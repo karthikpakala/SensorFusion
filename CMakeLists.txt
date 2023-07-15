@@ -4,6 +4,7 @@ add_definitions(-std=c++17)
 
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
+set(CMAKE_BUILD_TYPE Debug)
 
 project(SensorFusion)
 

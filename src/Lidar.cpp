@@ -5,6 +5,8 @@ using namespace std;
 // Default Constructor.
 LidarProcessing::Lidar::Lidar(){}
 
+float LidarProcessing::Lidar::distThreshold = 0.261;
+int LidarProcessing::Lidar::numOfIterations = 250;
 // Lidar Constructor
 LidarProcessing::Lidar::Lidar(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
 {
@@ -12,7 +14,14 @@ LidarProcessing::Lidar::Lidar(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
     // TODO: Could possibly remove this as the point cloud will be set in the readPCLData function.
     setPointCloud(cloud);
 }
-
+/*
+LidarProcessing::Lidar::~Lidar()
+{
+    delete cloud;
+    delete viewer;
+    delete 
+}
+*/
 // Set input cloud to be processed 
 void LidarProcessing::Lidar::setPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
 {
@@ -118,11 +127,14 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr LidarProcessing::Lidar::filterCloud(pcl::Po
 }
 
 // segment the point cloud to define points corresponding to the road and points corresponding tot the objects. 
-std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> LidarProcessing::Lidar::ransacPlaneSegmentation(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, int numOfIterations, float distThreshold)
+std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> LidarProcessing::Lidar::ransacPlaneSegmentation(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud)
 {
     std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds;
 
     std::unordered_set<int> tempInliers;
+
+    int numOfIterations = 250;
+   // float distThreshold = 0.261; 
     while(numOfIterations--)
     {
         // Create a plane using random points in the cloud

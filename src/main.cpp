@@ -9,6 +9,7 @@
 #include "Calibration.h"
 #include "Tools.h"
 #include <thread>
+#include <chrono>
 
 using namespace std;
 using namespace Tooling;
@@ -82,6 +83,8 @@ int main(int argv, char **argc)
             // Initialize a Lidar Object to load ane process the Lidar Data
             Lidar *lidar;
 
+            // TODO: Check if these new variables can be overloaded to inorporate new features into the new keyword to enable static loading of the memory without having to re-create a new memory location at each call. 
+            //  move semantics to be used to udpate this. 
             pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
             
             // Visualize the filtered Cloud in
@@ -89,18 +92,13 @@ int main(int argv, char **argc)
             pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
             // viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK warnings
 
-            //cout << "Lidar PCD size = " << cloud->points.size() << endl;
-
             //TODO:  move all the following functions to Lidar class
             pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
 
-            float distThreshold = 0.261; // Calibrate to ensure correct segmentation
-            int numOfIterations = 250; // calibrate to 
+            //std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds;
 
-            //cout << "Filtered cloud Size = " << filteredCloud->points.size() << endl;
-
-            //cout << "inlier Cloud size = " << segmentedClouds.first->points.size() << " | outlier Cloud size = " << segmentedClouds.second->points.size() << endl;
-            
+            int numOfIterations = 250;
+            float distThreshold = 0.261;
             // PCL Visualization
             auto fileIterator = sortedPCLFiles.begin();
             
@@ -111,14 +109,16 @@ int main(int argv, char **argc)
                 viewer->removeAllPointClouds();
                 viewer->removeAllShapes();
                 
+                auto startTime = std::chrono::steady_clock::now();
                 cloud = lidar->readPCLDataFile((*fileIterator).string());
-                cout << "Lidar PCD size = " << cloud->points.size() << endl;
+                //cout << "Lidar PCD size = " << cloud->points.size() << endl;
 
                 // Filter point clouds
                 filteredCloud = lidar->filterCloud(cloud, 0.1, Vector4f(-20, -6 , -3 , 1), Vector4f(25, 6.5, 3, 1));
 
-                std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, numOfIterations, distThreshold);
-
+                //cout << "Lidar Filtered PCD size = " << filteredCloud->points.size() << endl;
+                //segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, distThreshold, numOfIterations);
+                std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds = lidar->ransacPlaneSegmentation(filteredCloud);
                 //tools->renderPointCloud(viewer, filteredCloud, "sample cloud", Color(1,0,0));
                 tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud", Color(0,1,0));
                 tools->renderPointCloud(viewer, segmentedClouds.second, "object cloud", Color(1,0,0));
@@ -131,7 +131,9 @@ int main(int argv, char **argc)
                     //fileIterator = sortedPCLFiles.begin();
                 }
                 viewer->spinOnce();
-
+                auto endTime  = std::chrono::steady_clock::now();
+                auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+                cout << " Time Eleapsed for Lidar Processing = " << elapsedTime.count() << " milliseconds " << endl;
 
                 //continue;
                 std::this_thread::sleep_for(10ms);
