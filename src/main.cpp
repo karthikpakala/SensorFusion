@@ -81,7 +81,7 @@ int main(int argv, char **argc)
         for(auto& fileName : sortedPCLFiles)
         {
             // Initialize a Lidar Object to load ane process the Lidar Data
-            Lidar *lidar;
+            Lidar<pcl::PointXYZI> *lidar;
 
             // TODO: Check if these new variables can be overloaded to inorporate new features into the new keyword to enable static loading of the memory without having to re-create a new memory location at each call. 
             //  move semantics to be used to udpate this. 
@@ -111,15 +111,16 @@ int main(int argv, char **argc)
                 
                 auto startTime = std::chrono::steady_clock::now();
                 cloud = lidar->readPCLDataFile((*fileIterator).string());
-                //cout << "Lidar PCD size = " << cloud->points.size() << endl;
+                cout << "Lidar PCD size = " << cloud->points.size() << endl;
 
                 // Filter point clouds
                 filteredCloud = lidar->filterCloud(cloud, 0.1, Vector4f(-20, -6 , -3 , 1), Vector4f(25, 6.5, 3, 1));
-
-                //cout << "Lidar Filtered PCD size = " << filteredCloud->points.size() << endl;
-                //segmentedClouds  = lidar->ransacPlaneSegmentation(filteredCloud, distThreshold, numOfIterations);
+                // tools->renderPointCloud(viewer, filteredCloud, "sample cloud", Color(1,0,0));
+                cout << "Lidar Filtered PCD size = " << filteredCloud->points.size() << endl;
+                
+                // Segmentation - TODO: Optimize it for a lot of performance improvement (this takes > 250 ms)
                 std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds = lidar->ransacPlaneSegmentation(filteredCloud);
-                //tools->renderPointCloud(viewer, filteredCloud, "sample cloud", Color(1,0,0));
+               
                 tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud", Color(0,1,0));
                 tools->renderPointCloud(viewer, segmentedClouds.second, "object cloud", Color(1,0,0));
                 //viewer->spin();
