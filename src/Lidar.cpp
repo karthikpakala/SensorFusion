@@ -1,10 +1,10 @@
 #include "Lidar.h"
 
-using namespace std;
+//using namespace std;
 
 // Default Constructor.
-template<typename PointT>
-LidarProcessing::Lidar<PointT>::Lidar(){}
+//template<typename PointT>
+//LidarProcessing::Lidar<PointT>::Lidar(){}
 
 //template<typename PointT>
 //float LidarProcessing::Lidar<PointT>::distThreshold = 0.261;
@@ -13,8 +13,8 @@ LidarProcessing::Lidar<PointT>::Lidar(){}
 //int LidarProcessing::Lidar<PointT>::numOfIterations = 250;
 
 // Lidar Constructor
-template<typename PointT>
-LidarProcessing::Lidar<PointT>::Lidar(typename pcl::PointCloud<PointT>::Ptr cloud) : pointCloud(cloud) {}
+//template<typename PointT>
+//LidarProcessing::Lidar<PointT>::Lidar(typename pcl::PointCloud<PointT>::Ptr cloud) : pointCloud(cloud) {}
 //{
     // Set Point cloud to the point cloud object
     // TODO: Could possibly remove this as the point cloud will be set in the readPCLData function.
@@ -29,17 +29,17 @@ LidarProcessing::Lidar::~Lidar()
 }
 */
 // Set input cloud to be processed 
-template<typename PointT>
-void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr cloud)
-{
-    pointCloud = cloud;
-}
+//template<typename PointT>
+//void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr cloud)
+//{
+//    pointCloud = cloud;
+//}
 
-template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr const LidarProcessing::Lidar<PointT>::getPointCloud()
-{
-    return pointCloud;
-}
+//template<typename PointT>
+//typename pcl::PointCloud<PointT>::Ptr const LidarProcessing::Lidar<PointT>::getPointCloud()
+//{
+//    return pointCloud;
+//}
 
 /*
 // read PCL file from the file file. 
@@ -71,6 +71,7 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDat
     return cloud;
 }
 */
+/*
 // crop Lidar Points to capture only pints in the camera image frame.
 template<typename PointT>
 typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::cropLidarPoints(typename pcl::PointCloud<PointT>::Ptr &cloud)
@@ -93,7 +94,7 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::cropLidarP
     cloud->points = tempLidarPoints->points;
     return cloud;
 }
-
+*/
 // Filter point cloud to remove unnecessary points
 /*
 template<typename PointT>
@@ -228,7 +229,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     return segmentedClouds; 
 }
 */
-
+/*
 // Apply clustering on the point cloud to classify all the points in the cloud and create various objects out of the cloud. 
 template<typename PointT>
 std::vector<typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount)
@@ -263,4 +264,4 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT
     }
     return clusteredObjects;
 }
-
+*/

@@ -25,3 +25,12 @@ Project Goals:
     Write up documentation for code distribution.
 
     Identify tools to visualize the output. 
+
+
+5. Performance enhancements:
+    1. Use smart pointers/move semantics to enable better usage of the memory as well as enable better performance
+    2. Update segmentation function to be wayyyy more faster than it is now. look for improvements. 
+    3. Update Lidar class to the best possible template class to be able to make it very versatile. 
+    4. Use concurrency to enable better usage of resources and improve performance. 
+    
+    
