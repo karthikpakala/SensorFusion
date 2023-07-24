@@ -83,6 +83,10 @@ int main(int argv, char **argc)
 
             Lidar<pcl::PointXYZI> *lidar;
 
+            Lidar<pcl::PointXYZI> lidar1;
+
+            //Lidar<pcl::PointXYZI> lidar2(lidar1);
+
             // TODO: Check if these new variables can be overloaded to inorporate new features into the new keyword to enable static loading of the memory without having to re-create a new memory location at each call. 
             //  move semantics to be used to udpate this. 
             pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);

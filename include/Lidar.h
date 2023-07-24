@@ -20,11 +20,12 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/common/transforms.h>
 #include <pcl/impl/point_types.hpp>
+//#include "Tools.h"
 
 #include "eigen3/Eigen/Dense"
 
 using Eigen::Vector4f;
-
+//using namespace Tooling;
 namespace LidarProcessing
 {
 
@@ -40,9 +41,12 @@ class Lidar
         typename pcl::PointCloud<PointT>::Ptr pointCloud{};
         int numberOfIterations = 250;
         float distanceThreshold = 0.261;
+
+        //Tooling::Tools *tools{};
         
     public:
 
+        Lidar() {}
         // Default Constructor
         //Lidar() = default; // Default constructor
         Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud, const int &numOfIterations, const float &distThreshold)
@@ -52,6 +56,9 @@ class Lidar
             //pointCloud.reset(inputCloud);
             numberOfIterations = numOfIterations;
             distanceThreshold = distThreshold;
+
+            //Tooling::CameraAngle
+            //tools->initCamera(viewer, viewer);
             
         }
         // Constructor to take cloud as an input.
@@ -125,7 +132,7 @@ class Lidar
         // Destructor
         ~Lidar()
         {
-            //delete pointCloud;
+            //delete *pointCloud;
         }
 
         // Lidar Class Modifiers/Accessors
