@@ -88,7 +88,7 @@ int main(int argv, char **argc) {
 
         Lidar<pcl::PointXYZI> *lidar;
 
-        Lidar<pcl::PointXYZI> lidar1;
+        //Lidar<pcl::PointXYZI> lidar1;
 
 
         int numIterations = 50;
@@ -105,7 +105,7 @@ int main(int argv, char **argc) {
         pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(
             new pcl::PointCloud<pcl::PointXYZI>);
 
-        Lidar<pcl::PointXYZI> lidar2(cloud, numIterations, distThreshold);
+        //Lidar<pcl::PointXYZI> lidar2(cloud, numIterations, distThreshold);
         // Visualize the filtered Cloud in
         Tools *tools;
         pcl::visualization::PCLVisualizer::Ptr viewer(
@@ -128,7 +128,9 @@ int main(int argv, char **argc) {
           viewer->removeAllShapes();
 
           auto startTime = std::chrono::steady_clock::now();
+
           cloud = lidar->readPCLDataFile((*fileIterator).string());
+
           cout << "Lidar PCD size = " << cloud->points.size() << endl;
 
           // Filter point clouds
