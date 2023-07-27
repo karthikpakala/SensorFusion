@@ -26,18 +26,15 @@
 
 using Eigen::Vector4f;
 // using namespace Tooling;
-namespace LidarProcessing {
+namespace LidarProcessing 
+{
 
-template <typename PointT> class Lidar {
+template <typename PointT> class Lidar 
+{
 
 private:
   // TODO: Use Heap to initialize the new cloud.
-  // typename pcl::PointCloud<PointT>::Ptr pointCloud = new
-  // (pcl::PointCloud<PointT>);
-
   typename pcl::PointCloud<PointT>::Ptr pointCloud{};
-
-  // Tooling::Tools *tools{};
 
 public:
   Lidar() {}
@@ -46,21 +43,19 @@ public:
     float distanceThreshold = 0.261;
   // Default Constructor
   // Lidar() = default; // Default constructor
+  
   Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud,
-        const int &numOfIterations, const float &distThreshold) {
+        const int &numOfIterations, const float &distThreshold) 
+        {
+
+          std::cout << "Inside Lidar constructor" << std::endl;
     // pointCloud = new typename pcl::PointCloud<PointT>;
     pointCloud = std::move(inputCloud);
     // pointCloud.reset(inputCloud);
     numberOfIterations = numOfIterations;
     distanceThreshold = distThreshold;
-
-    // Tooling::CameraAngle
-    // tools->initCamera(viewer, viewer);
   }
-  // Constructor to take cloud as an input.
-  // Lidar(const typename pcl::PointCloud<PointT>::Ptr &inputCloud) :
-  // pointCloud(new pcl::PointCloud<PointT>(inputCloud))
-  //{}
+
 
   //*****************************************************************************//
   //  Applying Rule of 5 to define the Copy/Move/Copy/Move Assignment/
@@ -72,9 +67,8 @@ public:
   //*****************************************************************************//
 
   // Copy Constructor
-  Lidar(const Lidar &lidarObject) {
-    // Create a new object on the heap
-    // pointCloud = new (pcl::PointCloud<PointT>);
+  Lidar(const Lidar &lidarObject) 
+  {
 
     // Assign the pointer of the incoming object to the current object
     *pointCloud = *lidarObject.pointCloud;
@@ -98,8 +92,6 @@ public:
     *pointCloud = *lidarObject.pointCloud;
     numberOfIterations = lidarObject.numberOfIterations;
     distanceThreshold = lidarObject.distanceThreshold;
-    // pointCloud = lidarObject.pointCloud;
-    // numberOfIterations = lidarObject.numberOfIterations;
 
     return *this;
   }
@@ -129,15 +121,12 @@ public:
   }
 
   // Destructor
-  ~Lidar() {
+  ~Lidar() 
+  {
     // delete *pointCloud;
   }
 
   // Lidar Class Modifiers/Accessors
-  // void setPointCloud(typename pcl::PointCloud<PointT>::Ptr cloud);
-  // typename pcl::PointCloud<PointT>::Ptr const getPointCloud();
-
-  // Lidar Class data manipulator funstions. Ex: Read/Write
   typename pcl::PointCloud<PointT>::Ptr writePCLDataFile();
 
   typename pcl::PointCloud<PointT>::Ptr readPCLDataFile(std::string inputFile) 
@@ -161,7 +150,6 @@ public:
     }
 
     // Use setter to set the the point cloud to this class.
-    // setPointCloud(cloud);
     std::cerr << "Loaded " << cloud->points.size()
               << " data points from " + inputFile << std::endl;
 
@@ -174,10 +162,6 @@ public:
   cropLidarPoints(typename pcl::PointCloud<PointT>::Ptr &cloud);
 
   // Filter Cloud
-  // typename pcl::PointCloud<PointT>::Ptr filterCloud(typename
-  // pcl::PointCloud<PointT>::Ptr &cloud, float filterRes, Vector4f minPoint,
-  // Vector4f maxPoint);
-
   typename pcl::PointCloud<PointT>::Ptr
   filterCloud(typename pcl::PointCloud<PointT>::Ptr &cloud, float filterRes,
               Vector4f minPoint, Vector4f maxPoint) 
@@ -221,11 +205,9 @@ public:
 
     return cloudRegion;
   }
-  // Step 1: Point Cloud Segmentation - RANSAC
-  // std::pair<typename pcl::PointCloud<PointT>::Ptr, typename
-  // pcl::PointCloud<PointT>::Ptr> ransacPlaneSegmentation(typename
-  // pcl::PointCloud<PointT>::Ptr &cloud);
 
+
+  // Step 1: Point Cloud Segmentation - RANSAC
   std::pair<typename pcl::PointCloud<PointT>::Ptr,
             typename pcl::PointCloud<PointT>::Ptr>
   ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud) 
@@ -271,7 +253,6 @@ public:
       z3 = cloud->points.at(*itr).z;
 
       // create the constants for the plane equation
-
       float A = ((y2 - y1) * (z3 = z1) - (z2 - z1) * (y3 - y1));
       float B = ((z2 - z1) * (x3 - x1) - (x2 - x1) * (z3 - z1));
       float C = ((x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1));
@@ -330,22 +311,9 @@ public:
   Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold,
              int minCount, int maxCount);
 
-  // Calibration
-  // LidarCalilbration lidarCalibration;
-
   // Step 3 : Estimate Point Cloud Bounding box and create a bounding box around
   // the point cloud.
   void createBoundingBox();
-
-  // Static Variables enable the class to maintain only one copy of the variable
-  // to be used across all the instances of this class object.
-  // static int numOfIterations; // calibrate to
-  // static float distThreshold; // Calibrate to ensure correct segmentation
-  // Project BB onto camera image and estimate velocity.
-
-  // remove Lidar points based on distance properties
-  // float minZ = -1.5, maxZ = -0.9, minX = 2.0, maxX = 20.0, maxY = 2.0, minR =
-  // 0.1; // focus on ego lane
 };
 } // namespace LidarProcessing
 #endif

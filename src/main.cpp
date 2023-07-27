@@ -58,32 +58,43 @@ int main(int argv, char **argc) {
   // synchronously at the same frequency and are being used accordingly. If a
   // different association technique(ex: assiciating every other camerra frame
   // with Lidar frame) is to be used, this logic needs to change.
-  if (!(imageFileCount == pclFileCount)) {
+  if (!(imageFileCount == pclFileCount)) 
+  {
     std::cerr << "Number of image files is not Equal to number of pcl files"
               << "\n"
               << "PCL File Count = " << pclFileCount << "\n"
               << "Image File Count" << imageFileCount << "\n"
               << endl;
     return 0;
-  } else {
+  } 
+  else 
+  {
     std::set<boost::filesystem::path> sortedPCLFiles;
 
     bool useLidar = true;
     bool useCamera = false;
 
     for (auto &file :
-         boost::filesystem::directory_iterator(fullPCLFolderPath)) {
+         boost::filesystem::directory_iterator(fullPCLFolderPath)) 
+    {
       sortedPCLFiles.insert(file.path());
     }
 
-    if (useLidar) {
+    if (useLidar)
+    {
       // Load Lidatr data into buffer.
-      for (auto &fileName : sortedPCLFiles) {
+      for (auto &fileName : sortedPCLFiles) 
+      {
 
         Lidar<pcl::PointXYZI> *lidar;
 
         Lidar<pcl::PointXYZI> lidar1;
 
+
+        int numIterations = 50;
+        float distThreshold = 0.359;
+
+        
         // Lidar<pcl::PointXYZI> lidar2(lidar1);
 
         // TODO: Check if these new variables can be overloaded to inorporate
@@ -94,6 +105,7 @@ int main(int argv, char **argc) {
         pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(
             new pcl::PointCloud<pcl::PointXYZI>);
 
+        Lidar<pcl::PointXYZI> lidar2(cloud, numIterations, distThreshold);
         // Visualize the filtered Cloud in
         Tools *tools;
         pcl::visualization::PCLVisualizer::Ptr viewer(
@@ -105,13 +117,11 @@ int main(int argv, char **argc) {
         pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud(
             new pcl::PointCloud<pcl::PointXYZI>);
 
-        // std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr,
-        // pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedClouds;
-
-        // PCL Visualization
         auto fileIterator = sortedPCLFiles.begin();
 
-        while (!viewer->wasStopped()) {
+        // PCL Visualization
+        while (!viewer->wasStopped()) 
+        {
           CameraAngle cameraAngle = XY;
           tools->initCamera(cameraAngle, viewer);
           viewer->removeAllPointClouds();
@@ -139,7 +149,8 @@ int main(int argv, char **argc) {
           // viewer->spin();
 
           fileIterator++;
-          if (fileIterator == sortedPCLFiles.end()) {
+          if (fileIterator == sortedPCLFiles.end()) 
+          {
             return 0;
             // fileIterator = sortedPCLFiles.begin();
           }
@@ -159,13 +170,16 @@ int main(int argv, char **argc) {
     std::set<filesystem::path> sortedCameraFiles;
 
     // Camera data sort.
-    for (auto &file : filesystem::directory_iterator(fullImageFolderPath)) {
+    for (auto &file : filesystem::directory_iterator(fullImageFolderPath)) 
+    {
       sortedCameraFiles.insert(file.path());
     }
 
-    if (useCamera) {
+    if (useCamera) 
+    {
       // Load input image into the buffer.
-      for (auto &fileName : sortedCameraFiles) {
+      for (auto &fileName : sortedCameraFiles) 
+      {
         cv::Mat inputImage = cv::imread(fileName.c_str());
         cout << "Camera image name = " << fileName.c_str() << endl;
         cv::imshow("input Image", inputImage);
