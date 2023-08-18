@@ -9,7 +9,11 @@
 #include <chrono>
 #include <filesystem>
 #include <iostream>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/imgproc.hpp>
+#include <pcl-1.10/pcl/impl/point_types.hpp>
 #include <thread>
+#include<mutex>
 
 using namespace std;
 using namespace Tooling;
@@ -31,7 +35,7 @@ int main(int argv, char **argc) {
 
   // Data file path definitions.
   // string baseDataFolderPath = "../KITTI-data";
-  string baseDataFolderPath = "/home/karthik/Projects/Data/KITTI-data2";
+  string baseDataFolderPath = "/home/karthik/Projects/Data/KITTI-data3";
   string pclDataFolderPath = "/velodyne_points/data/";
   string imageDataFolderPath = "/image_02/data/";
   string fileNamePre = "000000";
@@ -43,6 +47,9 @@ int main(int argv, char **argc) {
 
   uint16_t imageFileCount = 0;
   uint16_t pclFileCount = 0;
+
+  vector<cv::Mat> imageBuffer;
+  int imageBufferSize = 2;
 
   // PCL File counter
   for (auto &file : std::filesystem::directory_iterator(fullPCLFolderPath)) {
@@ -71,8 +78,8 @@ int main(int argv, char **argc) {
   {
     std::set<boost::filesystem::path> sortedPCLFiles;
 
-    bool useLidar = true;
-    bool useCamera = false;
+    bool useLidar = false;
+    bool useCamera = true;
 
     for (auto &file :
          boost::filesystem::directory_iterator(fullPCLFolderPath)) 
@@ -97,6 +104,7 @@ int main(int argv, char **argc) {
         
         // Lidar<pcl::PointXYZI> lidar2(lidar1);
 
+
         // TODO: Check if these new variables can be overloaded to inorporate
         // new features into the new keyword to enable static loading of the
         // memory without having to re-create a new memory location at each
@@ -105,7 +113,7 @@ int main(int argv, char **argc) {
         pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(
             new pcl::PointCloud<pcl::PointXYZI>);
 
-        //Lidar<pcl::PointXYZI> lidar2(cloud, numIterations, distThreshold);
+        Lidar<pcl::PointXYZI> lidar2(cloud, numIterations, distThreshold);
         // Visualize the filtered Cloud in
         Tools *tools;
         pcl::visualization::PCLVisualizer::Ptr viewer(
@@ -179,14 +187,35 @@ int main(int argv, char **argc) {
 
     if (useCamera) 
     {
+
+      //std::mutex _mutex;
+      //_mutex.lock();
+
+
       // Load input image into the buffer.
       for (auto &fileName : sortedCameraFiles) 
       {
         cv::Mat inputImage = cv::imread(fileName.c_str());
-        cout << "Camera image name = " << fileName.c_str() << endl;
-        cv::imshow("input Image", inputImage);
-        cv::waitKey(100);
+        CameraProcessing::Camera cameraObject;
+
+
+      if(imageBuffer.size() == imageBufferSize)
+      {
+        imageBuffer.erase(imageBuffer.begin());
       }
+      imageBuffer.push_back(inputImage);
+
+
+        std::vector<cv::KeyPoint> keyPoints{};
+        cameraObject.detectorHARRIS(imageBuffer.back(), keyPoints);
+
+        std::cout << "Key PointSize = " <<  keyPoints.size() << std::endl;
+
+        cout << "Camera image name = " << fileName.c_str() << endl;
+        //cv::imshow("input Image", inputImage);
+        //cv::waitKey(10);
+      }
+      //_mutex.unlock();
     }
   }
 }

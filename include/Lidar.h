@@ -34,18 +34,12 @@ class Lidar
 {
 
   private:
-    // TODO: Use Heap to initialize the new cloud.
     typename pcl::PointCloud<PointT>::Ptr pointCloud{};
 
+    int numberOfIterations = 0;
+    float distanceThreshold = 0.0;
   public:
-    Lidar();
-
-    int numberOfIterations = 250;
-    float distanceThreshold = 0.261;
-  // Default Constructor  
-  
-    Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud, const int &numOfIterations, const float &distThreshold); 
-
+    Lidar(){}
 
   *****************************************************************************
   //  Applying Rule of 5 to define the Copy/Move/Copy/Move Assignment/
@@ -55,7 +49,7 @@ class Lidar
   //  to be defined to ensure the memory-management strategy is being followed
   //  // correctly. //
   *****************************************************************************
-
+/*
   // Copy Constructor
   Lidar(const Lidar &lidarObject); 
 
@@ -70,19 +64,37 @@ class Lidar
 
   // Destructor
   ~Lidar();
+*/
+
+  Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud, const int &numOfIterations, const float &distThreshold)
+  {
+      std::cout << "Inside Lidar constructor" << std::endl;
+      pointCloud = std::move(inputCloud);
+      numberOfIterations = numOfIterations;
+      distanceThreshold = distThreshold;
+  }
+
+  // Destructor
+  ~Lidar(){};
 
 
+  // getters/setters
+  void setPointCloud(typename pcl::PointCloud<PointT>::Ptr &pointCloud);
+  typename pcl::PointCloud<PointT>::Ptr getPointCloud();
 
-  // Lidar Class Modifiers/Accessors
+
+  void setNumberOfIterations(int &numOfIterations);
+  int getNumberOfIterations();
+
+  void setDistanceThreshold(float &distanceThreshold);
+  float getDistanceThreshold();
+
   typename pcl::PointCloud<PointT>::Ptr writePCLDataFile();
 
   typename pcl::PointCloud<PointT>::Ptr readPCLDataFile(std::string inputFile);
 
-  // Point Cloud Manipulator/Processing Functions
-  // Crop Pointcloud to remove outlier points.
   typename pcl::PointCloud<PointT>::Ptr cropLidarPoints(typename pcl::PointCloud<PointT>::Ptr &cloud);
 
-  // Filter Cloud
   typename pcl::PointCloud<PointT>::Ptr filterCloud(typename pcl::PointCloud<PointT>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint);
 
   // Step 1: Point Cloud Segmentation - RANSAC
@@ -94,8 +106,7 @@ class Lidar
                  // it here.
 
   //         Clustering Algorithm.
-  std::vector<typename pcl::PointCloud<PointT>::Ptr>
-  Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount);
+  std::vector<typename pcl::PointCloud<PointT>::Ptr> Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount);
 
   // Step 3 : Estimate Point Cloud Bounding box and create a bounding box around
   // the point cloud.
