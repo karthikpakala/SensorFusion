@@ -275,4 +275,3 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT
 }
 
 
-template class Lidar<pcl::PointXYZI>;

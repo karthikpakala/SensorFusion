@@ -11,7 +11,7 @@
 #include <iostream>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgproc.hpp>
-#include <pcl-1.10/pcl/impl/point_types.hpp>
+#include <pcl-1.13/pcl/impl/point_types.hpp>
 #include <thread>
 #include<mutex>
 
@@ -76,13 +76,15 @@ int main(int argv, char **argc) {
   } 
   else 
   {
-    std::set<boost::filesystem::path> sortedPCLFiles;
+    //std::set<boost::filesystem::path> sortedPCLFiles;
+    std::set<std::filesystem::path> sortedPCLFiles;
 
     bool useLidar = false;
     bool useCamera = true;
 
     for (auto &file :
-         boost::filesystem::directory_iterator(fullPCLFolderPath)) 
+         //boost::filesystem::directory_iterator(fullPCLFolderPath)) 
+         std::filesystem::directory_iterator(fullPCLFolderPath))
     {
       sortedPCLFiles.insert(file.path());
     }

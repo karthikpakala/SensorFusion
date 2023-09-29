@@ -112,5 +112,8 @@ class Lidar
   // the point cloud.
   void createBoundingBox();
 };
+
+template class Lidar<pcl::PointXYZI>;
+
 } // namespace LidarProcessing
 #endif
