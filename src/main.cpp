@@ -35,7 +35,7 @@ int main(int argv, char **argc) {
 
   // Data file path definitions.
   // string baseDataFolderPath = "../KITTI-data";
-  string baseDataFolderPath = "/home/karthik/Projects/Data/KITTI-data3";
+  string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3";
   string pclDataFolderPath = "/velodyne_points/data/";
   string imageDataFolderPath = "/image_02/data/";
   string fileNamePre = "000000";
@@ -79,8 +79,8 @@ int main(int argv, char **argc) {
     //std::set<boost::filesystem::path> sortedPCLFiles;
     std::set<std::filesystem::path> sortedPCLFiles;
 
-    bool useLidar = false;
-    bool useCamera = true;
+    bool useLidar = true;
+    bool useCamera = false;
 
     for (auto &file :
          //boost::filesystem::directory_iterator(fullPCLFolderPath)) 

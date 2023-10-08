@@ -273,5 +273,6 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT
     }
     return clusteredObjects;
 }
+template class LidarProcessing::Lidar<pcl::PointXYZI>;
 
 

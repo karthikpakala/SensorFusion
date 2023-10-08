@@ -75,7 +75,7 @@ class Lidar
   }
 
   // Destructor
-  ~Lidar(){};
+  ~Lidar(){}
 
 
   // getters/setters
@@ -113,7 +113,7 @@ class Lidar
   void createBoundingBox();
 };
 
-template class Lidar<pcl::PointXYZI>;
+//template class Lidar<pcl::PointXYZI>;
 
 } // namespace LidarProcessing
 #endif
