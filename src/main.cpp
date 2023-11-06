@@ -34,7 +34,6 @@ int main(int argv, char **argc) {
   // calibration.initializeMatrices();
 
   // Data file path definitions.
-  // string baseDataFolderPath = "../KITTI-data";
   string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3";
   string pclDataFolderPath = "/velodyne_points/data/";
   string imageDataFolderPath = "/image_02/data/";
@@ -52,12 +51,14 @@ int main(int argv, char **argc) {
   int imageBufferSize = 2;
 
   // PCL File counter
-  for (auto &file : std::filesystem::directory_iterator(fullPCLFolderPath)) {
+  for (auto &file : std::filesystem::directory_iterator(fullPCLFolderPath)) 
+  {
     ++pclFileCount;
   }
 
   // Image File Counter
-  for (auto &file : std::filesystem::directory_iterator(fullImageFolderPath)) {
+  for (auto &file : std::filesystem::directory_iterator(fullImageFolderPath)) 
+  {
     ++imageFileCount;
   }
 
@@ -65,7 +66,7 @@ int main(int argv, char **argc) {
   // synchronously at the same frequency and are being used accordingly. If a
   // different association technique(ex: assiciating every other camerra frame
   // with Lidar frame) is to be used, this logic needs to change.
-  if (!(imageFileCount == pclFileCount)) 
+  if (imageFileCount != pclFileCount) 
   {
     std::cerr << "Number of image files is not Equal to number of pcl files"
               << "\n"
@@ -76,18 +77,25 @@ int main(int argv, char **argc) {
   } 
   else 
   {
-    //std::set<boost::filesystem::path> sortedPCLFiles;
     std::set<std::filesystem::path> sortedPCLFiles;
 
-    bool useLidar = true;
-    bool useCamera = false;
-
+    // Lidar data sort
     for (auto &file :
-         //boost::filesystem::directory_iterator(fullPCLFolderPath)) 
          std::filesystem::directory_iterator(fullPCLFolderPath))
     {
       sortedPCLFiles.insert(file.path());
     }
+
+    std::set<filesystem::path> sortedCameraFiles;
+    // Camera data sort.
+    for (auto &file : filesystem::directory_iterator(fullImageFolderPath)) 
+    {
+      sortedCameraFiles.insert(file.path());
+    }
+
+    bool useLidar = true;
+    bool useCamera = false;
+
 
     if (useLidar)
     {
@@ -164,7 +172,6 @@ int main(int argv, char **argc) {
           if (fileIterator == sortedPCLFiles.end()) 
           {
             return 0;
-            // fileIterator = sortedPCLFiles.begin();
           }
           viewer->spinOnce();
           auto endTime = std::chrono::steady_clock::now();
@@ -173,19 +180,10 @@ int main(int argv, char **argc) {
                                                                     startTime);
           cout << " Time Eleapsed for Lidar Processing = "
                << elapsedTime.count() << " milliseconds " << endl;
-
-          // continue;
-          //std::this_thread::sleep_for(10ms);
         }
       }
     }
-    std::set<filesystem::path> sortedCameraFiles;
 
-    // Camera data sort.
-    for (auto &file : filesystem::directory_iterator(fullImageFolderPath)) 
-    {
-      sortedCameraFiles.insert(file.path());
-    }
 
     if (useCamera) 
     {
@@ -210,6 +208,7 @@ int main(int argv, char **argc) {
 
         std::vector<cv::KeyPoint> keyPoints{};
         cameraObject.detectorHARRIS(imageBuffer.back(), keyPoints);
+        //cameraObject.detectorSHITOMASI(imageBuffer.back(), keyPoints);
 
         std::cout << "Key PointSize = " <<  keyPoints.size() << std::endl;
 

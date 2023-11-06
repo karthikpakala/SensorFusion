@@ -89,6 +89,7 @@ class Lidar
   void setDistanceThreshold(float &distanceThreshold);
   float getDistanceThreshold();
 
+  void processPointCloud(typename pcl::PointCloud<PointT> &inputCloud);
   typename pcl::PointCloud<PointT>::Ptr writePCLDataFile();
 
   typename pcl::PointCloud<PointT>::Ptr readPCLDataFile(std::string inputFile);

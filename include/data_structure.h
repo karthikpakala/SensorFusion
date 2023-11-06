@@ -58,7 +58,4 @@ struct DataStruct
 
     std::map<int, int> bbMatches; // bounding box matches
     std::vector<BoundingBox> boundingBoxes; // bounding boxes
-
-
-
 };
