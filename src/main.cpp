@@ -19,7 +19,8 @@ using namespace std;
 using namespace Tooling;
 using namespace LidarProcessing;
 
-int main(int argv, char **argc) {
+int main(int argv, char **argc) 
+{
   int dataBufferSize = 2; // no. of images which are held in memory (ring
                           // buffer) at the same time
   // vector<DataFrame> dataBuffer; // list of data frames which are held in
@@ -74,25 +75,28 @@ int main(int argv, char **argc) {
               << "Image File Count" << imageFileCount << "\n"
               << endl;
     return 0;
-  } 
+  }
+  // Start the Lidar and Camera Processing Loop
   else 
   {
     std::set<std::filesystem::path> sortedPCLFiles;
 
-    // Lidar data sort
+    // Lidar data files sort
     for (auto &file :
          std::filesystem::directory_iterator(fullPCLFolderPath))
     {
       sortedPCLFiles.insert(file.path());
     }
 
+
     std::set<filesystem::path> sortedCameraFiles;
-    // Camera data sort.
+    // Camera data files sort.
     for (auto &file : filesystem::directory_iterator(fullImageFolderPath)) 
     {
       sortedCameraFiles.insert(file.path());
     }
 
+    // Enable / Disable using Camera / Lidar
     bool useLidar = true;
     bool useCamera = false;
 
@@ -187,10 +191,8 @@ int main(int argv, char **argc) {
 
     if (useCamera) 
     {
-
       //std::mutex _mutex;
       //_mutex.lock();
-
 
       // Load input image into the buffer.
       for (auto &fileName : sortedCameraFiles) 

@@ -6,11 +6,22 @@ using namespace LidarProcessing;
 
 // PointCloud setter
 template<typename PointT>
-void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr &pointCloud)
+void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputPointCloud)
 {
-  pointCloud = pointCloud;
+  pointCloud = inputPointCloud;
+ // processPointCloud(pointCloud);
 }
 
+//template<typename PointT>
+//void processPointCloud(typename pcl::PointCloud<PointT>::Ptr &pointCloud)
+//{
+
+  // Filter PointCloud
+//  pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCLoud(new pcl::PointCloud<pcl::PointXYZI>);
+ // filteredCloud = filterCloud(pointCloud,  0.1, Vector4f(-20, -6, -3, 1), Vector4f(25, 6.5, 3, 1));
+
+
+//}
 // Point Cloud getter
 template<typename PointT>
 typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::getPointCloud()
@@ -68,7 +79,7 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDat
     }
 
     // Use setter to set the the point cloud to this class. 
-    setPointCloud(cloud);
+    //setPointCloud(cloud);
     std::cerr << "Loaded " << cloud->points.size () << " data points from "+inputFile << std::endl;
 
     return cloud;
