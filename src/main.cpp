@@ -106,38 +106,22 @@ int main(int argv, char **argc)
       // Load Lidatr data into buffer.
       for (auto &fileName : sortedPCLFiles) 
       {
-
-        Lidar<pcl::PointXYZI> *lidar;
-
-        //Lidar<pcl::PointXYZI> lidar1;
-
+        Lidar<pcl::PointXYZI> lidar;
 
         int numIterations = 50;
         float distThreshold = 0.359;
-
-        
-        // Lidar<pcl::PointXYZI> lidar2(lidar1);
-
 
         // TODO: Check if these new variables can be overloaded to inorporate
         // new features into the new keyword to enable static loading of the
         // memory without having to re-create a new memory location at each
         // call.
         //  move semantics to be used to udpate this.
-        pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(
-            new pcl::PointCloud<pcl::PointXYZI>);
 
-        Lidar<pcl::PointXYZI> lidar2(cloud, numIterations, distThreshold);
-        // Visualize the filtered Cloud in
         Tools *tools;
         pcl::visualization::PCLVisualizer::Ptr viewer(
             new pcl::visualization::PCLVisualizer("3D Viewer"));
         // viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK
         // warnings
-
-        // TODO:  move all the following functions to Lidar class
-        pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud(
-            new pcl::PointCloud<pcl::PointXYZI>);
 
         auto fileIterator = sortedPCLFiles.begin();
 
@@ -151,25 +135,12 @@ int main(int argv, char **argc)
 
           auto startTime = std::chrono::steady_clock::now();
 
-          cloud = lidar->readPCLDataFile((*fileIterator).string());
+          lidar.readPCLDataFile((*fileIterator).string());
 
-          cout << "Lidar PCD size = " << cloud->points.size() << endl;
-
-          // Filter point clouds
-          filteredCloud = lidar->filterCloud(
-              cloud, 0.1, Vector4f(-20, -6, -3, 1), Vector4f(25, 6.5, 3, 1));
-
-           // Segmentation - TODO: Optimize it for a lot of performance
-           // improvement (this takes > 250 ms)
-
-          std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr,
-                    pcl::PointCloud<pcl::PointXYZI>::Ptr>
-              segmentedClouds = lidar->ransacPlaneSegmentation(filteredCloud);
-
-          tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud",
-                                  Color(0, 1, 0));
-          tools->renderPointCloud(viewer, segmentedClouds.second,
-                                  "object cloud", Color(1, 0, 0));
+//          tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud",
+//                                  Color(0, 1, 0));
+//          tools->renderPointCloud(viewer, segmentedClouds.second,
+//                                  "object cloud", Color(1, 0, 0));
           // viewer->spin();
 
           fileIterator++;

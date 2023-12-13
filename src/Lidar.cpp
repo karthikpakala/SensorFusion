@@ -3,25 +3,108 @@
 //using namespace std;
 using namespace LidarProcessing;
 
+// Default Constructor
+template<typename PointT>
+LidarProcessing::Lidar<PointT>::Lidar() : pointCloud (new pcl::PointCloud<pcl::PointXYZI>)
+{
+}
+
+// Constructor
+template<typename PointT>
+LidarProcessing::Lidar<PointT>::Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud)
+{
+  std::cout << "Inside Lidar constructor" << std::endl;
+  pointCloud = inputCloud;
+}
+
+// Destructor
+template<typename PointT>
+LidarProcessing::Lidar<PointT>::~Lidar() 
+{
+  delete pointCloud;
+  std::cout << "Lidar class object destroyed" << std::endl;
+}
+
+// Copy Constructor
+template<typename PointT>
+LidarProcessing::Lidar<PointT>::Lidar(const Lidar<PointT> &lidarObject)
+{}
+
+// Copy Assignment Operator
+template<typename PointT>
+LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(const Lidar<PointT> &lidarObject)
+{
+  if(this == &lidarObject)
+  {
+    return *this;
+  }
+
+  // initialize class variables
+  return *this;
+}
+
+// Move constructor
+template<typename PointT>
+LidarProcessing::Lidar<PointT>::Lidar(Lidar<PointT> &&lidarObject) noexcept
+{}
+
+// Move assignment operator
+template<typename PointT>
+LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(Lidar<PointT> &&lidarObject) noexcept
+{
+  if(this == &lidarObject)
+  {
+    return *this;
+  }
+  // initialize variables
+  return *this;
+}
 
 // PointCloud setter
 template<typename PointT>
 void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputPointCloud)
 {
   pointCloud = inputPointCloud;
- // processPointCloud(pointCloud);
+  processPointCloud(pointCloud);
 }
 
-//template<typename PointT>
-//void processPointCloud(typename pcl::PointCloud<PointT>::Ptr &pointCloud)
-//{
+// read PCL file from the file file.
+// TODO : Update function to populate class point cloud object instead of using a sepaerate object 
+template<typename PointT>
+typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile)
+{   
+    //std::cout<< " File Name = " << inputFile << std::endl;
+    
+    // typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
+      typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
 
-  // Filter PointCloud
-//  pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCLoud(new pcl::PointCloud<pcl::PointXYZI>);
- // filteredCloud = filterCloud(pointCloud,  0.1, Vector4f(-20, -6, -3, 1), Vector4f(25, 6.5, 3, 1));
+    
+    std::fstream input(inputFile.c_str(), std::ios::in | std::ios::binary);
+    if(!input.good())
+    {
+        std::cerr <<"Input file not loaded" << std::endl;
+    }
+    input.seekg(0, std::ios::beg);
+
+    for(int i = 0; input.good() && !input.eof(); i++)
+    {
+        PointT point;
+        input.read((char *) &point.x, 3*sizeof(float));
+        input.read((char *) &point.intensity, sizeof(float));
+        //cloud->push_back(point);
+        cloud->push_back(point);
+    }
+
+    std::cerr << "Loaded " << cloud->points.size () << " data points from cloud "+inputFile << std::endl;
+    //pointCloud = cloud;
+//    std::cerr << "Loaded " << pointCloud->points.size () << " data points from "+inputFile << std::endl;
+    // Use setter to set the the point cloud to this class. 
+    setPointCloud(cloud);
+
+    return cloud;
+}
 
 
-//}
 // Point Cloud getter
 template<typename PointT>
 typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::getPointCloud()
@@ -54,39 +137,20 @@ float LidarProcessing::Lidar<PointT>::getDistanceThreshold()
   return distanceThreshold;
 }
 
+template<typename PointT> 
+void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud)
+{
+  // Step 1 : Filter Point Cloud
+  typename pcl::PointCloud<PointT>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
+  filteredCloud = filterCloud(inputCloud, 0.1, Vector4f(-20, -6, -3, 1), Vector4f(25, 6.5, 3, 1));
+  //std::cout << "FilteredCloud point count = " << filteredCloud->points.size() << std::endl;
 
-
-// read PCL file from the file file. 
-template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile)
-{   
-    
-    typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
-
-    std::fstream input(inputFile.c_str(), std::ios::in | std::ios::binary);
-    if(!input.good())
-    {
-        std::cerr <<"Input file not loaded" << std::endl;
-    }
-    input.seekg(0, std::ios::beg);
-
-    for(int i = 0; input.good() && !input.eof(); i++)
-    {
-        PointT point;
-        input.read((char *) &point.x, 3*sizeof(float));
-        input.read((char *) &point.intensity, sizeof(float));
-        cloud->push_back(point);
-    }
-
-    // Use setter to set the the point cloud to this class. 
-    //setPointCloud(cloud);
-    std::cerr << "Loaded " << cloud->points.size () << " data points from "+inputFile << std::endl;
-
-    return cloud;
+  // Step 2 : RANSAC Segmentation
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr>
+              segmentedClouds = ransacPlaneSegmentation(filteredCloud);
 }
 
 // Filter point cloud to remove unnecessary points
-
 template<typename PointT>
 typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::filterCloud(typename pcl::PointCloud<PointT>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint)
 {

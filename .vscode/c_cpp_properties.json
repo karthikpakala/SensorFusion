@@ -1,16 +1,30 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/include",
-                "/usr/local/include/opencv4"
+                "/Users/karthikpakala/Projects/SensorFusion/**",
+                "/opt/homebrew/opt/opencv/include",
+                "/opt/homebrew/opt/pcl/include"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/gcc",
+            "macFrameworkPath": [
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
             "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64"
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-arm64",
+            "compilerPath": "/opt/homebrew/bin/g++-13",
+            "compilerPathInCppPropertiesJson": "/opt/homebrew/bin/g++-13",
+            "mergeConfigurations": false,
+            "browse": {
+                "path": [
+                    "/Users/karthikpakala/Projects/SensorFusion/**",
+                    "/opt/homebrew/",
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
         }
     ],
     "version": 4

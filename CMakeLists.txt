@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 add_definitions(-std=c++17)
 
-set(CXX_FLAGS "-Wall -pthread")
+set(CXX_FLAGS "-Wall -pthread") ## -w disable all diagnostics
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -18,7 +18,8 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
 
-set(OpenCV_DIR /opt/opencv_build/opencv/install/include)
+##set(OpenCV_DIR /opt/opencv_build/opencv/install/include)
+set(OpenCV_DIR /opt/homebrew/opt/opencv/include)
 find_package(OpenCV 4.1 REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
