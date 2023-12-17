@@ -5,7 +5,8 @@ using namespace LidarProcessing;
 
 // Default Constructor
 template<typename PointT>
-LidarProcessing::Lidar<PointT>::Lidar() : pointCloud (new pcl::PointCloud<pcl::PointXYZI>)
+LidarProcessing::Lidar<PointT>::Lidar() : 
+            pointCloud (new pcl::PointCloud<pcl::PointXYZI>), numberOfIterations(0), distanceThreshold(0)
 {
 }
 
@@ -29,7 +30,8 @@ LidarProcessing::Lidar<PointT>::~Lidar()
 template<typename PointT>
 LidarProcessing::Lidar<PointT>::Lidar(const Lidar<PointT> &lidarObject)
 {
-
+  numberOfIterations = lidarObject.numberOfIterations;
+  distanceThreshold = lidarObject.distanceThreshold;
 }
 
 // Copy Assignment Operator
@@ -41,7 +43,6 @@ LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(const 
     return *this;
   }
 
-  pointCloud = lidarObject.pointCloud;
   numberOfIterations = lidarObject.numberOfIterations;
   distanceThreshold = lidarObject.distanceThreshold;
   // initialize class variables
@@ -51,7 +52,11 @@ LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(const 
 // Move constructor
 template<typename PointT>
 LidarProcessing::Lidar<PointT>::Lidar(Lidar<PointT> &&lidarObject) noexcept
-{}
+{
+  numberOfIterations = std::move(numberOfIterations);
+  distanceThreshold = std::move(distanceThreshold);
+
+}
 
 // Move assignment operator
 template<typename PointT>
@@ -61,6 +66,9 @@ LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(Lidar<
   {
     return *this;
   }
+
+  numberOfIterations = std::move(lidarObject.numberOfIterations);
+  distanceThreshold = std::move(lidarObject.distanceThreshold);
   // initialize variables
   return *this;
 }
@@ -73,6 +81,7 @@ void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<Poin
   pointCloud = std::move(inputPointCloud);
   processPointCloud(pointCloud);
 }
+
 
 // read PCL file from the file file.
 // TODO : Update function to populate class point cloud object instead of using a sepaerate object 
