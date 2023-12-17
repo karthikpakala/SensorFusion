@@ -40,6 +40,7 @@ template <typename PointT>
 
   private:
     typename pcl::PointCloud<PointT>::Ptr pointCloud {};
+
     int numberOfIterations = 0;
     float distanceThreshold = 0.0;
 

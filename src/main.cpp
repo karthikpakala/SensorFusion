@@ -108,6 +108,7 @@ int main(int argv, char **argc)
       {
         Lidar<pcl::PointXYZI> lidar;
 
+        // RANSAC Segmentation parameters
         int numIterations = 50;
         float distThreshold = 0.359;
 

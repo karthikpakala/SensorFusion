@@ -14,21 +14,23 @@ template<typename PointT>
 LidarProcessing::Lidar<PointT>::Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud)
 {
   std::cout << "Inside Lidar constructor" << std::endl;
-  pointCloud = inputCloud;
+  pointCloud = std::move(inputCloud);
 }
 
 // Destructor
 template<typename PointT>
 LidarProcessing::Lidar<PointT>::~Lidar() 
 {
-  delete pointCloud;
+  //delete pointCloud;
   std::cout << "Lidar class object destroyed" << std::endl;
 }
 
 // Copy Constructor
 template<typename PointT>
 LidarProcessing::Lidar<PointT>::Lidar(const Lidar<PointT> &lidarObject)
-{}
+{
+
+}
 
 // Copy Assignment Operator
 template<typename PointT>
@@ -39,6 +41,9 @@ LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(const 
     return *this;
   }
 
+  pointCloud = lidarObject.pointCloud;
+  numberOfIterations = lidarObject.numberOfIterations;
+  distanceThreshold = lidarObject.distanceThreshold;
   // initialize class variables
   return *this;
 }
@@ -60,11 +65,12 @@ LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(Lidar<
   return *this;
 }
 
+
 // PointCloud setter
 template<typename PointT>
 void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputPointCloud)
 {
-  pointCloud = inputPointCloud;
+  pointCloud = std::move(inputPointCloud);
   processPointCloud(pointCloud);
 }
 
@@ -78,6 +84,7 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDat
     // typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
       typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
 
+    auto startTime =  std::chrono::steady_clock::now();
     
     std::fstream input(inputFile.c_str(), std::ios::in | std::ios::binary);
     if(!input.good())
@@ -95,13 +102,22 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDat
         cloud->push_back(point);
     }
 
-    std::cerr << "Loaded " << cloud->points.size () << " data points from cloud "+inputFile << std::endl;
-    //pointCloud = cloud;
-//    std::cerr << "Loaded " << pointCloud->points.size () << " data points from "+inputFile << std::endl;
-    // Use setter to set the the point cloud to this class. 
-    setPointCloud(cloud);
+    auto endTime = std::chrono::steady_clock::now();
 
-    return cloud;
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds> ( endTime - startTime);
+    std::cout << "Time elapsed readPCLFile = " << elapsedTime.count()<< std::endl;
+    std::cerr << "Loaded " << cloud->points.size () << " data points from cloud "+inputFile << std::endl;
+
+    auto startTimeprocess = std::chrono::steady_clock::now();
+
+    setPointCloud(cloud);
+    //processPointCloud(pointCloud);
+
+    auto endTimeprocess = std::chrono::steady_clock::now();
+    auto elapsedTimeprocess = std::chrono::duration_cast<std::chrono::milliseconds> (endTimeprocess - startTimeprocess);
+    std::cout << "Point Cloud set time = " << elapsedTimeprocess.count() << std::endl;
+
+    return pointCloud;
 }
 
 
@@ -143,11 +159,16 @@ void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<
   // Step 1 : Filter Point Cloud
   typename pcl::PointCloud<PointT>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
   filteredCloud = filterCloud(inputCloud, 0.1, Vector4f(-20, -6, -3, 1), Vector4f(25, 6.5, 3, 1));
-  //std::cout << "FilteredCloud point count = " << filteredCloud->points.size() << std::endl;
+  std::cout << "FilteredCloud point count = " << filteredCloud->points.size() << std::endl;
 
   // Step 2 : RANSAC Segmentation
   std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr>
               segmentedClouds = ransacPlaneSegmentation(filteredCloud);
+
+
+// Step 3: Clustering
+//std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters = Clustering(segmentedClouds.first,0.359, 100, 2000);
+
 }
 
 // Filter point cloud to remove unnecessary points
