@@ -11,7 +11,8 @@
 #include <iostream>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgproc.hpp>
-#include <pcl-1.13/pcl/impl/point_types.hpp>
+//#include <pcl-1.13/pcl/impl/point_types.hpp>
+#include<pcl/impl/point_types.hpp>
 #include <thread>
 #include<mutex>
 
@@ -35,7 +36,8 @@ int main(int argv, char **argc)
   // calibration.initializeMatrices();
 
   // Data file path definitions.
-  string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3";
+  string baseDataFolderPath = "/home/karthik/Projects/data/KITTI-data3";
+  //string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3";
   string pclDataFolderPath = "/velodyne_points/data/";
   string imageDataFolderPath = "/image_02/data/";
   string fileNamePre = "000000";

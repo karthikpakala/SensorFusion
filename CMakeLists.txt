@@ -10,7 +10,11 @@ project(SensorFusion)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-set(PCL_DIR /opt/homebrew/opt/pcl/include)
+if(MACOS)
+    set(PCL_DIR /opt/homebrew/opt/pcl/include)
+    set(OpenCV_DIR /opt/homebrew/opt/opencv/include)
+endif()
+
 find_package(PCL 1.2 REQUIRED)
 
 include_directories(${PCL_INCLUDE_DIRS})
@@ -19,7 +23,6 @@ add_definitions(${PCL_DEFINITIONS})
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
 
 ##set(OpenCV_DIR /opt/opencv_build/opencv/install/include)
-set(OpenCV_DIR /opt/homebrew/opt/opencv/include)
 find_package(OpenCV 4.1 REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
