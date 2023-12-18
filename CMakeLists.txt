@@ -6,11 +6,12 @@ set(CXX_FLAGS "-Wall -pthread") ## -w disable all diagnostics
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 set(CMAKE_BUILD_TYPE Debug)
 
-project(SensorFusion)
+project(SensorFusion CXX CUDA)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if(MACOS)
+    project(SensorFusion CXX)
     set(PCL_DIR /opt/homebrew/opt/pcl/include)
     set(OpenCV_DIR /opt/homebrew/opt/opencv/include)
 endif()
@@ -29,6 +30,10 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 add_definitions(${OpenCV_DEFINITIONS})
 
+
+find_package(CUDA REQUIRED)
+
+include_directories($(CUDA_STANDARD))
 add_executable (SensorFusion src/Camera.cpp src/Lidar.cpp src/Radar.cpp src/KalmanFilter.cpp src/Tools.cpp src/Calibration.cpp include/Camera.h include/Lidar.h include/Radar.h include/KalmanFilter.h src/main.cpp include/Tools.h include/Calibration.h)
 
 target_link_libraries(SensorFusion ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} z ssl)

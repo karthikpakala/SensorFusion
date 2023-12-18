@@ -22,6 +22,8 @@
 // #include <pcl/kdtree/kdtree_flann.h>
 // #include <pcl/common/transforms.h>
 
+#include <cuda.h>
+
 #include "Tools.h"
 #include "data_structure.h"
 // #include "Calibration.h"
