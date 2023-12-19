@@ -22,7 +22,10 @@
 // #include <pcl/kdtree/kdtree_flann.h>
 // #include <pcl/common/transforms.h>
 
+#if __linux__
 #include <cuda.h>
+#endif
+
 
 #include "Tools.h"
 #include "data_structure.h"

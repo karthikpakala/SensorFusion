@@ -41,8 +41,13 @@ int main(int argv, char **argc)
   // calibration.initializeMatrices();
 
   // Data file path definitions.
-  string baseDataFolderPath = "/home/karthik/Projects/data/KITTI-data3";
-  //string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3";
+  #if __linux__ 
+    string baseDataFolderPath = "/home/karthik/Projects/data/KITTI-data3"; // File path for linux
+  #else
+    string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
+  #endif
+
+
   string pclDataFolderPath = "/velodyne_points/data/";
   string imageDataFolderPath = "/image_02/data/";
   string fileNamePre = "000000";
