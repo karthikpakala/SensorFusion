@@ -2,6 +2,10 @@
 
 //using namespace std;
 using namespace LidarProcessing;
+using namespace Tooling;
+
+// Create Tools object
+Tools *tools;
 
 // Default Constructor
 template<typename PointT>
@@ -71,13 +75,13 @@ template<typename PointT>
 void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputPointCloud)
 {
   pointCloud = std::move(inputPointCloud);
-  processPointCloud(pointCloud);
+  //processPointCloud(pointCloud);
 }
 
 // read PCL file from the file file.
 // TODO : Update function to populate class point cloud object instead of using a sepaerate object 
 template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile)
+typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {   
     //std::cout<< " File Name = " << inputFile << std::endl;
     
@@ -111,7 +115,7 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDat
     auto startTimeprocess = std::chrono::steady_clock::now();
 
     setPointCloud(cloud);
-    //processPointCloud(pointCloud);
+    processPointCloud(pointCloud, viewer);
 
     auto endTimeprocess = std::chrono::steady_clock::now();
     auto elapsedTimeprocess = std::chrono::duration_cast<std::chrono::milliseconds> (endTimeprocess - startTimeprocess);
@@ -154,7 +158,7 @@ float LidarProcessing::Lidar<PointT>::getDistanceThreshold()
 }
 
 template<typename PointT> 
-void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud)
+void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
   // Step 1 : Filter Point Cloud
   typename pcl::PointCloud<PointT>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
@@ -163,7 +167,7 @@ void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<
 
   // Step 2 : RANSAC Segmentation
   std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr>
-              segmentedClouds = ransacPlaneSegmentation(filteredCloud);
+              segmentedClouds = ransacPlaneSegmentation(filteredCloud, viewer);
 
 
 // Step 3: Clustering
@@ -219,7 +223,7 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::filterClou
 
 
 template<typename PointT>
-std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT>::ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud)
+std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT>::ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
 
     std::pair<typename pcl::PointCloud<PointT>::Ptr,
@@ -306,6 +310,11 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     segmentedClouds.first = inlierCloud;
     segmentedClouds.second = outlierCloud;
 
+    tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud",
+                                  Color(0, 1, 0));
+    tools->renderPointCloud(viewer, segmentedClouds.second,
+                                 "object cloud", Color(1, 0, 0));
+          // viewer->spin();
     return segmentedClouds;
 }
 
@@ -337,7 +346,7 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::cropLidarP
 
 // Apply clustering on the point cloud to classify all the points in the cloud and create various objects out of the cloud. 
 template<typename PointT>
-std::vector<typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount)
+std::vector<typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusteredObjects;
 

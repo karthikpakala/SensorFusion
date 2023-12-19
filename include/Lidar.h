@@ -26,8 +26,6 @@
 
 #include "Tools.h"
 #include "data_structure.h"
-// #include "Calibration.h"
-// #include "Tools.h"
 
 #include "eigen3/Eigen/Dense"
 
@@ -62,17 +60,17 @@ template <typename PointT>
     // member functions
     void setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud);
     typename pcl::PointCloud<PointT>::Ptr getPointCloud();
-    typename pcl::PointCloud<PointT>::Ptr readPCLDataFile(std::string inputFile);
+    typename pcl::PointCloud<PointT>::Ptr readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer);
     typename pcl::PointCloud<PointT>::Ptr writePCLDataFile();
-    void processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud);
+    void processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud, pcl::visualization::PCLVisualizer::Ptr &viewer);
     void setNumberOfIterations(int &numOfIterations);
     int getNumberOfIterations();
     void setDistanceThreshold(float &distanceThreshold);
     float getDistanceThreshold();
     typename pcl::PointCloud<PointT>::Ptr cropLidarPoints(typename pcl::PointCloud<PointT>::Ptr &cloud);
     typename pcl::PointCloud<PointT>::Ptr filterCloud(typename pcl::PointCloud<PointT>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint);
-    std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud);
-    std::vector<typename pcl::PointCloud<PointT>::Ptr> Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount);
+    std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer);
+    std::vector<typename pcl::PointCloud<PointT>::Ptr> Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount, pcl::visualization::PCLVisualizer::Ptr &viewer);
 
     // Step 2: Add point cloud into a KDTree data structure to perform clustering.
     //         Insert points into KDTree

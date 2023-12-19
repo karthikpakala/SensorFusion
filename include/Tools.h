@@ -2,8 +2,6 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-#include "Camera.h"
-#include "Lidar.h"
 #include <pcl/visualization/cloud_viewer.h>
 //#include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/pcl_visualizer.h>

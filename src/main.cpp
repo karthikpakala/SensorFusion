@@ -9,12 +9,17 @@
 #include <chrono>
 #include <filesystem>
 #include <iostream>
+
+#include <thread>
+#include <mutex>
+#include <future>
+#include <atomic>
+
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgproc.hpp>
 //#include <pcl-1.13/pcl/impl/point_types.hpp>
 #include<pcl/impl/point_types.hpp>
-#include <thread>
-#include<mutex>
+
 
 using namespace std;
 using namespace Tooling;
@@ -98,6 +103,14 @@ int main(int argv, char **argc)
       sortedCameraFiles.insert(file.path());
     }
 
+    // Multi-threading
+   // std::vector<std::thread> threads;
+
+    std::thread pclThread;
+
+    // Number of CPU cores
+    unsigned int nCores =  std::thread::hardware_concurrency();
+    //
     // Enable / Disable using Camera / Lidar
     bool useLidar = true;
     bool useCamera = false;
@@ -138,13 +151,8 @@ int main(int argv, char **argc)
 
           auto startTime = std::chrono::steady_clock::now();
 
-          lidar.readPCLDataFile((*fileIterator).string());
-
-//          tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud",
-//                                  Color(0, 1, 0));
-//          tools->renderPointCloud(viewer, segmentedClouds.second,
-//                                  "object cloud", Color(1, 0, 0));
-          // viewer->spin();
+          //pclThread = std::thread(&Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string());
+          lidar.readPCLDataFile((*fileIterator).string(), viewer);
 
           fileIterator++;
           if (fileIterator == sortedPCLFiles.end()) 
@@ -152,6 +160,7 @@ int main(int argv, char **argc)
             return 0;
           }
           viewer->spinOnce();
+
           auto endTime = std::chrono::steady_clock::now();
           auto elapsedTime =
               std::chrono::duration_cast<std::chrono::milliseconds>(endTime -
@@ -194,5 +203,6 @@ int main(int argv, char **argc)
       }
       //_mutex.unlock();
     }
+    pclThread.join();
   }
 }

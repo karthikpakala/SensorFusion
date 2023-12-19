@@ -33,7 +33,8 @@ add_definitions(${OpenCV_DEFINITIONS})
 
 find_package(CUDA REQUIRED)
 
-include_directories($(CUDA_STANDARD))
+include_directories($(CUDA_PTX_COMPILATION ON))
+
 add_executable (SensorFusion src/Camera.cpp src/Lidar.cpp src/Radar.cpp src/KalmanFilter.cpp src/Tools.cpp src/Calibration.cpp include/Camera.h include/Lidar.h include/Radar.h include/KalmanFilter.h src/main.cpp include/Tools.h include/Calibration.h)
 
 target_link_libraries(SensorFusion ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} z ssl)

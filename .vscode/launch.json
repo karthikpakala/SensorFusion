@@ -1,4 +1,4 @@
-/*
+
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
@@ -16,7 +16,7 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "miDebuggerPath": "/usr/bin/lldb",
+            "miDebuggerPath": "/usr/bin/gdb",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -33,8 +33,8 @@
 
     ]
 }
-*/
 
+/*
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
@@ -56,3 +56,4 @@
       }
     ]
   }
+  */
