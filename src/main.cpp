@@ -106,7 +106,7 @@ int main(int argv, char **argc)
     // Multi-threading
    // std::vector<std::thread> threads;
 
-    std::thread pclThread;
+    //std::thread pclThread;
 
     // Number of CPU cores
     unsigned int nCores =  std::thread::hardware_concurrency();
@@ -152,8 +152,11 @@ int main(int argv, char **argc)
           auto startTime = std::chrono::steady_clock::now();
 
           //pclThread = std::thread(&Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string());
+
+          //std::thread t(&Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string());
           lidar.readPCLDataFile((*fileIterator).string(), viewer);
 
+          //t.join();
           fileIterator++;
           if (fileIterator == sortedPCLFiles.end()) 
           {
@@ -203,6 +206,6 @@ int main(int argv, char **argc)
       }
       //_mutex.unlock();
     }
-    pclThread.join();
+    //pclThread.join();
   }
 }
