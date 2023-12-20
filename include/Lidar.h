@@ -7,7 +7,8 @@
 #include <iostream>
 #include <string>
 #include <unordered_set>
-
+#include <mutex>
+#include <thread>
 //#include <pcl-1.13/pcl/common/common.h>
 #include <pcl/common/common.h>
 #include <pcl/io/pcd_io.h>
@@ -47,6 +48,8 @@ template <typename PointT>
     int numberOfIterations = 0;
     float distanceThreshold = 0.0;
 
+    std::mutex lidarDataLock;
+
   public:
 
   // Class constructor/destructor 
@@ -59,11 +62,11 @@ template <typename PointT>
     ~Lidar();
 
 
-
     // member functions
     void setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud);
     typename pcl::PointCloud<PointT>::Ptr getPointCloud();
-    typename pcl::PointCloud<PointT>::Ptr readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer);
+    //typename pcl::PointCloud<PointT>::Ptr readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer);
+    void readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer);
     typename pcl::PointCloud<PointT>::Ptr writePCLDataFile();
     void processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud, pcl::visualization::PCLVisualizer::Ptr &viewer);
     void setNumberOfIterations(int &numOfIterations);

@@ -26,7 +26,7 @@ template<typename PointT>
 LidarProcessing::Lidar<PointT>::~Lidar() 
 {
   //delete pointCloud;
-  std::cout << "Lidar class object destroyed" << std::endl;
+  //std::cout << "Lidar class object destroyed" << std::endl;
 }
 
 // Copy Constructor
@@ -74,21 +74,24 @@ LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(Lidar<
 template<typename PointT>
 void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputPointCloud)
 {
-  pointCloud = std::move(inputPointCloud);
+   pointCloud = std::move(inputPointCloud);
   //processPointCloud(pointCloud);
 }
 
 // read PCL file from the file file.
 // TODO : Update function to populate class point cloud object instead of using a sepaerate object 
 template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer)
+//typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer)
+void LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer)
+
 {   
+    lidarDataLock.lock();
     //std::cout<< " File Name = " << inputFile << std::endl;
     
     // typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
       typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
 
-    auto startTime =  std::chrono::steady_clock::now();
+    //auto startTime =  std::chrono::steady_clock::now();
     
     std::fstream input(inputFile.c_str(), std::ios::in | std::ios::binary);
     if(!input.good())
@@ -106,10 +109,10 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDat
         cloud->push_back(point);
     }
 
-    auto endTime = std::chrono::steady_clock::now();
+    //auto endTime = std::chrono::steady_clock::now();
 
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds> ( endTime - startTime);
-    std::cout << "Time elapsed readPCLFile = " << elapsedTime.count()<< std::endl;
+    //auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds> ( endTime - startTime);
+    //std::cout << "Time elapsed readPCLFile = " << elapsedTime.count()<< std::endl;
     std::cerr << "Loaded " << cloud->points.size () << " data points from cloud "+inputFile << std::endl;
 
     auto startTimeprocess = std::chrono::steady_clock::now();
@@ -120,8 +123,8 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDat
     auto endTimeprocess = std::chrono::steady_clock::now();
     auto elapsedTimeprocess = std::chrono::duration_cast<std::chrono::milliseconds> (endTimeprocess - startTimeprocess);
     std::cout << "Point Cloud set time = " << elapsedTimeprocess.count() << std::endl;
-
-    return pointCloud;
+    lidarDataLock.unlock();
+    //return pointCloud;
 }
 
 

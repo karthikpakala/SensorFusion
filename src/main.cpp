@@ -108,14 +108,9 @@ int main(int argv, char **argc)
       sortedCameraFiles.insert(file.path());
     }
 
-    // Multi-threading
-   // std::vector<std::thread> threads;
-
-    //std::thread pclThread;
-
     // Number of CPU cores
     unsigned int nCores =  std::thread::hardware_concurrency();
-    //
+
     // Enable / Disable using Camera / Lidar
     bool useLidar = true;
     bool useCamera = false;
@@ -154,14 +149,52 @@ int main(int argv, char **argc)
           viewer->removeAllPointClouds();
           viewer->removeAllShapes();
 
-          auto startTime = std::chrono::steady_clock::now();
+         // auto startTime = std::chrono::steady_clock::now();
 
-          //pclThread = std::thread(&Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string());
+          // run on a single thread
+          //std::thread pclThread(&Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer));
+          //pclThread.join();
 
-          //std::thread t(&Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string());
-          lidar.readPCLDataFile((*fileIterator).string(), viewer);
+          // default
+          //lidar.readPCLDataFile((*fileIterator).string(), viewer);
+          
+          // Multiple threading start
+          //
+          /*
+          std::vector<std::thread> threads;
 
-          //t.join();
+          for(int i = 0; i < nCores; i++)
+          {
+            threads.emplace_back(std::thread(&Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer)));
+          }
+
+          for(auto &t : threads)
+          {
+            t.join();
+          }
+          // Multiple threads end
+          */
+         /*
+          std::vector<std::future<void>> futures;
+
+          for(int i = 0; i < nCores; i++)
+          {
+            futures.emplace_back(
+                  std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer)));
+          }
+
+          for(const std::future<void> &ftr : futures)
+          {
+            ftr.wait();
+          }
+          */
+        
+        // Use move semantics to enable 
+
+        std::future<void> future = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer));
+
+        future.wait();
+
           fileIterator++;
           if (fileIterator == sortedPCLFiles.end()) 
           {
@@ -169,12 +202,12 @@ int main(int argv, char **argc)
           }
           viewer->spinOnce();
 
-          auto endTime = std::chrono::steady_clock::now();
-          auto elapsedTime =
-              std::chrono::duration_cast<std::chrono::milliseconds>(endTime -
-                                                                    startTime);
-          cout << " Time Eleapsed for Lidar Processing = "
-               << elapsedTime.count() << " milliseconds " << endl;
+        //  auto endTime = std::chrono::steady_clock::now();
+        //  auto elapsedTime =
+        //      std::chrono::duration_cast<std::chrono::milliseconds>(endTime -
+        //                                                            startTime);
+          //cout << " Time Eleapsed for Lidar Processing = "
+          //     << elapsedTime.count() << " milliseconds " << endl;
         }
       }
     }
@@ -211,6 +244,5 @@ int main(int argv, char **argc)
       }
       //_mutex.unlock();
     }
-    //pclThread.join();
   }
 }
