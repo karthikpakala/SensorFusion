@@ -162,7 +162,10 @@ float LidarProcessing::Lidar<PointT>::getDistanceThreshold()
 
 template<typename PointT> 
 void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
-{
+{ 
+  std::mutex mtx;
+  std::lock_guard<std::mutex> lck(mtx);
+
   // Step 1 : Filter Point Cloud
   typename pcl::PointCloud<PointT>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
   filteredCloud = filterCloud(inputCloud, 0.1, Vector4f(-20, -6, -3, 1), Vector4f(25, 6.5, 3, 1));
@@ -229,6 +232,7 @@ template<typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT>::ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
 
+    auto segStartTime = std::chrono::steady_clock::now();
     std::pair<typename pcl::PointCloud<PointT>::Ptr,
               typename pcl::PointCloud<PointT>::Ptr>
         segmentedClouds;
@@ -317,9 +321,21 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
                                   Color(0, 1, 0));
     tools->renderPointCloud(viewer, segmentedClouds.second,
                                  "object cloud", Color(1, 0, 0));
+
+    auto segEndTime = std::chrono::steady_clock::now();
+
+    auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds> (segEndTime - segStartTime);
+    std::cout << "Segmentation Time = " << totalTime.count() << std::endl;
           // viewer->spin();
     return segmentedClouds;
 }
+/*
+template<typename PointT>
+std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar::ransacPCLLibrary(typename pclPointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
+{
+  pcl::segmentation::RANSAC
+}
+*/
 
 /*
 // crop Lidar Points to capture only pints in the camera image frame.

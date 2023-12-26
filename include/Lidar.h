@@ -18,6 +18,9 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/segmentation/sac_segmentation.h>
+//#include <pcl-1.13/pcl/gpu/segmentation>
+//#include <pcl-1.13/pcl/gpu/containers>
+//#include <pcl-1.13/pcl/gpu/containers/device_memory.h>
 
 // #include <pcl/impl/point_types.hpp>
 // #include <pcl/kdtree/kdtree_flann.h>
@@ -76,6 +79,7 @@ template <typename PointT>
     typename pcl::PointCloud<PointT>::Ptr cropLidarPoints(typename pcl::PointCloud<PointT>::Ptr &cloud);
     typename pcl::PointCloud<PointT>::Ptr filterCloud(typename pcl::PointCloud<PointT>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint);
     std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer);
+    //std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ransacPCLLibrary(typename pclPointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer);
     std::vector<typename pcl::PointCloud<PointT>::Ptr> Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount, pcl::visualization::PCLVisualizer::Ptr &viewer);
 
     // Step 2: Add point cloud into a KDTree data structure to perform clustering.

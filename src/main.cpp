@@ -174,9 +174,10 @@ int main(int argv, char **argc)
           }
           // Multiple threads end
           */
-         /*
+         
           std::vector<std::future<void>> futures;
 
+          /*
           for(int i = 0; i < nCores; i++)
           {
             futures.emplace_back(
@@ -188,7 +189,10 @@ int main(int argv, char **argc)
             ftr.wait();
           }
           */
-        
+
+        /***************************************************************************************************************/
+        // It is not possible to parallize this part of the code as working with point cloud requires single task to be working on it at a time to enable error free/ data race free programming.
+        /*******************************************************************************************************************8*/
         // Use move semantics to enable 
 
         std::future<void> future = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer));
