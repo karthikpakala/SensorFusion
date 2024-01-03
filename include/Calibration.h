@@ -14,8 +14,33 @@
 
 class Calibration
 {
+    private:
+        static Calibration* calibrationObjectStatic;
+
+        //Default Constructor
+        Calibration()
+        {}
+        
     public:
 
+    Calibration(const Calibration &calibrationObject) = delete; // Delete Copy Constructor
+    Calibration &operator=(const Calibration &calibrationObject) = delete; // Delete Copy Assignment opertor
+    Calibration (Calibration &&calibrationObject) = delete; // Delete Move Constructor
+    Calibration &operator=(Calibration && calibrationObject) = delete; // Delete move assignment operator
+    
+
+    static Calibration* getCalibrationInstance()
+    {
+        if(calibrationObjectStatic == NULL)
+        {
+            calibrationObjectStatic = new Calibration();
+            return calibrationObjectStatic;
+        }
+        else
+        {
+            return calibrationObjectStatic;
+        }
+    }
     // object detection
     std::string dataPath = "..KITTI-data/"; // Update with correct path once available.
     std::string yoloBasePath = dataPath + "dat/yolo/";

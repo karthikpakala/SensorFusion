@@ -25,6 +25,13 @@ using namespace std;
 using namespace Tooling;
 using namespace LidarProcessing;
 
+
+// Instantiate static Tools object to null
+Tooling::Tools* Tooling::Tools::toolsInstance = NULL;
+
+// Instantiate static Calibration object to NULL
+Calibration* Calibration::calibrationObjectStatic = NULL;
+
 int main(int argv, char **argc) 
 {
   int dataBufferSize = 2; // no. of images which are held in memory (ring
@@ -33,16 +40,16 @@ int main(int argv, char **argc)
   // memory at the same time
 
   // Initialize calibration object
-  Calibration calibration;
+  //Calibration calibration;
 
   // Tools Object
-  Tools tools;
+ // Tools tools;
 
   // calibration.initializeMatrices();
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/karthik/Projects/data/KITTI-data3"; // File path for linux
+    string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // File path for linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
   #endif
@@ -109,8 +116,17 @@ int main(int argv, char **argc)
     }
 
     // Number of CPU cores
-    unsigned int nCores =  std::thread::hardware_concurrency();
+    // unsigned int nCores =  std::thread::hardware_concurrency();
 
+    // Create a static instance of Tools and Calibration objects.
+    Tooling::Tools* tools = Tooling::Tools::getInstance();
+    Calibration* calibration = Calibration::getCalibrationInstance();
+
+    //for(int i = 0; i < pclFileCount; i++)
+   // {
+   //   cout << "Something" << endl;
+   // }
+    
     // Enable / Disable using Camera / Lidar
     bool useLidar = true;
     bool useCamera = false;
@@ -133,7 +149,7 @@ int main(int argv, char **argc)
         // call.
         //  move semantics to be used to udpate this.
 
-        Tools *tools;
+        //Tools *tools;
         pcl::visualization::PCLVisualizer::Ptr viewer(
             new pcl::visualization::PCLVisualizer("3D Viewer"));
         // viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK
@@ -244,5 +260,7 @@ int main(int argv, char **argc)
       }
       //_mutex.unlock();
     }
+
+
   }
 }

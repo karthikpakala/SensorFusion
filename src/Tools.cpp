@@ -48,7 +48,20 @@ void Tools::pclViewer(pcl::PointCloud<LidarPoint> &cloud)
     //cloudViewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, color.r, color.g, color.b, name);
 }
 */
-
+    /*
+  Tools* Tooling::Tools::getInstance()
+  {
+    if(toolsInstance == NULL)
+    {
+      toolsInstance = new Tools(); 
+      return toolsInstance;
+    }
+    else
+    {
+      return toolsInstance;
+    }
+  }
+*/
 void Tooling::Tools::initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
 

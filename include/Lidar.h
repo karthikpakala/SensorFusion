@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include <mutex>
 #include <thread>
+#include <future>
 //#include <pcl-1.13/pcl/common/common.h>
 #include <pcl/common/common.h>
 #include <pcl/io/pcd_io.h>
@@ -63,16 +64,25 @@ template <typename PointT>
 
 
     // member functions
+    // Setters
     void setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud);
     typename pcl::PointCloud<PointT>::Ptr getPointCloud();
-    //typename pcl::PointCloud<PointT>::Ptr readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer);
+
+    // Read / Write operations
+    void readFileHelper(std::fstream &input, typename pcl::PointCloud<PointT>::Ptr &cloud);
     void readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer);
     typename pcl::PointCloud<PointT>::Ptr writePCLDataFile();
+
+    // Process Point Clouds
     void processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud, pcl::visualization::PCLVisualizer::Ptr &viewer);
+
+    // Set / Get Parameters
     void setNumberOfIterations(int &numOfIterations);
     int getNumberOfIterations();
     void setDistanceThreshold(float &distanceThreshold);
     float getDistanceThreshold();
+
+    // Cloud processing functions
     typename pcl::PointCloud<PointT>::Ptr cropLidarPoints(typename pcl::PointCloud<PointT>::Ptr &cloud);
     typename pcl::PointCloud<PointT>::Ptr filterCloud(typename pcl::PointCloud<PointT>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint);
     std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer);

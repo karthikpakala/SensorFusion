@@ -33,7 +33,9 @@ LidarProcessing::Lidar<PointT>::~Lidar()
 template<typename PointT>
 LidarProcessing::Lidar<PointT>::Lidar(const Lidar<PointT> &lidarObject)
 {
-
+  this->pointCloud = lidarObject.pointCloud;
+  this->numberOfIterations = lidarObject.numberOfIterations;
+  this->distanceThreshold = lidarObject.distanceThreshold;
 }
 
 // Copy Assignment Operator
@@ -78,6 +80,15 @@ void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<Poin
   //processPointCloud(pointCloud);
 }
 
+template<typename PointT>
+void LidarProcessing::Lidar<PointT>::readFileHelper(std::fstream &input, typename pcl::PointCloud<PointT>::Ptr &cloud)
+{
+    PointT point;
+    input.read((char *) &point.x, 3*sizeof(float));
+    input.read((char *) &point.intensity, sizeof(float));
+    cloud->push_back(point);
+}
+
 // read PCL file from the file file.
 // TODO : Update function to populate class point cloud object instead of using a sepaerate object 
 template<typename PointT>
@@ -85,28 +96,47 @@ template<typename PointT>
 void LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer)
 
 {   
-    lidarDataLock.lock();
+    //std::lock_guard<std::mutex> lock(lidarDataLock);
+    //lidarDataLock.lock();
     //std::cout<< " File Name = " << inputFile << std::endl;
     
     // typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
-      typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
+    std::mutex pointCloudMutex;
+    pointCloudMutex.lock();
+    typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
+    pointCloudMutex.unlock();
 
     //auto startTime =  std::chrono::steady_clock::now();
     
+    std::mutex fileStreamMutex;
+    fileStreamMutex.lock();
     std::fstream input(inputFile.c_str(), std::ios::in | std::ios::binary);
+    fileStreamMutex.unlock();
+
     if(!input.good())
     {
         std::cerr <<"Input file not loaded" << std::endl;
     }
     input.seekg(0, std::ios::beg);
 
+    std::vector<std::future<void>> futures;
+    auto readTimeStart = std::chrono::steady_clock::now();
+    std::mutex readFileMutex;
     for(int i = 0; input.good() && !input.eof(); i++)
     {
-        PointT point;
-        input.read((char *) &point.x, 3*sizeof(float));
-        input.read((char *) &point.intensity, sizeof(float));
-        //cloud->push_back(point);
-        cloud->push_back(point);
+      std::lock_guard<std::mutex> lock(readFileMutex);
+      readFileHelper(input, cloud);
+
+      //futures.emplace_back(std::async(std::launch::deferred, &LidarProcessing::Lidar<PointT>::readFileHelper, this, std::ref(input), std::ref(cloud)));
+    }
+
+    auto readTimeEnd = std::chrono::steady_clock::now();
+    auto totalReadTime = std::chrono::duration_cast<std::chrono::milliseconds>(readTimeEnd - readTimeStart);
+
+    std::cout << "Total File Read Time = " << totalReadTime.count() << std::endl;
+    for(auto &ftr : futures)
+    {
+      ftr.wait();
     }
 
     //auto endTime = std::chrono::steady_clock::now();
@@ -123,7 +153,7 @@ void LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl:
     auto endTimeprocess = std::chrono::steady_clock::now();
     auto elapsedTimeprocess = std::chrono::duration_cast<std::chrono::milliseconds> (endTimeprocess - startTimeprocess);
     std::cout << "Point Cloud set time = " << elapsedTimeprocess.count() << std::endl;
-    lidarDataLock.unlock();
+    //lidarDataLock.unlock();
     //return pointCloud;
 }
 
