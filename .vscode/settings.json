@@ -71,7 +71,13 @@
         "__tree": "cpp",
         "forward_list": "cpp",
         "span": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "future": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/g++"
 }

@@ -49,7 +49,7 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // File path for linux
+    string baseDataFolderPath = "/home/karthik/Projects/data/KITTI-data3"; // File path for linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
   #endif
@@ -152,7 +152,7 @@ int main(int argv, char **argc)
         //Tools *tools;
         pcl::visualization::PCLVisualizer::Ptr viewer(
             new pcl::visualization::PCLVisualizer("3D Viewer"));
-        // viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK
+        viewer->getRenderWindow()->GlobalWarningDisplayOff(); // suppress VTK
         // warnings
 
         auto fileIterator = sortedPCLFiles.begin();
@@ -172,7 +172,7 @@ int main(int argv, char **argc)
           //pclThread.join();
 
           // default
-          //lidar.readPCLDataFile((*fileIterator).string(), viewer);
+          lidar.readPCLDataFile((*fileIterator).string(), viewer);
           
           // Multiple threading start
           //
@@ -207,16 +207,16 @@ int main(int argv, char **argc)
         
         // Use move semantics to enable 
 
-        std::future<void> future = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer));
+        //std::future<void> future = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer));
 
-        future.wait();
+        //future.wait();
 
           fileIterator++;
           if (fileIterator == sortedPCLFiles.end()) 
           {
             return 0;
           }
-          viewer->spinOnce();
+          //viewer->spinOnce();
 
         //  auto endTime = std::chrono::steady_clock::now();
         //  auto elapsedTime =

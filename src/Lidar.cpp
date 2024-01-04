@@ -119,25 +119,30 @@ void LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl:
     }
     input.seekg(0, std::ios::beg);
 
-    std::vector<std::future<void>> futures;
+    //std::vector<std::future<void>> futures;
+    //std::vector<std::thread> threads;
     auto readTimeStart = std::chrono::steady_clock::now();
     std::mutex readFileMutex;
     for(int i = 0; input.good() && !input.eof(); i++)
     {
-      std::lock_guard<std::mutex> lock(readFileMutex);
+      //std::lock_guard<std::mutex> lock(readFileMutex);
       readFileHelper(input, cloud);
-
+      //threads.emplace_back(std::thread(&LidarProcessing::Lidar<PointT>::readFileHelper, this, std::ref(input), std::ref(cloud)));
       //futures.emplace_back(std::async(std::launch::deferred, &LidarProcessing::Lidar<PointT>::readFileHelper, this, std::ref(input), std::ref(cloud)));
     }
 
     auto readTimeEnd = std::chrono::steady_clock::now();
     auto totalReadTime = std::chrono::duration_cast<std::chrono::milliseconds>(readTimeEnd - readTimeStart);
 
+    //for(auto &thread : threads)
+    //{
+    //  thread.join();
+    //}
     std::cout << "Total File Read Time = " << totalReadTime.count() << std::endl;
-    for(auto &ftr : futures)
-    {
-      ftr.wait();
-    }
+    //for(auto &ftr : futures)
+    //{
+    //  ftr.wait();
+    //}
 
     //auto endTime = std::chrono::steady_clock::now();
 
@@ -193,14 +198,25 @@ float LidarProcessing::Lidar<PointT>::getDistanceThreshold()
 template<typename PointT> 
 void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
+  auto startFilterTime = std::chrono::steady_clock::now();
   // Step 1 : Filter Point Cloud
   typename pcl::PointCloud<PointT>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
   filteredCloud = filterCloud(inputCloud, 0.1, Vector4f(-20, -6, -3, 1), Vector4f(25, 6.5, 3, 1));
-  std::cout << "FilteredCloud point count = " << filteredCloud->points.size() << std::endl;
 
+  auto endFilterTime = std::chrono::steady_clock::now();
+
+  auto elapsedFilterTime = std::chrono::duration_cast<std::chrono::milliseconds>(endFilterTime - startFilterTime);
+  cout << "Time to Filter = " << elapsedFilterTime.count();
+  std::cout << "FilteredCloud point count = " << filteredCloud->points.size()  << "\n" << std::endl;
+
+  auto startSegTime = std::chrono::steady_clock::now();
   // Step 2 : RANSAC Segmentation
   std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr>
               segmentedClouds = ransacPlaneSegmentation(filteredCloud, viewer);
+  auto endSegTime = std::chrono::steady_clock::now();
+
+  auto elapsedSegTime = std::chrono::duration_cast<std::chrono::milliseconds>(endSegTime - startSegTime);
+  cout << "Segmentation Time = " << elapsedSegTime.count() << "\n" << endl;
 
 
 // Step 3: Clustering
@@ -308,9 +324,16 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
       for (int i = 0; i < cloud->points.size(); i++) 
       {
-        float distance =
-            fabs(A * (cloud->points.at(i).x) + B * (cloud->points.at(i).y) +
-                 C * (cloud->points.at(i).z) + D) / denominator;
+
+        std::future<double> distanceF = std::async(std::launch::deferred, [denominator, A, B, C, D, cloud, i]()
+                                      {return fabs(A * (cloud->points.at(i).x) + B * (cloud->points.at(i).y) + C * (cloud->points.at(i).z) + D) / denominator;}
+                                      );
+
+        float distance = static_cast<float>(distanceF.get());
+ 
+        //float distance =
+        //    fabs(A * (cloud->points.at(i).x) + B * (cloud->points.at(i).y) +
+        //         C * (cloud->points.at(i).z) + D) / denominator;
 
         if (distance <= distThreshold) 
         {
