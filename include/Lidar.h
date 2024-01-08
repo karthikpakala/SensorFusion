@@ -85,6 +85,8 @@ template <typename PointT>
     // Cloud processing functions
     typename pcl::PointCloud<PointT>::Ptr cropLidarPoints(typename pcl::PointCloud<PointT>::Ptr &cloud);
     typename pcl::PointCloud<PointT>::Ptr filterCloud(typename pcl::PointCloud<PointT>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint);
+    void calculateInliers(typename pcl::PointCloud<PointT>::Ptr &cloud, std::unordered_set<int> &tempInliers, float &distThreshold, int &numOfIterations);
+    //void calculateInliers(typename pcl::PointCloud<PointT>::Ptr &cloud, std::unordered_set<int> &tempInliers, float &distThreshold);
     std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer);
     std::vector<typename pcl::PointCloud<PointT>::Ptr> Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount, pcl::visualization::PCLVisualizer::Ptr &viewer);
 

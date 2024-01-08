@@ -283,9 +283,59 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
     int numOfIterations = 100;
     float distThreshold = 0.350;
-    while (numOfIterations--) 
+
+    auto numberOfCores = std::thread::hardware_concurrency();
+    cout << "Core count = " << numberOfCores << endl;
+
+    int numberOfIterationsPerCore = numOfIterations / numberOfCores;
+    std::vector<std::thread> threads;
+
+    //for(int i = 0; i < numberOfCores; i++)
+    //{
+    //  threads.emplace_back(std::thread(&LidarProcessing::Lidar<PointT>::calculateInliers, this, std::ref(cloud), 
+    //                        std::ref(tempInliers), std::ref(distThreshold), std::ref(numberOfIterationsPerCore)));
+    //}
+
+    for(int i = 0; i < numberOfCores; i++)
     {
-      // Create a plane using random points in the cloud
+      //threads[i].join();
+    }
+
+    calculateInliers(cloud, tempInliers, distThreshold, numOfIterations);
+
+    typename pcl::PointCloud<PointT>::Ptr inlierCloud(new typename pcl::PointCloud<PointT>);
+    typename pcl::PointCloud<PointT>::Ptr outlierCloud(new typename pcl::PointCloud<PointT>);
+
+    for (int i = 0; i < cloud->points.size(); i++) 
+    {
+      if (tempInliers.count(i)) 
+      {
+        inlierCloud->points.push_back(cloud->points.at(i));
+      } 
+      else 
+      {
+        outlierCloud->points.push_back(cloud->points.at(i));
+      }
+    }
+
+    segmentedClouds.first = inlierCloud;
+    segmentedClouds.second = outlierCloud;
+
+    tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud",
+                                  Color(0, 1, 0));
+    tools->renderPointCloud(viewer, segmentedClouds.second,
+                                 "object cloud", Color(1, 0, 0));
+          // viewer->spin();
+    return segmentedClouds;
+}
+
+template<typename PointT>
+//void LidarProcessing::Lidar<PointT>::calculateInliers(typename pcl::PointCloud<PointT>::Ptr &cloud, std::unordered_set<int> &tempInliers, float &distThreshold)
+void LidarProcessing::Lidar<PointT>::calculateInliers(typename pcl::PointCloud<PointT>::Ptr &cloud, std::unordered_set<int> &tempInliers, float &distThreshold, int &numOfIterations)
+{
+  while(--numOfIterations)
+  {
+        // Create a plane using random points in the cloud
       std::unordered_set<int> inliers;
 
       while (inliers.size() < 3) 
@@ -324,16 +374,10 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
       for (int i = 0; i < cloud->points.size(); i++) 
       {
-
-        std::future<double> distanceF = std::async(std::launch::deferred, [denominator, A, B, C, D, cloud, i]()
-                                      {return fabs(A * (cloud->points.at(i).x) + B * (cloud->points.at(i).y) + C * (cloud->points.at(i).z) + D) / denominator;}
-                                      );
-
-        float distance = static_cast<float>(distanceF.get());
  
-        //float distance =
-        //    fabs(A * (cloud->points.at(i).x) + B * (cloud->points.at(i).y) +
-        //         C * (cloud->points.at(i).z) + D) / denominator;
+        float distance =
+            fabs(A * (cloud->points.at(i).x) + B * (cloud->points.at(i).y) +
+                 C * (cloud->points.at(i).z) + D) / denominator;
 
         if (distance <= distThreshold) 
         {
@@ -345,35 +389,8 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
       {
         tempInliers = inliers;
       }
-
-    }
-
-    typename pcl::PointCloud<PointT>::Ptr inlierCloud(new typename pcl::PointCloud<PointT>);
-    typename pcl::PointCloud<PointT>::Ptr outlierCloud(new typename pcl::PointCloud<PointT>);
-
-    for (int i = 0; i < cloud->points.size(); i++) 
-    {
-      if (tempInliers.count(i)) 
-      {
-        inlierCloud->points.push_back(cloud->points.at(i));
-      } 
-      else 
-      {
-        outlierCloud->points.push_back(cloud->points.at(i));
-      }
-    }
-
-    segmentedClouds.first = inlierCloud;
-    segmentedClouds.second = outlierCloud;
-
-    tools->renderPointCloud(viewer, segmentedClouds.first, "sample cloud",
-                                  Color(0, 1, 0));
-    tools->renderPointCloud(viewer, segmentedClouds.second,
-                                 "object cloud", Color(1, 0, 0));
-          // viewer->spin();
-    return segmentedClouds;
+  }
 }
-
 /*
 // crop Lidar Points to capture only pints in the camera image frame.
 template<typename PointT>
