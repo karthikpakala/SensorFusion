@@ -200,7 +200,12 @@ void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<
 {
   auto startFilterTime = std::chrono::steady_clock::now();
   // Step 1 : Filter Point Cloud
+
+  //std::mutex filteredCloudMutex;
+  //filteredCloudMutex.lock();
   typename pcl::PointCloud<PointT>::Ptr filteredCloud (new pcl::PointCloud<pcl::PointXYZI>);
+  //filteredCloudMutex.unlock();
+
   filteredCloud = filterCloud(inputCloud, 0.1, Vector4f(-20, -6, -3, 1), Vector4f(25, 6.5, 3, 1));
 
   auto endFilterTime = std::chrono::steady_clock::now();
@@ -279,7 +284,10 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
               typename pcl::PointCloud<PointT>::Ptr>
         segmentedClouds;
 
+    //std::mutex inliersMutex;
+    //inliersMutex.lock();
     std::unordered_set<int> tempInliers;
+    //inliersMutex.unlock();
 
     int numOfIterations = 100;
     float distThreshold = 0.350;
@@ -290,18 +298,23 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     int numberOfIterationsPerCore = numOfIterations / numberOfCores;
     std::vector<std::thread> threads;
 
-    //for(int i = 0; i < numberOfCores; i++)
-    //{
-    //  threads.emplace_back(std::thread(&LidarProcessing::Lidar<PointT>::calculateInliers, this, std::ref(cloud), 
-    //                        std::ref(tempInliers), std::ref(distThreshold), std::ref(numberOfIterationsPerCore)));
-    //}
-
     for(int i = 0; i < numberOfCores; i++)
     {
-      //threads[i].join();
+        threads.emplace_back(std::thread(&LidarProcessing::Lidar<PointT>::calculateInliers, this, std::ref(cloud), 
+                            std::ref(tempInliers), std::ref(distThreshold), std::ref(numberOfIterationsPerCore)));
     }
 
-    calculateInliers(cloud, tempInliers, distThreshold, numOfIterations);
+    for(auto &t : threads)
+    {
+      t.join();
+    }
+    //std::thread(&LidarProcessing::Lidar<PointT>::calculateInliers, this, std::ref(cloud), 
+    //                        std::ref(tempInliers), std::ref(distThreshold), std::ref(numOfIterations));
+    //std::thread t(std::thread(&LidarProcessing::Lidar<PointT>::calculateInliers, this, std::ref(cloud), std::ref(tempInliers), std::ref(distThreshold), std::ref(numOfIterations)));
+
+    //t.join();
+
+    //calculateInliers(cloud, tempInliers, distThreshold, numOfIterations);
 
     typename pcl::PointCloud<PointT>::Ptr inlierCloud(new typename pcl::PointCloud<PointT>);
     typename pcl::PointCloud<PointT>::Ptr outlierCloud(new typename pcl::PointCloud<PointT>);
@@ -333,8 +346,8 @@ template<typename PointT>
 //void LidarProcessing::Lidar<PointT>::calculateInliers(typename pcl::PointCloud<PointT>::Ptr &cloud, std::unordered_set<int> &tempInliers, float &distThreshold)
 void LidarProcessing::Lidar<PointT>::calculateInliers(typename pcl::PointCloud<PointT>::Ptr &cloud, std::unordered_set<int> &tempInliers, float &distThreshold, int &numOfIterations)
 {
-  while(--numOfIterations)
-  {
+  //while(numOfIterations--)
+  //{
         // Create a plane using random points in the cloud
       std::unordered_set<int> inliers;
 
@@ -389,7 +402,7 @@ void LidarProcessing::Lidar<PointT>::calculateInliers(typename pcl::PointCloud<P
       {
         tempInliers = inliers;
       }
-  }
+  //}
 }
 /*
 // crop Lidar Points to capture only pints in the camera image frame.
