@@ -9,8 +9,8 @@
 #include <chrono>
 #include <filesystem>
 #include <iostream>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/imgproc.hpp>
+#include <opencv4/opencv2/core/mat.hpp>
+#include <opencv4/opencv2/imgproc.hpp>
 #include <pcl-1.10/pcl/impl/point_types.hpp>
 #include <thread>
 #include<mutex>
@@ -35,7 +35,7 @@ int main(int argv, char **argc) {
 
   // Data file path definitions.
   // string baseDataFolderPath = "../KITTI-data";
-  string baseDataFolderPath = "/home/karthik/Projects/Data/KITTI-data3";
+  string baseDataFolderPath = "/ssd/Projects/Data/KITTI-Dataset-1";
   string pclDataFolderPath = "/velodyne_points/data/";
   string imageDataFolderPath = "/image_02/data/";
   string fileNamePre = "000000";
@@ -199,15 +199,15 @@ int main(int argv, char **argc) {
         CameraProcessing::Camera cameraObject;
 
 
-      if(imageBuffer.size() == imageBufferSize)
-      {
-        imageBuffer.erase(imageBuffer.begin());
-      }
-      imageBuffer.push_back(inputImage);
+        if(imageBuffer.size() == imageBufferSize)
+        {
+          imageBuffer.erase(imageBuffer.begin());
+        }
+        imageBuffer.push_back(inputImage);
 
 
         std::vector<cv::KeyPoint> keyPoints{};
-        cameraObject.detectorHARRIS(imageBuffer.back(), keyPoints);
+        cameraObject.detectorSHITOMASI(imageBuffer.back(), keyPoints);
 
         std::cout << "Key PointSize = " <<  keyPoints.size() << std::endl;
 

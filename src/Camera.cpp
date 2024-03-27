@@ -1,14 +1,14 @@
 #include "Camera.h"
-#include <opencv2/core.hpp>
-#include <opencv2/core/base.hpp>
-#include <opencv2/core/hal/interface.h>
-#include <opencv2/core/matx.hpp>
-#include <opencv2/core/types.hpp>
-#include <opencv2/core/utility.hpp>
-#include <opencv2/features2d.hpp>
-#include <opencv2/highgui.hpp>
+#include <opencv4/opencv2/core.hpp>
+#include <opencv4/opencv2/core/base.hpp>
+#include <opencv4/opencv2/core/hal/interface.h>
+#include <opencv4/opencv2/core/matx.hpp>
+#include <opencv4/opencv2/core/types.hpp>
+#include <opencv4/opencv2/core/utility.hpp>
+#include <opencv4/opencv2/features2d.hpp>
+#include <opencv4/opencv2/highgui.hpp>
 #include <numeric>
-#include <opencv2/imgproc.hpp>
+#include <opencv4/opencv2/imgproc.hpp>
 #include <chrono>
 
 using namespace CameraProcessing;
@@ -117,8 +117,8 @@ void CameraProcessing::Camera::detectorHARRIS(cv::Mat &inputImage, std::vector<c
     cv::convertScaleAbs(dst_norm, dst_norm_scaled);
 
     std::string windowName = "HARRIS Corner Detection Response Matrix";
-    cv::namedWindow(windowName, 4);
-    cv::imshow(windowName, dst_norm_scaled);
+    //cv::namedWindow(windowName, 4);
+    //cv::imshow(windowName, dst_norm_scaled);
     cv::waitKey(10);
 
     double maxOverLap = 0.0;
@@ -172,11 +172,11 @@ void CameraProcessing::Camera::detectorHARRIS(cv::Mat &inputImage, std::vector<c
     std::cout << "Harris Key Point extraction in " << 1000*t/1.0 << "milliseconds" << std::endl;
     std::cout << "Harris Key Point Count = " << keyPoints.size() << std::endl;
     windowName = "Harris corner Detection Results";
-    cv::namedWindow(windowName);
+    //cv::namedWindow(windowName);
     
     cv::Mat visImage = dst_norm_scaled.clone();
-    cv::drawKeypoints(greyImage, keyPoints, visImage);
-    cv::imshow(windowName, visImage);
+    //cv::drawKeypoints(greyImage, keyPoints, visImage);
+    //cv::imshow(windowName, visImage);
     cv::waitKey(10);
 }
 
@@ -194,7 +194,10 @@ void CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage, std::vecto
     // apply corner detection
     double t = (double)cv::getTickCount();
     std::vector<cv::Point2f> corners;
-    cv::goodFeaturesToTrack(inputImage, corners, maxCorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
+
+    cv::Mat greyImage;
+    cvtColor(inputImage, greyImage, cv::COLOR_RGB2GRAY);
+    cv::goodFeaturesToTrack(greyImage, corners, maxCorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
 
     for(auto it = corners.begin(); it != corners.end(); it++)
     {
@@ -208,11 +211,11 @@ void CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage, std::vecto
     std::cout << " Shi-To-Masi detection with n =" << keyPoints.size() << "key points in " << 1000 * t/ 1.0 << "ms" << std::endl;
 
     cv::Mat visImage = inputImage.clone();
-    cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    //cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
     std::string windowName = "Shi-To Masi Corner Detector Results";
-    cv::namedWindow(windowName, 6);
-    imshow(windowName, visImage);
-    cv::waitKey(0);
+    //cv::namedWindow(windowName, 6);
+    //imshow(windowName, visImage);
+    cv::waitKey(10);
 }
 
 void CameraProcessing::Camera::detectorFAST(cv::Mat &inputImage)
