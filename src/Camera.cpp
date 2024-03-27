@@ -70,23 +70,23 @@ void CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv::Mat &image
             break;
         case FAST:
             std::cout << "FAST" << std::endl;
-            detectorFAST(image);
+            detectorFAST(image, keyPoints);
             break;
         case BRISK:
             std::cout << "BRISK" << std::endl;
-            detectorBRISK(image);
+            detectorBRISK(image, keyPoints);
             break;
         case AKAZE:
             std::cout << "AKAZE" << std::endl;
-            detectorAKAZE(image);
+            detectorAKAZE(image, keyPoints);
             break;
         case ORB:
             std::cout << "ORB" << std::endl;
-            detectorORB(image);
+            detectorORB(image, keyPoints);
             break;
         case SIFT:
             std::cout << "SIFT" << std::endl;
-            detectorSIFT(image);
+            detectorSIFT(image, keyPoints);
             break;
 
         default:
@@ -174,10 +174,10 @@ void CameraProcessing::Camera::detectorHARRIS(cv::Mat &inputImage, std::vector<c
     windowName = "Harris corner Detection Results";
     cv::namedWindow(windowName);
     
-    cv::Mat visImage = dst_norm_scaled.clone();
-    cv::drawKeypoints(greyImage, keyPoints, visImage);
-    cv::imshow(windowName, visImage);
-    cv::waitKey(10);
+    // cv::Mat visImage = dst_norm_scaled.clone();
+    // cv::drawKeypoints(greyImage, keyPoints, visImage);
+    // cv::imshow(windowName, visImage);
+    // cv::waitKey(10);
 }
 
 void CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
@@ -194,7 +194,10 @@ void CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage, std::vecto
     // apply corner detection
     double t = (double)cv::getTickCount();
     std::vector<cv::Point2f> corners;
-    cv::goodFeaturesToTrack(inputImage, corners, maxCorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
+
+    cv::Mat greyImage; 
+    cvtColor(inputImage, greyImage, cv::COLOR_RGB2GRAY);
+    cv::goodFeaturesToTrack(greyImage, corners, maxCorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
 
     for(auto it = corners.begin(); it != corners.end(); it++)
     {
@@ -207,35 +210,145 @@ void CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage, std::vecto
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     std::cout << " Shi-To-Masi detection with n =" << keyPoints.size() << "key points in " << 1000 * t/ 1.0 << "ms" << std::endl;
 
-    cv::Mat visImage = inputImage.clone();
-    cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    std::string windowName = "Shi-To Masi Corner Detector Results";
-    cv::namedWindow(windowName, 6);
-    imshow(windowName, visImage);
-    cv::waitKey(0);
+    // cv::Mat visImage = inputImage.clone();
+    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    // std::string windowName = "Shi-To Masi Corner Detector Results";
+    // cv::namedWindow(windowName, 6);
+    // imshow(windowName, visImage);
+    // cv::waitKey(0);
 }
 
-void CameraProcessing::Camera::detectorFAST(cv::Mat &inputImage)
+void CameraProcessing::Camera::detectorFAST(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
+    cv::Mat greyImage;
+    cv::cvtColor(inputImage, greyImage, cv::COLOR_RGB2GRAY);
+
+    cv::Ptr<cv::FastFeatureDetector> detector = cv::FastFeatureDetector::create(10, true);
+    double time = (double)cv::getTickCount();
+    detector->detect(greyImage, keyPoints);
+    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
+    std::cout << "FAST Detectorextraction time" << 1000 * time / 1.0 << " ms " << std::endl;
+    // std::string windowName = "FAST FEatue Detection";
+    // cv::namedWindow(windowName, 5);
+    // cv::Mat visImage = inputImage.clone();
+    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    // cv::imshow(windowName, visImage);
+    // cv::waitKey(10);
+}
+
+void CameraProcessing::Camera::detectorBRISK(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+{
+    cv::Ptr<cv::BRISK> detector = cv::BRISK::create(10, true);
+    double time = (double)cv::getTickCount();
+    detector->detect(inputImage, keyPoints);
+    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
+    std::cout << "BRISK key point detection extraction in " << 1000 * time / 1.0 << "ms" << std::endl;
+    // std::string windowName = "BRISK Detection Results" ;
+    // cv::namedWindow(windowName, 5);
+    // cv::Mat visImage = inputImage.clone();
+    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    // cv::imshow(windowName, visImage);
+    // cv::waitKey(10);
+}
+
+void CameraProcessing::Camera::detectorAKAZE(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+{
+    cv::Ptr<cv::AKAZE> detector = cv::AKAZE::create();
+    double time = (double)cv::getTickCount();
+    detector->detect(inputImage, keyPoints);
+    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
+    std::cout << "AKAZE Detector Extraction" << 1000 * time / 1.0 << "ms" << std::endl;
+    // std::string windowName = "AKAZE Detection Results" ;
+    // cv::namedWindow(windowName, 5);
+    // cv::Mat visImage = inputImage.clone();
+    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    // cv::imshow(windowName, visImage);
+    // cv::waitKey(10);
 
 }
 
-void CameraProcessing::Camera::detectorBRISK(cv::Mat &inputImage)
+void CameraProcessing::Camera::detectorORB(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
+    cv::Ptr<cv::ORB> detector = cv::ORB::create();
+    double time = (double)cv::getTickCount();
+    detector->detect(inputImage, keyPoints);
+    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
+    std::cout << "ORB Detection extraction time = " << 1000 * time / 1.0 << "ms" << std::endl;
+    // std::string windowName = "ORB Detection";
+    // cv::namedWindow(windowName, 5);
+    // cv::Mat visImage = inputImage.clone();
+    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    // cv::imshow(windowName, visImage);
+    // cv::waitKey(10);
 
 }
 
-void CameraProcessing::Camera::detectorAKAZE(cv::Mat &inputImage)
+void CameraProcessing::Camera::detectorSIFT(cv::Mat & inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
+    cv::Ptr<cv::SiftFeatureDetector> detector = cv::SiftFeatureDetector::create();
+    double time = (double)cv::getTickCount();
+    detector->detect(inputImage, keyPoints);
+    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
+    std::cout<<"SIFT feature detection time = " << 1000 * time / 1.0 << "ms" << std::endl;
+    // std::string windowName = "SIFT Detection Results";
+    // cv::Mat visImage = inputImage.clone();
+    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    // cv::imshow(windowName, visImage);
+    // cv::waitKey(10);
 
 }
 
-void CameraProcessing::Camera::detectorORB(cv::Mat &inputImage)
+void CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, int &descType, cv::Mat &descriptors)
 {
+    cv::Ptr<cv::DescriptorExtractor> extractor;
+    if(descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::BRISK_DESC)
+    {
+        int threshold = 30; //FAST AKAZE detection threshold Scale
+        int octaves = 3;    // Detection octatves (use 0 to do single scale)
+        float patternScale = 1.0f;  // Aply this scale to the pattern used for sampling the neighbors
+        extractor = cv::BRISK::create(threshold, octaves, patternScale);
+        std::cout << " BRISK Descriptor Selected" << std::endl;
+    }
+    else if(descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::AKAZE_DESC)
+    {
+        int descriptorSize = 0;
+        int descriptorChannels = 0;
+        float threshold = 0.001f;
+        int nOctaves = 4;
+        int nOctaveLayers = 4;
 
-}
+        extractor = cv::AKAZE::create(cv::AKAZE::DESCRIPTOR_MLDB, descriptorSize, descriptorChannels,
+                    threshold, nOctaves, nOctaveLayers, cv::KAZE::DIFF_PM_G2);
+        std::cout << " AKAZE Descriptor Selected" << std::endl;
+    }
+    else if(descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::ORB_DESC)
+    {
+        extractor = cv::ORB::create(500, 1.2, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
+        std::cout << " ORB Descriptor Selected" << std::endl;
+    }
+    else if(descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::FREAK_DESC)
+    {
+        extractor = cv::xfeatures2d::FREAK::create(true, true, 22.0F, 4);
+        std::cout << " FREAK Descriptor Selected" << std::endl;
+    }
+    else if(descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::SIFT_DESC)
+    {
+        extractor = cv::SiftDescriptorExtractor::create(0, 3, 0.04, 10.0, 1.6);
+        std::cout << " SIFT Descriptor Selected" << std::endl;
+    }
+    else if(descType = CameraProcessing::Camera::DESCRIPTOR_TYPE::BRIEF_DESC)
+    {
+        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
+        std::cout << " BRIEF Descriptor Selected" << std::endl;
+    }
+    else
+    {
+        std::cout << "Unexpected Descriptor Selected" << std::endl;
+    }
 
-void CameraProcessing::Camera::detectorSIFT(cv::Mat & inputImage)
-{
+    double time = (double)cv::getTickCount();
+    extractor->compute(inputImage, keyPoints, descriptors);
+    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
+    std::cout << "Descriptor Extraction in " << 1000 * time / 1.0 << "ms" << std::endl;
 
 }

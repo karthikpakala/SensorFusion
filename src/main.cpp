@@ -42,7 +42,7 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/karthik/Projects/data/KITTI-data3"; // File path for linux
+    string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data1"; // File path for linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
   #endif
@@ -112,9 +112,8 @@ int main(int argv, char **argc)
     unsigned int nCores =  std::thread::hardware_concurrency();
 
     // Enable / Disable using Camera / Lidar
-    bool useLidar = true;
-    bool useCamera = false;
-
+    bool useLidar = false;
+    bool useCamera = true;
 
     if (useLidar)
     {
@@ -149,46 +148,7 @@ int main(int argv, char **argc)
           viewer->removeAllPointClouds();
           viewer->removeAllShapes();
 
-         // auto startTime = std::chrono::steady_clock::now();
-
-          // run on a single thread
-          //std::thread pclThread(&Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer));
-          //pclThread.join();
-
-          // default
-          //lidar.readPCLDataFile((*fileIterator).string(), viewer);
-          
-          // Multiple threading start
-          //
-          /*
-          std::vector<std::thread> threads;
-
-          for(int i = 0; i < nCores; i++)
-          {
-            threads.emplace_back(std::thread(&Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer)));
-          }
-
-          for(auto &t : threads)
-          {
-            t.join();
-          }
-          // Multiple threads end
-          */
-         
           std::vector<std::future<void>> futures;
-
-          /*
-          for(int i = 0; i < nCores; i++)
-          {
-            futures.emplace_back(
-                  std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer)));
-          }
-
-          for(const std::future<void> &ftr : futures)
-          {
-            ftr.wait();
-          }
-          */
 
         /***************************************************************************************************************/
         // It is not possible to parallize this part of the code as working with point cloud requires single task to be working on it at a time to enable error free/ data race free programming.
@@ -205,13 +165,6 @@ int main(int argv, char **argc)
             return 0;
           }
           viewer->spinOnce();
-
-        //  auto endTime = std::chrono::steady_clock::now();
-        //  auto elapsedTime =
-        //      std::chrono::duration_cast<std::chrono::milliseconds>(endTime -
-        //                                                            startTime);
-          //cout << " Time Eleapsed for Lidar Processing = "
-          //     << elapsedTime.count() << " milliseconds " << endl;
         }
       }
     }
@@ -219,8 +172,22 @@ int main(int argv, char **argc)
 
     if (useCamera) 
     {
-      //std::mutex _mutex;
-      //_mutex.lock();
+      // Default Values
+      string matcherType = "MAT_FLANN";        // MAT_BF, MAT_FLANN
+      string descriptorsType = "DES_BINARY"; // DES_BINARY, DES_HOG
+      string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+      int detectorType {};
+      int descriptorType {};
+      cout << " DETECTOR Types : 1: HARRIS | 2: SHITOMASI  | 3: FAST | 4: BRISK | 5: AKAZE | 6: ORB | 7: SIFT" << endl;
+      cout << " DESCRIPTOR Types : 1: BRISK | 2: AKAZE | 3: ORB | 4: FREAK | 5: SIFT | 6: BRIEF |"<< endl;
+    
+      // Select Detector Type
+      cout<<"Enter the Detector Type: "<< detectorType << endl;
+      cin >> detectorType;
+
+      // Select Descriptor type
+      cout<<"Enter the Descriptor Type: "<< descriptorType << endl;
+      cin >> descriptorType;
 
       // Load input image into the buffer.
       for (auto &fileName : sortedCameraFiles) 
@@ -229,24 +196,29 @@ int main(int argv, char **argc)
         CameraProcessing::Camera cameraObject;
 
 
-      if(imageBuffer.size() == imageBufferSize)
-      {
-        imageBuffer.erase(imageBuffer.begin());
-      }
-      imageBuffer.push_back(inputImage);
-
+        if(imageBuffer.size() == imageBufferSize)
+        {
+          imageBuffer.erase(imageBuffer.begin());
+        }
+        imageBuffer.push_back(inputImage);
 
         std::vector<cv::KeyPoint> keyPoints{};
-        cameraObject.detectorHARRIS(imageBuffer.back(), keyPoints);
-        //cameraObject.detectorSHITOMASI(imageBuffer.back(), keyPoints);
+        cameraObject.detectKeyPoints(detectorType, inputImage, keyPoints);
 
+        cv::Mat descriptors {};
+        cameraObject.descriptorKeyPoints(inputImage, keyPoints, descriptorType, descriptors);
+
+
+        cv::Mat visImage = inputImage.clone();
+        cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        std::string windowName = "Corner Detection and Detector Results";
+        cv::namedWindow(windowName, 6);
+        imshow(windowName, visImage);
+        cv::waitKey(10);
         std::cout << "Key PointSize = " <<  keyPoints.size() << std::endl;
 
         cout << "Camera image name = " << fileName.c_str() << endl;
-        //cv::imshow("input Image", inputImage);
-        //cv::waitKey(10);
       }
-      //_mutex.unlock();
     }
   }
 }

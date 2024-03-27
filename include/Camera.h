@@ -15,8 +15,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d.hpp>
-//#include <opencv2/xfeatures2d.hpp>
-//#include <opencv2/xfeatures2d/nonfree.hpp>
+#include <opencv2/xfeatures2d.hpp>
+#include <opencv2/xfeatures2d/nonfree.hpp>
 
 namespace CameraProcessing
 {
@@ -46,11 +46,11 @@ namespace CameraProcessing
 
         void detectorHARRIS(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
         void detectorSHITOMASI(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
-        void detectorFAST(cv::Mat &inputImage);
-        void detectorBRISK(cv::Mat &inputImage);
-        void detectorAKAZE(cv::Mat &inputImage);
-        void detectorORB(cv::Mat &inputImage);
-        void detectorSIFT(cv::Mat &inputImage);
+        void detectorFAST(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
+        void detectorBRISK(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
+        void detectorAKAZE(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
+        void detectorORB(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
+        void detectorSIFT(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
 
         enum DETECTOR_TYPE : int
         {
@@ -63,8 +63,18 @@ namespace CameraProcessing
             SIFT = 7
         };
 
+        enum DESCRIPTOR_TYPE : int
+        {   
+            BRISK_DESC = 1,
+            AKAZE_DESC = 2,
+            ORB_DESC = 3,
+            FREAK_DESC = 4,
+            SIFT_DESC = 5,
+            BRIEF_DESC = 6
+        };
+
         // Identify Key Point Descriptors
-        void descKeyPoints(cv::Mat &inputImage);
+        void descriptorKeyPoints(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, int &descType, cv::Mat &descriptors);
 
         // Match Key Points
         void matchKeyPoints(cv::Mat &currImage, cv::Mat &prevImage);
