@@ -188,6 +188,17 @@ int main(int argv, char **argc)
       // Select Descriptor type
       cout<<"Enter the Descriptor Type: "<< descriptorType << endl;
       cin >> descriptorType;
+        
+      // Current Key Points and Descriptors
+      std::vector<cv::KeyPoint> keyPoints{};
+      cv::Mat descriptors {};
+
+      // Previous Key Points and Descriptors
+      std:vector<cv::KeyPoint> prevKeyPoints {};
+      cv::Mat prevDesc {};
+
+      // Matches from prev and current frames
+      std::vector<cv::DMatch> matches {};
 
       // Load input image into the buffer.
       for (auto &fileName : sortedCameraFiles) 
@@ -202,13 +213,16 @@ int main(int argv, char **argc)
         }
         imageBuffer.push_back(inputImage);
 
-        std::vector<cv::KeyPoint> keyPoints{};
+        
         cameraObject.detectKeyPoints(detectorType, inputImage, keyPoints);
 
-        cv::Mat descriptors {};
+        
         cameraObject.descriptorKeyPoints(inputImage, keyPoints, descriptorType, descriptors);
 
+        cameraObject.matchKeyPoints(keyPoints, prevKeyPoints, descriptors, prevDesc, matches,
+                                              descriptorsType, matcherType, selectorType);
 
+        std::cout << "Key Point Match count = " << matches.size() << "\n" << std::endl;
         cv::Mat visImage = inputImage.clone();
         cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
         std::string windowName = "Corner Detection and Detector Results";
@@ -217,6 +231,10 @@ int main(int argv, char **argc)
         cv::waitKey(10);
         std::cout << "Key PointSize = " <<  keyPoints.size() << std::endl;
 
+        // Capture previous key points and descriptors
+        cout << "Prev Key Points Count" << 
+        prevKeyPoints = keyPoints;
+        prevDesc = descriptors;
         cout << "Camera image name = " << fileName.c_str() << endl;
       }
     }
