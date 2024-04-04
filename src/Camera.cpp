@@ -351,7 +351,7 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
                                               std::string descType, std::string matcherType, std::string selectorType)
 {
     // configure matcher
-    bool crossCheck = false;
+    bool crossCheck = true;
     cv::Ptr<cv::DescriptorMatcher> matcher;
 
     if (matcherType.compare("MAT_BF") == 0)
@@ -363,16 +363,25 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
     {
         matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
     }
+
+        // perform matching task
+    if (selectorType.compare("SEL_NN") == 0)
+    { // nearest neighbor (best match)
+
+        matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
+    }
     else if (selectorType.compare("SEL_KNN") == 0)
-    { // k nearest neighbor
+    { // k nearest neighbors (k=2)
         int k = 2;
         double distRatio = 0.8;
-        std::vector<std::vector<cv::DMatch>> knnMatch;
+        std::vector<std::vector<cv::DMatch>> knnMatch ;
         matcher->knnMatch(descSource, descRef, knnMatch, k);
+        
+        std::cout << "KNN Matches Count = " << knnMatch.size() << std::endl;
 
-        for (const auto &it : knnMatch)
+        for (const auto& it : knnMatch)
         {
-            if (it[0].distance < distRatio * it[1].distance)
+            if(it[0].distance < distRatio * it[1].distance)
             {
                 matches.push_back(it[0]);
             }

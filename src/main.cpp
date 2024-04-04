@@ -178,6 +178,7 @@ int main(int argv, char **argc)
       string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
       int detectorType {};
       int descriptorType {};
+      cout << "Matcher is set to use FLANN based matcher - Only SURF and SIFT are allowed for now - Additional additions are set to be added soon" << endl;
       cout << " DETECTOR Types : 1: HARRIS | 2: SHITOMASI  | 3: FAST | 4: BRISK | 5: AKAZE | 6: ORB | 7: SIFT" << endl;
       cout << " DESCRIPTOR Types : 1: BRISK | 2: AKAZE | 3: ORB | 4: FREAK | 5: SIFT | 6: BRIEF |"<< endl;
     
@@ -232,9 +233,10 @@ int main(int argv, char **argc)
         std::cout << "Key PointSize = " <<  keyPoints.size() << std::endl;
 
         // Capture previous key points and descriptors
-        cout << "Prev Key Points Count" << 
         prevKeyPoints = keyPoints;
         prevDesc = descriptors;
+
+        cout << "Prev Key Points Count = " << prevKeyPoints.size() << endl;
         cout << "Camera image name = " << fileName.c_str() << endl;
       }
     }
