@@ -176,7 +176,7 @@ int main(int argv, char **argc)
         // Matches from prev and current frames
         std::vector<cv::DMatch> matches {};
         
-        // Initialize detection parameters
+        // Initialize camera detection parameters
         cameraObject.init(detectorType, descriptorType);
 
         // Initialize PCL Tools
@@ -205,10 +205,12 @@ int main(int argv, char **argc)
           prevKeyPoints = keyPoints;
           prevDescriptors = descriptors;
 
+          std::cout << "\n";
           std::cout << "Key Point Size = " <<  keyPoints.size() << std::endl;
           std::cout << "Previous Key Point Size = " <<  prevKeyPoints.size() << std::endl;
           std::cout << "Key Point Match count = " << matches.size() << std::endl;
-
+          std::cout << "\n";
+          
           cv::Mat visImage = inputImage.clone();
           cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
           std::string windowName = "Corner Detection and Detector Results";

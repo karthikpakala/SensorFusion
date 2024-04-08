@@ -24,7 +24,8 @@ namespace CameraProcessing
     class Camera
     {
         public:
-
+        
+        std::mutex cameraDataLock;
         // Default Constructor
         Camera() {}
         Camera(cv::Mat& image); // Default constructor

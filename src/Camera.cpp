@@ -72,6 +72,7 @@ void CameraProcessing::Camera::init(int &detectorType, int &descriptorType)
 
 void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage, int &detectorType, int &descriptorType, string &selectorType, string &matcherType, vector<cv::KeyPoint> &keyPoints, cv::Mat &descriptors, vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &prevDescriptors,  std::vector<cv::DMatch> &matches, string &matchDescriptorsType, uint16_t &count)
 {
+    cameraDataLock.lock();
     // Detect Key Points
     detectKeyPoints(detectorType, inputImage, keyPoints);
     
@@ -84,7 +85,7 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage, int &detect
       matchKeyPoints(keyPoints, prevKeyPoints, descriptors, prevDescriptors, matches,
                                               matchDescriptorsType, matcherType, selectorType);
     }
-    std::
+    cameraDataLock.unlock();
 }
 void CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv::Mat &image, std::vector<cv::KeyPoint> &keyPoints)
 {
