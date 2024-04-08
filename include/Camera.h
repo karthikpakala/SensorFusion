@@ -18,6 +18,7 @@
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/xfeatures2d/nonfree.hpp>
 
+using namespace std;
 namespace CameraProcessing
 {
     class Camera
@@ -33,7 +34,8 @@ namespace CameraProcessing
         Camera &operator=(Camera &&cameraObject); // Move assignment constructor
         ~Camera(); // Destructor
 
-
+        void init(int &detectorType, int &descriptorType);
+        void cameraProcessing(cv::Mat &inputImage, int &detectorType, int &descriptorsType, string &selectorType, string &matcherType, vector<cv::KeyPoint> &keyPoints, cv::Mat &descriptors, vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &prevDescriptors, std::vector<cv::DMatch> &matches,  string &matchDescriptorsType, uint16_t &count);
         //Setters & Getters
         void setImage(cv::Mat &inputImage);
         cv::Mat getImage();

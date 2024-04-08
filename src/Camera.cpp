@@ -55,6 +55,37 @@ CameraProcessing::Camera::~Camera()
 {
 }
 
+void CameraProcessing::Camera::init(int &detectorType, int &descriptorType)
+{
+      cout << "Matcher is set to use FLANN based matcher - Only SURF and SIFT are allowed for now - Additional additions are set to be added soon" << endl;
+      cout << " DETECTOR Types : 1: HARRIS | 2: SHITOMASI  | 3: FAST | 4: BRISK | 5: AKAZE | 6: ORB | 7: SIFT" << endl;
+      cout << " DESCRIPTOR Types : 1: BRISK | 2: AKAZE | 3: ORB | 4: FREAK | 5: SIFT | 6: BRIEF |"<< endl;
+    
+      // Select Detector Type
+      cout<<"Enter the Detector Type: "<< detectorType << endl;
+      cin >> detectorType;
+
+      // Select Descriptor type
+      cout<<"Enter the Descriptor Type: "<< descriptorType << endl;
+      cin >> descriptorType;
+}
+
+void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage, int &detectorType, int &descriptorType, string &selectorType, string &matcherType, vector<cv::KeyPoint> &keyPoints, cv::Mat &descriptors, vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &prevDescriptors,  std::vector<cv::DMatch> &matches, string &matchDescriptorsType, uint16_t &count)
+{
+    // Detect Key Points
+    detectKeyPoints(detectorType, inputImage, keyPoints);
+    
+    // Descriptors for Key Points
+    descriptorKeyPoints(inputImage, keyPoints, descriptorType, descriptors);
+
+    // Match Descriptors if count > 1
+    if(count > 1)
+    {
+      matchKeyPoints(keyPoints, prevKeyPoints, descriptors, prevDescriptors, matches,
+                                              matchDescriptorsType, matcherType, selectorType);
+    }
+    std::
+}
 void CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv::Mat &image, std::vector<cv::KeyPoint> &keyPoints)
 {
     switch (detectorType)
@@ -331,7 +362,7 @@ void CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vec
         extractor = cv::SiftDescriptorExtractor::create(0, 3, 0.04, 10.0, 1.6);
         std::cout << " SIFT Descriptor Selected" << std::endl;
     }
-    else if (descType = CameraProcessing::Camera::DESCRIPTOR_TYPE::BRIEF_DESC)
+    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::BRIEF_DESC)
     {
         extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
         std::cout << " BRIEF Descriptor Selected" << std::endl;
@@ -347,8 +378,8 @@ void CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vec
     std::cout << "Descriptor Extraction in " << 1000 * time / 1.0 << "ms" << std::endl;
 }
 
-void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPointsSource, std::vector<cv::KeyPoint> &keyPointRef, cv::Mat &descSource, cv::Mat &descRef, std::vector<cv::DMatch> &matches,
-                                              std::string descType, std::string matcherType, std::string selectorType)
+void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoints, std::vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &descriptors, cv::Mat &prevDescriptors, std::vector<cv::DMatch> &matches,
+                                              std::string matchDescriptorsType, std::string matcherType, std::string selectorType)
 {
     // configure matcher
     bool crossCheck = true;
@@ -368,14 +399,14 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
     if (selectorType.compare("SEL_NN") == 0)
     { // nearest neighbor (best match)
 
-        matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
+        matcher->match(descriptors, prevDescriptors, matches); // Finds the best match for each descriptor in desc1
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
         int k = 2;
         double distRatio = 0.8;
         std::vector<std::vector<cv::DMatch>> knnMatch ;
-        matcher->knnMatch(descSource, descRef, knnMatch, k);
+        matcher->knnMatch(descriptors, prevDescriptors, knnMatch, k);
         
         std::cout << "KNN Matches Count = " << knnMatch.size() << std::endl;
 

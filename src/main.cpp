@@ -50,15 +50,22 @@ int main(int argv, char **argc)
 
   string pclDataFolderPath = "/velodyne_points/data/";
   string imageDataFolderPath = "/image_02/data/";
+  string egoFolderPath = "/oxts/data/";
   string fileNamePre = "000000";
   string pclFileType = ".bin";
   string imageFileType = ".png";
+  string egoFileType = ".txt";
+  
+
 
   string fullPCLFolderPath = baseDataFolderPath + pclDataFolderPath;
   string fullImageFolderPath = baseDataFolderPath + imageDataFolderPath;
+  string fullEgoFolderPath = baseDataFolderPath + egoFolderPath;
 
   uint16_t imageFileCount = 0;
   uint16_t pclFileCount = 0;
+  uint16_t egoFileCount = 0;
+  uint16_t fileCount = 0;
 
   vector<cv::Mat> imageBuffer;
   int imageBufferSize = 2;
@@ -75,56 +82,155 @@ int main(int argv, char **argc)
     ++imageFileCount;
   }
 
+    // Image File Counter
+  for (auto &file : std::filesystem::directory_iterator(fullEgoFolderPath)) 
+  {
+    ++egoFileCount;
+  }
+
   // This Check assumes that the Camera and Lidar data was collected
   // synchronously at the same frequency and are being used accordingly. If a
   // different association technique(ex: assiciating every other camerra frame
   // with Lidar frame) is to be used, this logic needs to change.
-  if (imageFileCount != pclFileCount) 
+  if (imageFileCount != pclFileCount || egoFileCount != imageFileCount || egoFileCount != pclFileCount) 
   {
     std::cerr << "Number of image files is not Equal to number of pcl files"
               << "\n"
               << "PCL File Count = " << pclFileCount << "\n"
               << "Image File Count" << imageFileCount << "\n"
+              << "Ego File Count" << egoFileCount << "\n"
               << endl;
     return 0;
   }
   // Start the Lidar and Camera Processing Loop
   else 
   {
-    std::set<std::filesystem::path> sortedPCLFiles;
 
+    std::set<std::filesystem::path> sortedPCLFiles;
     // Lidar data files sort
     for (auto &file :
          std::filesystem::directory_iterator(fullPCLFolderPath))
     {
       sortedPCLFiles.insert(file.path());
     }
+    //std::sort(sortedPCLFiles.begin(), sortedPCLFiles.end());
 
-
-    std::set<filesystem::path> sortedCameraFiles;
     // Camera data files sort.
+    std::set<filesystem::path> sortedCameraFiles;
     for (auto &file : filesystem::directory_iterator(fullImageFolderPath)) 
     {
       sortedCameraFiles.insert(file.path());
     }
+   // std::sort(sortedCameraFiles.begin(), sortedCameraFiles.end());
+
+    // Ego data files sort
+    std::set<std::filesystem::path> sortedEgoFiles;
+    for (auto &file :
+         std::filesystem::directory_iterator(fullEgoFolderPath))
+    {
+      sortedEgoFiles.insert(file.path());
+    }
+    //std::sort(sortedEgoFiles.begin(), sortedEgoFiles.end());
 
     // Number of CPU cores
     unsigned int nCores =  std::thread::hardware_concurrency();
 
     // Enable / Disable using Camera / Lidar
-    bool useLidar = false;
+    bool useLidar = true;
     bool useCamera = true;
+    bool useEgoData = false;
 
-    if (useLidar)
+    // RANSAC Segmentation parameters
+    int numIterations = 50;
+    float distThreshold = 0.359;
+
+    if(useLidar && useCamera)
+    {
+      fileCount = pclFileCount;
+      auto cameraIterator = sortedCameraFiles.begin();
+      auto pclIterator = sortedPCLFiles.begin();
+
+      uint16_t cameraCount = 0;
+      while(cameraIterator != sortedCameraFiles.end() && pclIterator != sortedPCLFiles.end())
+      {
+        std::vector<std::future<void>> futures;
+        Lidar<pcl::PointXYZI> lidarObject;
+        CameraProcessing::Camera cameraObject;
+
+        // Camera Processing
+        // Default Values
+        string matcherType = "MAT_FLANN";        // MAT_BF, MAT_FLANN
+        string matchDescriptorsType = "DES_BINARY"; // DES_BINARY, DES_HOG
+        string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+        int detectorType {};
+        int descriptorType {};
+        
+        // Current Key Points and Descriptors
+        std::vector<cv::KeyPoint> keyPoints{};
+        cv::Mat descriptors {};
+
+        // Previous Key Points and Descriptors
+        std::vector<cv::KeyPoint> prevKeyPoints {};
+        cv::Mat prevDescriptors {};
+
+        // Matches from prev and current frames
+        std::vector<cv::DMatch> matches {};
+        
+        // Initialize detection parameters
+        cameraObject.init(detectorType, descriptorType);
+
+        // Initialize PCL Tools
+        Tools *tools;
+        pcl::visualization::PCLVisualizer::Ptr viewer(
+            new pcl::visualization::PCLVisualizer("3D Viewer"));
+        while (!viewer->wasStopped()) 
+        {
+          CameraAngle cameraAngle = XY;
+          tools->initCamera(cameraAngle, viewer);
+          viewer->removeAllPointClouds();
+          viewer->removeAllShapes();
+
+          std::future<void> lidarThread = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidarObject, (*pclIterator).string(), std::ref(viewer));
+
+          cv::Mat inputImage = cv::imread((*cameraIterator).c_str());
+
+          cameraCount++;
+
+          std::future<void> cameraThread = std::async(std::launch::deferred, &CameraProcessing::Camera::cameraProcessing, cameraObject, std::ref(inputImage), std::ref(detectorType), 
+                                                      std::ref(descriptorType), std::ref(selectorType), std::ref(matcherType), std::ref(keyPoints), std::ref(descriptors), 
+                                                      std::ref(prevKeyPoints), std::ref(prevDescriptors), std::ref(matches), std::ref(matchDescriptorsType), 
+                                                      std::ref(cameraCount));
+
+          // Update previous Key Points and Descriptors - Get data from other thread to use it in next iteration - Pending
+          prevKeyPoints = keyPoints;
+          prevDescriptors = descriptors;
+
+          std::cout << "Key Point Size = " <<  keyPoints.size() << std::endl;
+          std::cout << "Previous Key Point Size = " <<  prevKeyPoints.size() << std::endl;
+          std::cout << "Key Point Match count = " << matches.size() << std::endl;
+
+          cv::Mat visImage = inputImage.clone();
+          cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+          std::string windowName = "Corner Detection and Detector Results";
+          cv::namedWindow(windowName, 6);
+          imshow(windowName, visImage);
+          cv::waitKey(10);
+
+          lidarThread.wait();
+          cameraThread.wait();
+          cameraIterator++;
+          pclIterator++;
+        }
+      }
+    }
+    else if(useLidar && !useCamera)
     {
       // Load Lidatr data into buffer.
       for (auto &fileName : sortedPCLFiles) 
       {
         Lidar<pcl::PointXYZI> lidar;
 
-        // RANSAC Segmentation parameters
-        int numIterations = 50;
-        float distThreshold = 0.359;
+
 
         // TODO: Check if these new variables can be overloaded to inorporate
         // new features into the new keyword to enable static loading of the
@@ -168,60 +274,45 @@ int main(int argv, char **argc)
         }
       }
     }
-
-
-    if (useCamera) 
+    /*
+    else if (!useLidar && useCamera) 
     {
       // Default Values
       string matcherType = "MAT_FLANN";        // MAT_BF, MAT_FLANN
-      string descriptorsType = "DES_BINARY"; // DES_BINARY, DES_HOG
+      string matchDescriptorsType = "DES_BINARY"; // DES_BINARY, DES_HOG
       string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
       int detectorType {};
       int descriptorType {};
-      cout << "Matcher is set to use FLANN based matcher - Only SURF and SIFT are allowed for now - Additional additions are set to be added soon" << endl;
-      cout << " DETECTOR Types : 1: HARRIS | 2: SHITOMASI  | 3: FAST | 4: BRISK | 5: AKAZE | 6: ORB | 7: SIFT" << endl;
-      cout << " DESCRIPTOR Types : 1: BRISK | 2: AKAZE | 3: ORB | 4: FREAK | 5: SIFT | 6: BRIEF |"<< endl;
-    
-      // Select Detector Type
-      cout<<"Enter the Detector Type: "<< detectorType << endl;
-      cin >> detectorType;
 
-      // Select Descriptor type
-      cout<<"Enter the Descriptor Type: "<< descriptorType << endl;
-      cin >> descriptorType;
+      CameraProcessing::Camera cameraObject;
+
+      // Initialize Camera detection parameters
+      cameraObject.init(matcherType, descriptorsType, selectorType);
         
       // Current Key Points and Descriptors
       std::vector<cv::KeyPoint> keyPoints{};
       cv::Mat descriptors {};
 
       // Previous Key Points and Descriptors
-      std:vector<cv::KeyPoint> prevKeyPoints {};
-      cv::Mat prevDesc {};
+      std::vector<cv::KeyPoint> prevKeyPoints {};
+      cv::Mat prevDescriptors {};
 
       // Matches from prev and current frames
       std::vector<cv::DMatch> matches {};
 
+      uint8_t count = 0;
       // Load input image into the buffer.
       for (auto &fileName : sortedCameraFiles) 
       {
+        count++;
         cv::Mat inputImage = cv::imread(fileName.c_str());
-        CameraProcessing::Camera cameraObject;
+        cameraObject.cameraProcessing(inputImage, detectorType, descriptorsType, selectorType, matcherType, keyPoints, descriptors, prevKeyPoints,prevDescriptors, matches, matchDescriptorsType, cameraCount);
 
-
-        if(imageBuffer.size() == imageBufferSize)
-        {
-          imageBuffer.erase(imageBuffer.begin());
-        }
-        imageBuffer.push_back(inputImage);
-
-        
-        cameraObject.detectKeyPoints(detectorType, inputImage, keyPoints);
-
-        
-        cameraObject.descriptorKeyPoints(inputImage, keyPoints, descriptorType, descriptors);
-
-        cameraObject.matchKeyPoints(keyPoints, prevKeyPoints, descriptors, prevDesc, matches,
-                                              descriptorsType, matcherType, selectorType);
+        //if(imageBuffer.size() == imageBufferSize)
+        //{
+        //  imageBuffer.erase(imageBuffer.begin());
+        //}
+        //imageBuffer.push_back(inputImage);
 
         std::cout << "Key Point Match count = " << matches.size() << "\n" << std::endl;
         cv::Mat visImage = inputImage.clone();
@@ -239,6 +330,41 @@ int main(int argv, char **argc)
         cout << "Prev Key Points Count = " << prevKeyPoints.size() << endl;
         cout << "Camera image name = " << fileName.c_str() << endl;
       }
+    }
+    */
+
+    if(useEgoData)
+    {
+        float32_t  lat;
+        float32_t  lon;
+        float32_t  alt;
+        float32_t  roll;
+        float32_t  pitch;
+        float32_t  yaw;
+        float32_t  vel_north;
+        float32_t  vel_east;
+        float32_t  vel_forward;
+        float32_t  vel_left;
+        float32_t  vel_up;
+        float32_t  ax;
+        float32_t  ay;
+        float32_t  az;
+        float32_t  a_forward;
+        float32_t  a_left;
+        float32_t  a_upward;
+        float32_t  ang_rate_x;
+        float32_t  ang_rate_y;
+        float32_t  ang_rate_z;
+        float32_t  ang_rate_forward;
+        float32_t  ang_rate_left;
+        float32_t  ang_rate_upward;
+        float32_t  pos_accuracy;
+        float32_t  vel_accuracy;
+        int32_t     navstat;
+        int32_t     numstats;
+        int32_t     posmode;
+        int32_t     velmode;
+        int32_t     orimode;
     }
   }
 }
