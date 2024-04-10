@@ -10,6 +10,7 @@
 #include <cmath>
 #include <limits>
 #include <thread>
+#include <future>
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -36,7 +37,21 @@ namespace CameraProcessing
         ~Camera(); // Destructor
 
         void init(int &detectorType, int &descriptorType);
-        void cameraProcessing(cv::Mat &inputImage, int &detectorType, int &descriptorsType, string &selectorType, string &matcherType, vector<cv::KeyPoint> &keyPoints, cv::Mat &descriptors, vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &prevDescriptors, std::vector<cv::DMatch> &matches,  string &matchDescriptorsType, uint16_t &count);
+        void cameraProcessing(cv::Mat &inputImage, 
+                                int &detectorType, 
+                                int &descriptorsType, 
+                                string &selectorType, 
+                                string &matcherType, 
+                                vector<cv::KeyPoint> &keyPoints, 
+                                cv::Mat &descriptors, 
+                                vector<cv::KeyPoint> &prevKeyPoints, 
+                                std::promise<std::vector<cv::KeyPoint>> &&prevKeyPointsPromise, 
+                                cv::Mat &prevDescriptors, 
+                                std::promise<cv::Mat> &&prevDescriptorsPromise, 
+                                std::vector<cv::DMatch> &matches, 
+                                std::promise<std::vector<cv::DMatch>> &&matchesPromise, 
+                                string &matchDescriptorsType,
+                                uint16_t &count);
         //Setters & Getters
         void setImage(cv::Mat &inputImage);
         cv::Mat getImage();

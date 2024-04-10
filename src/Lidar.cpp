@@ -89,7 +89,7 @@ void LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl:
     //std::cout<< " File Name = " << inputFile << std::endl;
     
     // typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
-      typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
+    typename pcl::PointCloud<PointT>::Ptr cloud (new pcl::PointCloud<PointT>);
 
     //auto startTime =  std::chrono::steady_clock::now();
     

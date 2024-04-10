@@ -9,7 +9,6 @@
 #include <chrono>
 #include <filesystem>
 #include <iostream>
-
 #include <thread>
 #include <mutex>
 #include <future>
@@ -190,27 +189,60 @@ int main(int argv, char **argc)
           viewer->removeAllPointClouds();
           viewer->removeAllShapes();
 
-          std::future<void> lidarThread = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidarObject, (*pclIterator).string(), std::ref(viewer));
+          //std::future<void> lidarThread = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidarObject, (*pclIterator).string(), std::ref(viewer));
 
-          cv::Mat inputImage = cv::imread((*cameraIterator).c_str());
+          std::thread lidarThread = std::thread(&Lidar<pcl::PointXYZI>::readPCLDataFile, &lidarObject, (*pclIterator).string(), std::ref(viewer));
+          
+          cv::Mat inputImage = cv::imread((*cameraIterator).string());
 
           cameraCount++;
 
-          std::future<void> cameraThread = std::async(std::launch::deferred, &CameraProcessing::Camera::cameraProcessing, cameraObject, std::ref(inputImage), std::ref(detectorType), 
-                                                      std::ref(descriptorType), std::ref(selectorType), std::ref(matcherType), std::ref(keyPoints), std::ref(descriptors), 
-                                                      std::ref(prevKeyPoints), std::ref(prevDescriptors), std::ref(matches), std::ref(matchDescriptorsType), 
-                                                      std::ref(cameraCount));
+          //std::future<void> cameraThread = std::async(std::launch::deferred, &CameraProcessing::Camera::cameraProcessing, cameraObject, std::ref(inputImage), std::ref(detectorType), 
+          //                                            std::ref(descriptorType), std::ref(selectorType), std::ref(matcherType), std::ref(keyPoints), std::ref(descriptors), 
+          //                                            std::ref(prevKeyPoints), std::ref(prevDescriptors), std::ref(matches), std::ref(matchDescriptorsType), 
+          //                                            std::ref(cameraCount));
 
+          std::promise<std::vector<cv::KeyPoint>> prevKeyPointsPromise;
+          std::promise<cv::Mat> prevDescriptorsPromise;
+          std::promise<std::vector<cv::DMatch>> matchesPromise;
+
+          std::future<std::vector<cv::KeyPoint>> prevKeyPointsFuture = prevKeyPointsPromise.get_future();
+          std::future<cv::Mat> prevDescriptorsFuture = prevDescriptorsPromise.get_future();
+          std::future<std::vector<cv::DMatch>> matchesFuture = matchesPromise.get_future();
+          
+          std::cout << "//***********************//" << std::endl;
+          std::cout << "Key Points before function call = " << keyPoints.size() << std::endl;
+          std::cout << "Prev Key Points before function call = " << prevKeyPoints.size() << std::endl;
+          std::cout << "//***********************//" << std::endl;
+          
+          std::thread cameraThread = std::thread(&CameraProcessing::Camera::cameraProcessing, cameraObject, 
+                                                  std::ref(inputImage), 
+                                                  std::ref(detectorType), 
+                                                  std::ref(descriptorType), 
+                                                  std::ref(selectorType), 
+                                                  std::ref(matcherType), 
+                                                  std::ref(keyPoints), 
+                                                  std::ref(descriptors), 
+                                                  std::ref(prevKeyPoints), 
+                                                  std::move(prevKeyPointsPromise), 
+                                                  std::ref(prevDescriptors), 
+                                                  std::move(prevDescriptorsPromise), 
+                                                  std::ref(matches),
+                                                  std::move(matchesPromise), 
+                                                  std::ref(matchDescriptorsType), 
+                                                  std::ref(cameraCount));
           // Update previous Key Points and Descriptors - Get data from other thread to use it in next iteration - Pending
-          prevKeyPoints = keyPoints;
-          prevDescriptors = descriptors;
 
-          std::cout << "\n";
-          std::cout << "Key Point Size = " <<  keyPoints.size() << std::endl;
+          prevKeyPoints = prevKeyPointsFuture.get();
+          prevDescriptors = prevDescriptorsFuture.get();
+          std::vector<cv::DMatch> testMatches = matchesFuture.get();
+
+          std::cout << "//***********************//" << std::endl;          //std::cout << "Key Point Size = " <<  keyPoints.size() << std::endl;
           std::cout << "Previous Key Point Size = " <<  prevKeyPoints.size() << std::endl;
           std::cout << "Key Point Match count = " << matches.size() << std::endl;
-          std::cout << "\n";
-          
+          std::cout << "Matches Count from Camera Thread = " << testMatches.size() << std::endl;
+          std::cout << "//***********************//" << std::endl;    
+
           cv::Mat visImage = inputImage.clone();
           cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
           std::string windowName = "Corner Detection and Detector Results";
@@ -218,8 +250,10 @@ int main(int argv, char **argc)
           imshow(windowName, visImage);
           cv::waitKey(10);
 
-          lidarThread.wait();
-          cameraThread.wait();
+          //lidarThread.wait();
+          lidarThread.join();
+          //cameraThread.wait();
+          cameraThread.join();
           cameraIterator++;
           pclIterator++;
         }
@@ -337,31 +371,31 @@ int main(int argv, char **argc)
 
     if(useEgoData)
     {
-        float32_t  lat;
-        float32_t  lon;
-        float32_t  alt;
-        float32_t  roll;
-        float32_t  pitch;
-        float32_t  yaw;
-        float32_t  vel_north;
-        float32_t  vel_east;
-        float32_t  vel_forward;
-        float32_t  vel_left;
-        float32_t  vel_up;
-        float32_t  ax;
-        float32_t  ay;
-        float32_t  az;
-        float32_t  a_forward;
-        float32_t  a_left;
-        float32_t  a_upward;
-        float32_t  ang_rate_x;
-        float32_t  ang_rate_y;
-        float32_t  ang_rate_z;
-        float32_t  ang_rate_forward;
-        float32_t  ang_rate_left;
-        float32_t  ang_rate_upward;
-        float32_t  pos_accuracy;
-        float32_t  vel_accuracy;
+        float_t  lat;
+        float_t  lon;
+        float_t  alt;
+        float_t  roll;
+        float_t  pitch;
+        float_t  yaw;
+        float_t  vel_north;
+        float_t  vel_east;
+        float_t  vel_forward;
+        float_t  vel_left;
+        float_t  vel_up;
+        float_t  ax;
+        float_t  ay;
+        float_t  az;
+        float_t  a_forward;
+        float_t  a_left;
+        float_t  a_upward;
+        float_t  ang_rate_x;
+        float_t  ang_rate_y;
+        float_t  ang_rate_z;
+        float_t  ang_rate_forward;
+        float_t  ang_rate_left;
+        float_t  ang_rate_upward;
+        float_t  pos_accuracy;
+        float_t  vel_accuracy;
         int32_t     navstat;
         int32_t     numstats;
         int32_t     posmode;

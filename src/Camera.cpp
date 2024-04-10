@@ -70,23 +70,67 @@ void CameraProcessing::Camera::init(int &detectorType, int &descriptorType)
       cin >> descriptorType;
 }
 
-void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage, int &detectorType, int &descriptorType, string &selectorType, string &matcherType, vector<cv::KeyPoint> &keyPoints, cv::Mat &descriptors, vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &prevDescriptors,  std::vector<cv::DMatch> &matches, string &matchDescriptorsType, uint16_t &count)
+void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage, 
+                                                int &detectorType, 
+                                                int &descriptorType, 
+                                                string &selectorType, 
+                                                string &matcherType, 
+                                                vector<cv::KeyPoint> &keyPoints, 
+                                                cv::Mat &descriptors, 
+                                                vector<cv::KeyPoint> &prevKeyPoints, 
+                                                std::promise<std::vector<cv::KeyPoint>> &&prevKeyPointsPromise, 
+                                                cv::Mat &prevDescriptors, 
+                                                std::promise<cv::Mat> &&prevDescriptorsPromise, 
+                                                std::vector<cv::DMatch> &matches,
+                                                std::promise<std::vector<cv::DMatch>> &&matchesPromise, 
+                                                string &matchDescriptorsType, 
+                                                uint16_t &count)
 {
     cameraDataLock.lock();
     // Detect Key Points
+
+    std::cout << "//***********************//" << std::endl;
+    std::cout << "Key Point Count in cameraProcessing before processing : " << keyPoints.size() << std::endl;
+    std::cout << "Descriptors count in cameraProcessing before processing: " << descriptors.size() << std::endl;
+    std::cout << " Key Point MAtch Count in cameraProcessing before processing: " << matches.size() << std::endl;
+    std::cout << "//***********************//" << std::endl;
     detectKeyPoints(detectorType, inputImage, keyPoints);
     
     // Descriptors for Key Points
     descriptorKeyPoints(inputImage, keyPoints, descriptorType, descriptors);
 
+    std::cout << "//***********************//" << std::endl;
+    std::cout << "Key Point Count in cameraProcessing before matching : " << keyPoints.size() << std::endl;
+    std::cout << "Descriptors count in cameraProcessing before matching: " << descriptors.size() << std::endl;
+    std::cout << " Key Point MAtch Count in cameraProcessing before matching: " << matches.size() << std::endl;
+    std::cout << "//***********************//" << std::endl;
+
+    std::cout << "//***********************//" << std::endl;
+    std::cout << "Prev Key Point Count in cameraProcessing before matching : " << prevKeyPoints.size() << std::endl;
+    std::cout << "Prev Descriptors count in cameraProcessing before matching: " << prevDescriptors.size() << std::endl;
+    std::cout << "Prev Key Point MAtch Count in cameraProcessing before matching: " << matches.size() << std::endl;
+    std::cout << "//***********************//" << std::endl;
     // Match Descriptors if count > 1
     if(count > 1)
     {
       matchKeyPoints(keyPoints, prevKeyPoints, descriptors, prevDescriptors, matches,
                                               matchDescriptorsType, matcherType, selectorType);
     }
+
+    prevKeyPointsPromise.set_value(keyPoints);
+    prevDescriptorsPromise.set_value(descriptors);
+    matchesPromise.set_value(matches);
+    
+    std::cout << "//***********************//" << std::endl;
+    std::cout << "Key Point Count in cameraProcessing after processing : " << keyPoints.size() << std::endl;
+    std::cout << "Descriptors count in cameraProcessing after processing: " << descriptors.size() << std::endl;
+    std::cout << "Key Point MAtch Count in cameraProcessing after processing: " << matches.size() << std::endl;
+    std::cout << "\n" << std::endl;
+    //prevKeyPoints = keyPoints;
+    //prevDescriptors = descriptors;
     cameraDataLock.unlock();
 }
+
 void CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv::Mat &image, std::vector<cv::KeyPoint> &keyPoints)
 {
     switch (detectorType)
