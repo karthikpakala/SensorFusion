@@ -83,11 +83,11 @@ namespace CameraProcessing
 
         enum DESCRIPTOR_TYPE : int
         {   
-            BRISK_DESC = 1,
+            SIFT_DESC = 1,
             AKAZE_DESC = 2,
             ORB_DESC = 3,
             FREAK_DESC = 4,
-            SIFT_DESC = 5,
+            BRISK_DESC = 5,
             BRIEF_DESC = 6
         };
 

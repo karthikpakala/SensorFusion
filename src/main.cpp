@@ -164,6 +164,7 @@ int main(int argv, char **argc)
         int detectorType {};
         int descriptorType {};
         
+
         // Current Key Points and Descriptors
         std::vector<cv::KeyPoint> keyPoints{};
         cv::Mat descriptors {};
@@ -209,7 +210,8 @@ int main(int argv, char **argc)
           std::future<std::vector<cv::KeyPoint>> prevKeyPointsFuture = prevKeyPointsPromise.get_future();
           std::future<cv::Mat> prevDescriptorsFuture = prevDescriptorsPromise.get_future();
           std::future<std::vector<cv::DMatch>> matchesFuture = matchesPromise.get_future();
-          
+
+
           std::cout << "//***********************//" << std::endl;
           std::cout << "Key Points before function call = " << keyPoints.size() << std::endl;
           std::cout << "Prev Key Points before function call = " << prevKeyPoints.size() << std::endl;

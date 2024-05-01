@@ -57,17 +57,30 @@ CameraProcessing::Camera::~Camera()
 
 void CameraProcessing::Camera::init(int &detectorType, int &descriptorType)
 {
-      cout << "Matcher is set to use FLANN based matcher - Only SURF and SIFT are allowed for now - Additional additions are set to be added soon" << endl;
-      cout << " DETECTOR Types : 1: HARRIS | 2: SHITOMASI  | 3: FAST | 4: BRISK | 5: AKAZE | 6: ORB | 7: SIFT" << endl;
-      cout << " DESCRIPTOR Types : 1: BRISK | 2: AKAZE | 3: ORB | 4: FREAK | 5: SIFT | 6: BRIEF |"<< endl;
-    
-      // Select Detector Type
-      cout<<"Enter the Detector Type: "<< detectorType << endl;
-      cin >> detectorType;
 
-      // Select Descriptor type
-      cout<<"Enter the Descriptor Type: "<< descriptorType << endl;
-      cin >> descriptorType;
+          
+    std::cout << "HOG Detectors : HARRIS | Shi-Tomasi | SIFT | SURF" << std::endl;
+    std::cout << "Binary Detectors : FAST | BRIEF | ORB | BRISK | FREAK" << std::endl;
+    std::cout << "HOG Descriptors : SIFT | SURF | HARRIS " << std::endl;
+    std::cout << "Binary Descriptors : BRISK | BRIEF | ORB | FREAK | AKAZE" << std::endl;
+    std::cout << "\n" << std::endl;
+
+    std::cout << "Fastest combinations of Detector/Descriptors are: " << std::endl;
+    std::cout << "FAST/BRISK | FAST/BRIEF | FAST/ORB" << std::endl;
+    std::cout << "\n" << std::endl;
+
+    cout << "Matcher is set to use FLANN based matcher - Only SURF and SIFT are allowed for now - Additional additions are set to be added soon" << endl;
+    cout << " DETECTOR Types : 1: HARRIS | 2: SHITOMASI  | 3: FAST | 4: BRISK | 5: AKAZE | 6: ORB | 7: SIFT" << endl;
+    cout << " DESCRIPTOR Types : 1: SIFT | 2: AKAZE | 3: ORB | 4: FREAK | 5: BRISK | 6: BRIEF |"<< endl;
+    std::cout << "\n" << std::endl;
+
+    // Select Detector Type
+    cout<<"Enter the Detector Type: "<< detectorType << endl;
+    cin >> detectorType;
+
+    // Select Descriptor type
+    cout<<"Enter the Descriptor Type: "<< descriptorType << endl;
+    cin >> descriptorType;
 }
 
 void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage, 
@@ -98,7 +111,8 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
     
     // Descriptors for Key Points
     descriptorKeyPoints(inputImage, keyPoints, descriptorType, descriptors);
-
+    
+    std::cout << "Descriptor Type " << descriptors.type() << std::endl;
     std::cout << "//***********************//" << std::endl;
     std::cout << "Key Point Count in cameraProcessing before matching : " << keyPoints.size() << std::endl;
     std::cout << "Descriptors count in cameraProcessing before matching: " << descriptors.size() << std::endl;
@@ -167,6 +181,60 @@ void CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv::Mat &image
     default:
         std::cout << "Invalid Detector Selected" << std::endl;
     }
+}
+
+void CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, int &descType, cv::Mat &descriptors)
+{
+    cv::Ptr<cv::DescriptorExtractor> extractor;
+    if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::BRISK_DESC)
+    {
+        int threshold = 30;        // FAST AKAZE detection threshold Scale
+        int octaves = 3;           // Detection octatves (use 0 to do single scale)
+        float patternScale = 1.0f; // Aply this scale to the pattern used for sampling the neighbors
+        extractor = cv::BRISK::create(threshold, octaves, patternScale);
+        std::cout << " BRISK Descriptor Selected" << std::endl;
+    }
+    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::AKAZE_DESC)
+    {
+        int descriptorSize = 0;
+        int descriptorChannels = 0;
+        float threshold = 0.001f;
+        int nOctaves = 4;
+        int nOctaveLayers = 4;
+
+        extractor = cv::AKAZE::create(cv::AKAZE::DESCRIPTOR_MLDB, descriptorSize, descriptorChannels,
+                                      threshold, nOctaves, nOctaveLayers, cv::KAZE::DIFF_PM_G2);
+        std::cout << " AKAZE Descriptor Selected" << std::endl;
+    }
+    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::ORB_DESC)
+    {
+        extractor = cv::ORB::create(500, 1.2, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
+        std::cout << " ORB Descriptor Selected" << std::endl;
+    }
+    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::FREAK_DESC)
+    {
+        extractor = cv::xfeatures2d::FREAK::create(true, true, 22.0F, 4);
+        std::cout << " FREAK Descriptor Selected" << std::endl;
+    }
+    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::SIFT_DESC)
+    {
+        extractor = cv::SiftDescriptorExtractor::create(0, 3, 0.04, 10.0, 1.6);
+        std::cout << " SIFT Descriptor Selected" << std::endl;
+    }
+    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::BRIEF_DESC)
+    {
+        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
+        std::cout << " BRIEF Descriptor Selected" << std::endl;
+    }
+    else
+    {
+        std::cout << "Unexpected Descriptor Selected" << std::endl;
+    }
+
+    double time = (double)cv::getTickCount();
+    extractor->compute(inputImage, keyPoints, descriptors);
+    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
+    std::cout << "Descriptor Extraction in " << 1000 * time / 1.0 << "ms" << std::endl;
 }
 
 void CameraProcessing::Camera::detectorHARRIS(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
@@ -367,60 +435,6 @@ void CameraProcessing::Camera::detectorSIFT(cv::Mat &inputImage, std::vector<cv:
     // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
     // cv::imshow(windowName, visImage);
     // cv::waitKey(10);
-}
-
-void CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, int &descType, cv::Mat &descriptors)
-{
-    cv::Ptr<cv::DescriptorExtractor> extractor;
-    if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::BRISK_DESC)
-    {
-        int threshold = 30;        // FAST AKAZE detection threshold Scale
-        int octaves = 3;           // Detection octatves (use 0 to do single scale)
-        float patternScale = 1.0f; // Aply this scale to the pattern used for sampling the neighbors
-        extractor = cv::BRISK::create(threshold, octaves, patternScale);
-        std::cout << " BRISK Descriptor Selected" << std::endl;
-    }
-    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::AKAZE_DESC)
-    {
-        int descriptorSize = 0;
-        int descriptorChannels = 0;
-        float threshold = 0.001f;
-        int nOctaves = 4;
-        int nOctaveLayers = 4;
-
-        extractor = cv::AKAZE::create(cv::AKAZE::DESCRIPTOR_MLDB, descriptorSize, descriptorChannels,
-                                      threshold, nOctaves, nOctaveLayers, cv::KAZE::DIFF_PM_G2);
-        std::cout << " AKAZE Descriptor Selected" << std::endl;
-    }
-    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::ORB_DESC)
-    {
-        extractor = cv::ORB::create(500, 1.2, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
-        std::cout << " ORB Descriptor Selected" << std::endl;
-    }
-    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::FREAK_DESC)
-    {
-        extractor = cv::xfeatures2d::FREAK::create(true, true, 22.0F, 4);
-        std::cout << " FREAK Descriptor Selected" << std::endl;
-    }
-    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::SIFT_DESC)
-    {
-        extractor = cv::SiftDescriptorExtractor::create(0, 3, 0.04, 10.0, 1.6);
-        std::cout << " SIFT Descriptor Selected" << std::endl;
-    }
-    else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::BRIEF_DESC)
-    {
-        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
-        std::cout << " BRIEF Descriptor Selected" << std::endl;
-    }
-    else
-    {
-        std::cout << "Unexpected Descriptor Selected" << std::endl;
-    }
-
-    double time = (double)cv::getTickCount();
-    extractor->compute(inputImage, keyPoints, descriptors);
-    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
-    std::cout << "Descriptor Extraction in " << 1000 * time / 1.0 << "ms" << std::endl;
 }
 
 void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoints, std::vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &descriptors, cv::Mat &prevDescriptors, std::vector<cv::DMatch> &matches,
