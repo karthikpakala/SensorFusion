@@ -1,0 +1,3 @@
+/Users/karthikpakala/Projects/SensorFusion/build/CMakeFiles/SensorFusion.dir
+/Users/karthikpakala/Projects/SensorFusion/build/CMakeFiles/edit_cache.dir
+/Users/karthikpakala/Projects/SensorFusion/build/CMakeFiles/rebuild_cache.dir
