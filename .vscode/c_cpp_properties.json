@@ -29,7 +29,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "/home/karthik/Projects/SensorFusion/**",
+                "/home/karthikpakala/Pers-Projects/SensorFusion/**",
                 "/usr/local/lib/**"
             ],
             "defines": [],
@@ -41,7 +41,7 @@
             "mergeConfigurations": false,
             "browse": {
                 "path": [
-                    "/home/karthik/Projects/SensorFusion/**",
+                    "/home/karthikpakala/Pers-Projects/SensorFusion/**",
                     "${workspaceFolder}"
                 ],
                 "limitSymbolsToIncludedHeaders": true

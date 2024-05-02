@@ -127,6 +127,9 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
     // Match Descriptors if count > 1
     if(count > 1)
     {
+        std::cout << "Descriptors size = " << descriptors.size() << " | " << " Prev Descriptors size = " << prevDescriptors.size() << std::endl;
+      descriptors.convertTo(descriptors, CV_32F); // Necessary to convert Binary descriptors to float to be used with FLANN
+      prevDescriptors.convertTo(prevDescriptors, CV_32F); // Necessary to convert Binary descriptors to float to be used with FLANN
       matchKeyPoints(keyPoints, prevKeyPoints, descriptors, prevDescriptors, matches,
                                               matchDescriptorsType, matcherType, selectorType);
     }

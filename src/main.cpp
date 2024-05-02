@@ -160,7 +160,7 @@ int main(int argv, char **argc)
         // Default Values
         string matcherType = "MAT_FLANN";        // MAT_BF, MAT_FLANN
         string matchDescriptorsType = "DES_BINARY"; // DES_BINARY, DES_HOG
-        string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN
+        string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN // TODO: Fix SEL_NN algorithm - Matches coming out to be 0
         int detectorType {};
         int descriptorType {};
         
@@ -247,6 +247,12 @@ int main(int argv, char **argc)
 
           cv::Mat visImage = inputImage.clone();
           cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+          cv::drawMatches(inputImage, prevKeyPoints, walls, keyPoints, matches, visImage, cv::Scalar::all(-1), cv::Scalar::all(-1), mask, DrawLinesMatchesFlags::DEFAULT);
+          //cv::drawMatches((dataBuffer.end() - 2)->cameraImg, (dataBuffer.end() - 2)->keypoints,
+          //                      (dataBuffer.end() - 1)->cameraImg, (dataBuffer.end() - 1)->keypoints,
+          //                      matches, matchImg,
+          //                      cv::Scalar::all(-1), cv::Scalar::all(-1),
+          //                      vector<char>(), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
           std::string windowName = "Corner Detection and Detector Results";
           cv::namedWindow(windowName, 6);
           imshow(windowName, visImage);
