@@ -142,6 +142,7 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
     std::cout << "\n" << std::endl;
     //prevKeyPoints = keyPoints;
     //prevDescriptors = descriptors;
+    matches.clear();
     cameraDataLock.unlock();
 }
 
@@ -467,14 +468,20 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
         std::vector<std::vector<cv::DMatch>> knnMatch ;
         matcher->knnMatch(descriptors, prevDescriptors, knnMatch, k);
         
-        std::cout << "KNN Matches Count = " << knnMatch.size() << std::endl;
+        //std::cout << "KNN Matches Count = " << knnMatch.size() << std::endl;
 
+        int counter = 0;
+        std::cout << "Matches count before for loop = " << matches.size() << std::endl;
         for (const auto& it : knnMatch)
         {
+            counter++;
+            //std::cout << "Counter = " << counter << " | " << "KNN Matches distances it[0] = " << it[0].distance << " | " << "it[1]" << it[1].distance << std::endl;
             if(it[0].distance < distRatio * it[1].distance)
             {
                 matches.push_back(it[0]);
             }
         }
+        std::cout << "Matches Count matcher function inside loop = " << matches.size() << std::endl;
     }
+    std::cout << "Matches Count matcher function= " << matches.size() << std::endl;
 }

@@ -160,7 +160,7 @@ int main(int argv, char **argc)
         // Default Values
         string matcherType = "MAT_FLANN";        // MAT_BF, MAT_FLANN
         string matchDescriptorsType = "DES_BINARY"; // DES_BINARY, DES_HOG
-        string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+        string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN
         int detectorType {};
         int descriptorType {};
         
