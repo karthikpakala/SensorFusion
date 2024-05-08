@@ -81,7 +81,7 @@ int main(int argv, char **argc)
     ++imageFileCount;
   }
 
-    // Image File Counter
+    // Ego File Counter
   for (auto &file : std::filesystem::directory_iterator(fullEgoFolderPath)) 
   {
     ++egoFileCount;
@@ -101,35 +101,36 @@ int main(int argv, char **argc)
               << endl;
     return 0;
   }
-  // Start the Lidar and Camera Processing Loop
+  // Start Sensor Data Processing Loop
   else 
   {
 
     std::set<std::filesystem::path> sortedPCLFiles;
-    // Lidar data files sort
+    // ********************Lidar data files sort******************** //
     for (auto &file :
          std::filesystem::directory_iterator(fullPCLFolderPath))
     {
       sortedPCLFiles.insert(file.path());
     }
-    //std::sort(sortedPCLFiles.begin(), sortedPCLFiles.end());
+    // ********************Lidar Data Sort*************************** //
 
-    // Camera data files sort.
+    // ********************** Camera data files sort **************** //
     std::set<filesystem::path> sortedCameraFiles;
     for (auto &file : filesystem::directory_iterator(fullImageFolderPath)) 
     {
       sortedCameraFiles.insert(file.path());
     }
-   // std::sort(sortedCameraFiles.begin(), sortedCameraFiles.end());
+    // *********************** Camera Data Sort *********************** //
 
-    // Ego data files sort
+    // *********************** Ego Files Sort ************************* //
     std::set<std::filesystem::path> sortedEgoFiles;
     for (auto &file :
          std::filesystem::directory_iterator(fullEgoFolderPath))
     {
       sortedEgoFiles.insert(file.path());
     }
-    //std::sort(sortedEgoFiles.begin(), sortedEgoFiles.end());
+    // ************************ Ego Files Sort ************************** //
+
 
     // Number of CPU cores
     unsigned int nCores =  std::thread::hardware_concurrency();
@@ -247,7 +248,7 @@ int main(int argv, char **argc)
 
           cv::Mat visImage = inputImage.clone();
           cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-          cv::drawMatches(inputImage, prevKeyPoints, walls, keyPoints, matches, visImage, cv::Scalar::all(-1), cv::Scalar::all(-1), mask, DrawLinesMatchesFlags::DEFAULT);
+          //cv::drawMatches(inputImage, prevKeyPoints, walls, keyPoints, matches, visImage, cv::Scalar::all(-1), cv::Scalar::all(-1), mask, DrawLinesMatchesFlags::DEFAULT);
           //cv::drawMatches((dataBuffer.end() - 2)->cameraImg, (dataBuffer.end() - 2)->keypoints,
           //                      (dataBuffer.end() - 1)->cameraImg, (dataBuffer.end() - 1)->keypoints,
           //                      matches, matchImg,
@@ -301,7 +302,8 @@ int main(int argv, char **argc)
           std::vector<std::future<void>> futures;
 
         /***************************************************************************************************************/
-        // It is not possible to parallize this part of the code as working with point cloud requires single task to be working on it at a time to enable error free/ data race free programming.
+        // It is not possible to parallize this part of the code as working with point cloud requires single task to be working 
+        // on it at a time to enable error free/ data race free programming.
         /*******************************************************************************************************************8*/
         // Use move semantics to enable 
 

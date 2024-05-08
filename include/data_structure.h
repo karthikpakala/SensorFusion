@@ -47,6 +47,17 @@ struct BoundingBox
 
 struct DataStruct
 {
+    //1. Lidar Cloud
+    //2. bounding boxes
+    //3. ROI
+    //4. camera image
+    //5. keypoints
+    //6. matches
+    //7. descriptors
+    //8. bounding boxes
+    //9. BB class ID
+    //10. bounding boxes matches
+
     cv::Mat image; // Camera Image
 
     pcl::PointCloud<LidarPoint> cloud; // Associated Lidar Points
