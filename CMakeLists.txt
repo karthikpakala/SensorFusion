@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 add_definitions(-std=c++17)
 
-##set(CXX_FLAGS "-Wall -lpthread") ## -w disable all diagnostics
+set(CMAKE_CXX_CLANG_TIDY
+    clang-tidy;
+    -header-filter=.;
+    -checks=*;)
+
+    ##set(CXX_FLAGS "-Wall -lpthread") ## -w disable all diagnostics
 ##set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 set(CMAKE_BUILD_TYPE Debug)
 

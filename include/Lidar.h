@@ -27,7 +27,7 @@
 // #include <pcl/common/transforms.h>
 
 #if __linux__
-#include <cuda.h>
+//#include <cuda.h>
 #endif
 
 

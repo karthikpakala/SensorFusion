@@ -2,7 +2,7 @@
 #define CALIBRATION_H
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
