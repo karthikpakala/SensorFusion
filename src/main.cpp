@@ -213,7 +213,6 @@ int main(int argv, char **argc)
           std::future<cv::Mat> prevDescriptorsFuture = prevDescriptorsPromise.get_future();
           std::future<std::vector<cv::DMatch>> matchesFuture = matchesPromise.get_future();
 
-
           std::cout << "//***********************//" << std::endl;
           std::cout << "Key Points before function call = " << keyPoints.size() << std::endl;
           std::cout << "Prev Key Points before function call = " << prevKeyPoints.size() << std::endl;
@@ -237,9 +236,11 @@ int main(int argv, char **argc)
                                                   std::ref(cameraCount));
           // Update previous Key Points and Descriptors - Get data from other thread to use it in next iteration - Pending
 
+          // In Development /////
           prevKeyPoints = prevKeyPointsFuture.get();
           prevDescriptors = prevDescriptorsFuture.get();
           std::vector<cv::DMatch> testMatches = matchesFuture.get();
+          // In Development /////
 
           std::cout << "//***********************//" << std::endl;          //std::cout << "Key Point Size = " <<  keyPoints.size() << std::endl;
           std::cout << "Previous Key Point Size = " <<  prevKeyPoints.size() << std::endl;
@@ -249,12 +250,7 @@ int main(int argv, char **argc)
 
           cv::Mat visImage = inputImage.clone();
           cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-          //cv::drawMatches(inputImage, prevKeyPoints, walls, keyPoints, matches, visImage, cv::Scalar::all(-1), cv::Scalar::all(-1), mask, DrawLinesMatchesFlags::DEFAULT);
-          //cv::drawMatches((dataBuffer.end() - 2)->cameraImg, (dataBuffer.end() - 2)->keypoints,
-          //                      (dataBuffer.end() - 1)->cameraImg, (dataBuffer.end() - 1)->keypoints,
-          //                      matches, matchImg,
-          //                      cv::Scalar::all(-1), cv::Scalar::all(-1),
-          //                      vector<char>(), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+
           std::string windowName = "Corner Detection and Detector Results";
           cv::namedWindow(windowName, 6);
           imshow(windowName, visImage);
@@ -269,6 +265,7 @@ int main(int argv, char **argc)
         }
       }
     }
+    /*
     else if(useLidar && !useCamera)
     {
       // Load Lidatr data into buffer.
@@ -302,10 +299,10 @@ int main(int argv, char **argc)
 
           std::vector<std::future<void>> futures;
 
-        /***************************************************************************************************************/
+        /**************************************************************************************************************
         // It is not possible to parallize this part of the code as working with point cloud requires single task to be working 
         // on it at a time to enable error free/ data race free programming.
-        /*******************************************************************************************************************8*/
+        /*******************************************************************************************************************8
         // Use move semantics to enable 
 
         std::future<void> future = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer));
@@ -321,6 +318,7 @@ int main(int argv, char **argc)
         }
       }
     }
+    */
     /*
     else if (!useLidar && useCamera) 
     {

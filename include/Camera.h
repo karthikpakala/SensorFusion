@@ -101,6 +101,7 @@ namespace CameraProcessing
         private:
         
             cv::Mat inputImage;
+            cv::Rect regionOfInterest;
     };
 }
 

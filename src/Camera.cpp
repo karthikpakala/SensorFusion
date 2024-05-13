@@ -101,6 +101,30 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
 {
     cameraDataLock.lock();
     // Detect Key Points
+     std::cout << "Image dimensions = " << " | " << "Rows = " << inputImage.rows << " | " << "Cols = " << inputImage.cols << std::endl;
+    // Create ROI for the image.
+    int roiRows = inputImage.rows;
+    int roiCols = inputImage.cols;
+
+    int roiStartRow = 2 * roiRows/5;
+    int roiStartCol = 0;
+
+    int numOfRows = 3 * roiRows/5;
+    int numOfCols = roiCols;
+    
+    int roiEndRow = roiRows;
+    int roiEndCol = roiCols;
+
+    int width = roiCols;
+    int roiHeight = 2 * (roiRows/3);
+
+    cv::Point roiTopLeft (roiStartRow, roiStartCol);
+    cv::Point roiBottomRight (roiEndRow, roiEndCol);
+
+    regionOfInterest = cv::Rect(roiStartRow, roiStartCol, numOfRows, numOfCols);
+    cv::rectangle(inputImage,regionOfInterest,cv::Scalar(255,0,0),1,8,0);
+    //regionOfInterest = cv::Rect(inputImage, roiTopLeft, roiBottomRight, cv::Scalar(0, 255, 0), cv::LINE_8, 0);
+
 
     std::cout << "//***********************//" << std::endl;
     std::cout << "Key Point Count in cameraProcessing before processing : " << keyPoints.size() << std::endl;
@@ -145,6 +169,7 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
     std::cout << "\n" << std::endl;
     //prevKeyPoints = keyPoints;
     //prevDescriptors = descriptors;
+
     matches.clear();
     cameraDataLock.unlock();
 }

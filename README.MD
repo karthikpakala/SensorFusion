@@ -26,6 +26,11 @@ Project Goals:
 
     Identify tools to visualize the output. 
 
+Extended Goals:
+    1. Integrate ML model for vehicle detection and classification.
+    2. Create ROI around vehicles and fuse CAMERA/LIDAR data to create an object along with its classification.
+    3. Integrate semantic segmented object detection pipeline.
+    3. Create a separate pipeline to develop lane detection and tracking algorithms
 
 5. Performance enhancements:
     1. Use smart pointers/move semantics to enable better usage of the memory as well as enable better performance

@@ -90,5 +90,16 @@
         "stack": "cpp",
         "*.ipp": "cpp"
     },
-    "C_Cpp.default.compilerPath": "/usr/bin/g++"
+    "C_Cpp.default.compilerPath": "/usr/bin/g++",
+    "C_Cpp.default.includePath": [
+        "/usr/local/include/opencv4/opencv2/core.hpp",
+        "/usr/local/include/opencv4/opencv2/highgui.hpp",
+        "/usr/local/include/opencv4/opencv2/imagecodecs.hpp",
+        "/usr/local/include/opencv4/opencv2/imageproc.hpp",
+        "/usr/local/include/opencv4/opencv2/opencv_modules.hpp",
+        "/usr/local/include/opencv4/opencv2/optflow.hpp",
+        "/usr/local/include/opencv4/opencv2/tracking.hpp",
+        "/usr/local/include/opencv4/opencv2/videoio.hpp",
+        "/usr/local/include/opencv4/opencv2/xfeatures.hpp"
+    ]
 }
