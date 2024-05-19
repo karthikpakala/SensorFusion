@@ -101,7 +101,7 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
 {
     cameraDataLock.lock();
     // Detect Key Points
-     std::cout << "Image dimensions = " << " | " << "Rows = " << inputImage.rows << " | " << "Cols = " << inputImage.cols << std::endl;
+    // std::cout << "Image dimensions = " << " | " << "Rows = " << inputImage.rows << " | " << "Cols = " << inputImage.cols << std::endl;
     // Create ROI for the image.
     int roiRows = inputImage.rows;
     int roiCols = inputImage.cols;
@@ -126,35 +126,35 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
     //regionOfInterest = cv::Rect(inputImage, roiTopLeft, roiBottomRight, cv::Scalar(0, 255, 0), cv::LINE_8, 0);
 
 
-    std::cout << "//***********************//" << std::endl;
-    std::cout << "Key Point Count in cameraProcessing before processing : " << keyPoints.size() << std::endl;
-    std::cout << "Descriptors count in cameraProcessing before processing: " << descriptors.size() << std::endl;
-    std::cout << " Key Point MAtch Count in cameraProcessing before processing: " << matches.size() << std::endl;
-    std::cout << "//***********************//" << std::endl;
+    // std::cout << "//***********************//" << std::endl;
+    // std::cout << "Key Point Count in cameraProcessing before processing : " << keyPoints.size() << std::endl;
+    // std::cout << "Descriptors count in cameraProcessing before processing: " << descriptors.size() << std::endl;
+    // std::cout << " Key Point MAtch Count in cameraProcessing before processing: " << matches.size() << std::endl;
+    // std::cout << "//***********************//" << std::endl;
     detectKeyPoints(detectorType, inputImage, keyPoints);
     
     // Descriptors for Key Points
     descriptorKeyPoints(inputImage, keyPoints, descriptorType, descriptors);
     
-    std::cout << "Descriptor Type " << descriptors.type() << std::endl;
-    std::cout << "//***********************//" << std::endl;
-    std::cout << "Key Point Count in cameraProcessing before matching : " << keyPoints.size() << std::endl;
-    std::cout << "Descriptors count in cameraProcessing before matching: " << descriptors.size() << std::endl;
-    std::cout << " Key Point MAtch Count in cameraProcessing before matching: " << matches.size() << std::endl;
-    std::cout << "//***********************//" << std::endl;
+    // std::cout << "Descriptor Type " << descriptors.type() << std::endl;
+    // std::cout << "//***********************//" << std::endl;
+    // std::cout << "Key Point Count in cameraProcessing before matching : " << keyPoints.size() << std::endl;
+    // std::cout << "Descriptors count in cameraProcessing before matching: " << descriptors.size() << std::endl;
+    // std::cout << " Key Point MAtch Count in cameraProcessing before matching: " << matches.size() << std::endl;
+    // std::cout << "//***********************//" << std::endl;
 
-    std::cout << "//***********************//" << std::endl;
-    std::cout << "Prev Key Point Count in cameraProcessing before matching : " << prevKeyPoints.size() << std::endl;
-    std::cout << "Prev Descriptors count in cameraProcessing before matching: " << prevDescriptors.size() << std::endl;
-    std::cout << "Prev Key Point MAtch Count in cameraProcessing before matching: " << matches.size() << std::endl;
-    std::cout << "//***********************//" << std::endl;
+    // std::cout << "//***********************//" << std::endl;
+    // std::cout << "Prev Key Point Count in cameraProcessing before matching : " << prevKeyPoints.size() << std::endl;
+    // std::cout << "Prev Descriptors count in cameraProcessing before matching: " << prevDescriptors.size() << std::endl;
+    // std::cout << "Prev Key Point MAtch Count in cameraProcessing before matching: " << matches.size() << std::endl;
+    // std::cout << "//***********************//" << std::endl;
     // Match Descriptors if count > 1
     if(count > 1)
     {
         std::cout << "Descriptors size = " << descriptors.size() << " | " << " Prev Descriptors size = " << prevDescriptors.size() << std::endl;
-      descriptors.convertTo(descriptors, CV_32F); // Necessary to convert Binary descriptors to float to be used with FLANN
-      prevDescriptors.convertTo(prevDescriptors, CV_32F); // Necessary to convert Binary descriptors to float to be used with FLANN
-      matchKeyPoints(keyPoints, prevKeyPoints, descriptors, prevDescriptors, matches,
+        descriptors.convertTo(descriptors, CV_32F); // Necessary to convert Binary descriptors to float to be used with FLANN
+        prevDescriptors.convertTo(prevDescriptors, CV_32F); // Necessary to convert Binary descriptors to float to be used with FLANN
+        matchKeyPoints(keyPoints, prevKeyPoints, descriptors, prevDescriptors, matches,
                                               matchDescriptorsType, matcherType, selectorType);
     }
 
@@ -162,11 +162,11 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
     prevDescriptorsPromise.set_value(descriptors);
     matchesPromise.set_value(matches);
     
-    std::cout << "//***********************//" << std::endl;
-    std::cout << "Key Point Count in cameraProcessing after processing : " << keyPoints.size() << std::endl;
-    std::cout << "Descriptors count in cameraProcessing after processing: " << descriptors.size() << std::endl;
-    std::cout << "Key Point MAtch Count in cameraProcessing after processing: " << matches.size() << std::endl;
-    std::cout << "\n" << std::endl;
+    // std::cout << "//***********************//" << std::endl;
+    // std::cout << "Key Point Count in cameraProcessing after processing : " << keyPoints.size() << std::endl;
+    // std::cout << "Descriptors count in cameraProcessing after processing: " << descriptors.size() << std::endl;
+    // std::cout << "Key Point MAtch Count in cameraProcessing after processing: " << matches.size() << std::endl;
+    // std::cout << "\n" << std::endl;
     //prevKeyPoints = keyPoints;
     //prevDescriptors = descriptors;
 
@@ -179,31 +179,24 @@ void CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv::Mat &image
     switch (detectorType)
     {
     case HARRIS:
-        std::cout << "HARRIS Detector" << std::endl;
         detectorHARRIS(image, keyPoints);
         break;
     case SHITOMASI:
-        std::cout << "SHITOHMASI Detector" << std::endl;
         detectorSHITOMASI(image, keyPoints);
         break;
     case FAST:
-        std::cout << "FAST" << std::endl;
         detectorFAST(image, keyPoints);
         break;
     case BRISK:
-        std::cout << "BRISK" << std::endl;
         detectorBRISK(image, keyPoints);
         break;
     case AKAZE:
-        std::cout << "AKAZE" << std::endl;
         detectorAKAZE(image, keyPoints);
         break;
     case ORB:
-        std::cout << "ORB" << std::endl;
         detectorORB(image, keyPoints);
         break;
     case SIFT:
-        std::cout << "SIFT" << std::endl;
         detectorSIFT(image, keyPoints);
         break;
 
@@ -221,7 +214,7 @@ void CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vec
         int octaves = 3;           // Detection octatves (use 0 to do single scale)
         float patternScale = 1.0f; // Aply this scale to the pattern used for sampling the neighbors
         extractor = cv::BRISK::create(threshold, octaves, patternScale);
-        std::cout << " BRISK Descriptor Selected" << std::endl;
+        std::cout << "BRISK Descriptor Selected" << std::endl;
     }
     else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::AKAZE_DESC)
     {
@@ -233,27 +226,27 @@ void CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vec
 
         extractor = cv::AKAZE::create(cv::AKAZE::DESCRIPTOR_MLDB, descriptorSize, descriptorChannels,
                                       threshold, nOctaves, nOctaveLayers, cv::KAZE::DIFF_PM_G2);
-        std::cout << " AKAZE Descriptor Selected" << std::endl;
+        std::cout << "AKAZE Descriptor Selected" << std::endl;
     }
     else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::ORB_DESC)
     {
         extractor = cv::ORB::create(500, 1.2, 8, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
-        std::cout << " ORB Descriptor Selected" << std::endl;
+        std::cout << "ORB Descriptor Selected" << std::endl;
     }
     else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::FREAK_DESC)
     {
         extractor = cv::xfeatures2d::FREAK::create(true, true, 22.0F, 4);
-        std::cout << " FREAK Descriptor Selected" << std::endl;
+        std::cout << "FREAK Descriptor Selected" << std::endl;
     }
     else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::SIFT_DESC)
     {
         extractor = cv::SiftDescriptorExtractor::create(0, 3, 0.04, 10.0, 1.6);
-        std::cout << " SIFT Descriptor Selected" << std::endl;
+        std::cout << "SIFT Descriptor Selected" << std::endl;
     }
     else if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::BRIEF_DESC)
     {
         extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
-        std::cout << " BRIEF Descriptor Selected" << std::endl;
+        std::cout << "BRIEF Descriptor Selected" << std::endl;
     }
     else
     {
@@ -398,7 +391,7 @@ void CameraProcessing::Camera::detectorFAST(cv::Mat &inputImage, std::vector<cv:
     double time = (double)cv::getTickCount();
     detector->detect(greyImage, keyPoints);
     time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
-    std::cout << "FAST Detectorextraction time" << 1000 * time / 1.0 << " ms " << std::endl;
+    std::cout << "FAST Detector Extraction time : " << 1000 * time / 1.0 << " ms " << std::endl;
     // std::string windowName = "FAST FEatue Detection";
     // cv::namedWindow(windowName, 5);
     // cv::Mat visImage = inputImage.clone();
@@ -499,7 +492,7 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
         //std::cout << "KNN Matches Count = " << knnMatch.size() << std::endl;
 
         int counter = 0;
-        std::cout << "Matches count before for loop = " << matches.size() << std::endl;
+        //std::cout << "Matches count before for loop = " << matches.size() << std::endl;
         for (const auto& it : knnMatch)
         {
             counter++;
@@ -509,7 +502,7 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
                 matches.push_back(it[0]);
             }
         }
-        std::cout << "Matches Count matcher function inside loop = " << matches.size() << std::endl;
+        //std::cout << "Matches Count matcher function inside loop = " << matches.size() << std::endl;
     }
     std::cout << "Matches Count matcher function= " << matches.size() << std::endl;
 }

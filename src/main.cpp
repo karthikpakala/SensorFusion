@@ -187,15 +187,14 @@ int main(int argv, char **argc)
             new pcl::visualization::PCLVisualizer("3D Viewer"));
         while (!viewer->wasStopped()) 
         {
+          std::cout << "*************** Start of Lidar and Camera Processing **************" << std::endl;
           CameraAngle cameraAngle = XY;
           tools->initCamera(cameraAngle, viewer);
           viewer->removeAllPointClouds();
           viewer->removeAllShapes();
 
           //std::future<void> lidarThread = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidarObject, (*pclIterator).string(), std::ref(viewer));
-
           std::thread lidarThread = std::thread(&Lidar<pcl::PointXYZI>::readPCLDataFile, &lidarObject, (*pclIterator).string(), std::ref(viewer));
-          
           cv::Mat inputImage = cv::imread((*cameraIterator).string());
 
           cameraCount++;
@@ -213,11 +212,10 @@ int main(int argv, char **argc)
           std::future<cv::Mat> prevDescriptorsFuture = prevDescriptorsPromise.get_future();
           std::future<std::vector<cv::DMatch>> matchesFuture = matchesPromise.get_future();
 
-          std::cout << "//***********************//" << std::endl;
-          std::cout << "Key Points before function call = " << keyPoints.size() << std::endl;
-          std::cout << "Prev Key Points before function call = " << prevKeyPoints.size() << std::endl;
-          std::cout << "//***********************//" << std::endl;
-          
+          // std::cout << "//***********************//" << std::endl;
+          // std::cout << "Key Points before function call = " << keyPoints.size() << std::endl;
+          // std::cout << "Prev Key Points before function call = " << prevKeyPoints.size() << std::endl;
+          // std::cout << "//***********************//" << std::endl;
           std::thread cameraThread = std::thread(&CameraProcessing::Camera::cameraProcessing, cameraObject, 
                                                   std::ref(inputImage), 
                                                   std::ref(detectorType), 
@@ -235,18 +233,17 @@ int main(int argv, char **argc)
                                                   std::ref(matchDescriptorsType), 
                                                   std::ref(cameraCount));
           // Update previous Key Points and Descriptors - Get data from other thread to use it in next iteration - Pending
-
           // In Development /////
           prevKeyPoints = prevKeyPointsFuture.get();
           prevDescriptors = prevDescriptorsFuture.get();
           std::vector<cv::DMatch> testMatches = matchesFuture.get();
           // In Development /////
 
-          std::cout << "//***********************//" << std::endl;          //std::cout << "Key Point Size = " <<  keyPoints.size() << std::endl;
-          std::cout << "Previous Key Point Size = " <<  prevKeyPoints.size() << std::endl;
-          std::cout << "Key Point Match count = " << matches.size() << std::endl;
-          std::cout << "Matches Count from Camera Thread = " << testMatches.size() << std::endl;
-          std::cout << "//***********************//" << std::endl;    
+          // std::cout << "//***********************//" << std::endl;          //std::cout << "Key Point Size = " <<  keyPoints.size() << std::endl;
+          // std::cout << "Previous Key Point Size = " <<  prevKeyPoints.size() << std::endl;
+          // std::cout << "Key Point Match count = " << matches.size() << std::endl;
+          // std::cout << "Matches Count from Camera Thread = " << testMatches.size() << std::endl;
+          // std::cout << "//***********************//" << std::endl;    
 
           cv::Mat visImage = inputImage.clone();
           cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
@@ -262,6 +259,7 @@ int main(int argv, char **argc)
           cameraThread.join();
           cameraIterator++;
           pclIterator++;
+          std::cout << "************* End of Processing Lidar and Camera ****************" << "\n" << std::endl;
         }
       }
     }
@@ -299,10 +297,10 @@ int main(int argv, char **argc)
 
           std::vector<std::future<void>> futures;
 
-        /**************************************************************************************************************
+        **************************************************************************************************************
         // It is not possible to parallize this part of the code as working with point cloud requires single task to be working 
         // on it at a time to enable error free/ data race free programming.
-        /*******************************************************************************************************************8
+        *******************************************************************************************************************8
         // Use move semantics to enable 
 
         std::future<void> future = std::async(std::launch::deferred, &Lidar<pcl::PointXYZI>::readPCLDataFile, lidar, (*fileIterator).string(), std::ref(viewer));
