@@ -506,3 +506,131 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
     }
     std::cout << "Matches Count matcher function= " << matches.size() << std::endl;
 }
+
+void CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath)
+{
+    std::vector<BoundingBox> bBoxes {};
+    float nmsThreshold = 0.8;
+
+    // Step 1: Retrieve and load neural network
+    vector<string> classes{};
+    ifstream ifs(modelClassesPath.c_str());
+    std::string line;
+    while(getline(ifs, line))
+    {
+        classes.push_back(line);
+    }
+
+    // Step 2: load neural network
+    cv::dnn::Net net = cv::dnn::readNetFromDarknet(modelConfigurationPath, modelWeightsPath);
+    net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+    net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU); // Update to use GPU
+
+    // Step 3:Create Blob out of input image to pass into YOLO model. 
+    cv::Mat blob;
+    double scaleFactor = 1/255.0;
+    cv::Size size = cv::Size(416, 416);
+    cv::Scalar mean = cv::Scalar(0,0,0);
+    bool swapRB = false;
+    bool crop = false;
+    cv::dnn::blobFromImage(inputImage, blob, scaleFactor, size, mean, swapRB, crop);
+
+    // Step 4: Run Forward Pass through YOLO Network
+    vector<cv::String> modelOutputNames{};
+    
+    // get indices of output layers i.e., layers with unconnected outputs
+    vector<int> modelOutputLayers = net.getUnconnectedOutLayers();
+    
+    // get names of all layers in the network
+    vector<cv::String> layerNames = net.getLayerNames(); 
+
+    modelOutputNames.resize(modelOutputLayers.size());
+    for(size_t i = 0; i < modelOutputLayers.size(); ++i)
+    {
+        modelOutputNames[i] = layerNames[modelOutputLayers[i] - 1];
+    }
+
+    // invoke forward propagation through network
+    vector<cv::Mat> netOutput{};
+    net.setInput(blob);
+    net.forward(netOutput, modelOutputNames);
+
+    // scan through all bounding boxes and keep only the ones with high condfidence
+    float confidenceThreshold = 0.20;
+    vector<int> classIds{};
+    vector<float> confidences{};
+    vector<cv::Rect> boundingBoxes {};
+
+    for(size_t i = 0; i < netOutput.size(); ++i)
+    {
+        float *data = (float*)netOutput[i].data;
+        for(int j = 0; j < netOutput[i].rows; ++j, data += netOutput[i].cols)
+        {
+            cv::Mat scores = netOutput[i].row(j).colRange(5, netOutput[i].cols);
+            cv::Point classId;
+            double confidence;
+
+            // Get the value and location of the maximum score
+            cv::minMaxLoc(scores, 0, &confidence, 0, &classId);
+            if(confidence > confidenceThreshold)
+            {
+                cv::Rect box;
+                int cx, cy;
+                cx = (int)(data[0] * inputImage.cols);
+                cy = (int)(data[0] * inputImage.rows);
+                box.width = (int)(data[2] * inputImage.cols);
+                box.height = (int)(data[3] * inputImage.rows);
+                box.x = cx - box.width/2; // left
+                box.y = cy - box.height/2; // top
+
+                boundingBoxes.push_back(box);
+                classIds.push_back(classId.x);
+                confidences.push_back((float)confidence);
+            }
+        }
+    }
+
+    // Perform non-maxima suppression
+    vector<int> indices {};
+    cv::dnn::NMSBoxes(boundingBoxes, confidences, confidenceThreshold, nmsThreshold, indices);
+
+    for(auto it = indices.begin(); it != indices.end(); ++it)
+    {
+        BoundingBox bBox;
+        bBox.roi = boundingBoxes[*it];
+        bBox.classID = classIds[*it];
+        bBox.confidence = confidences[*it];
+        bBox.boxID = (int)bBoxes.size(); // Zero based unique id for this BBox
+
+        bBoxes.push_back(bBox);
+    }
+
+    // show results
+    cv::Mat visImg = inputImage.clone();
+    for(auto it = bBoxes.begin(); it != bBoxes.end(); ++it)
+    {
+
+        // Draw Rectangle displaying the boundinh box
+        int top, left, width, height;
+        top = (*it).roi.y;
+        left = (*it).roi.x;
+        width = (*it).roi.width;
+        height = (*it).roi.height;
+        cv::rectangle(visImg, cv::Point(left, top), cv::Point(left+width, top+height), cv::Scalar(0, 255, 0), 2);
+
+        string label = cv::format(".2f", (*it).confidence);
+        label = classes[((*it).classID)] + ":" + label;
+
+        // Display label at the top of the bounding box
+        int baseline;
+        cv::Size labelSize = getTextSize(label, cv::FONT_ITALIC, 0.5, 1, &baseline);
+        top = max(top, labelSize.height);
+        rectangle(visImg, cv::Point(left, top - round(1.5*labelSize.height)), cv::Point(left + round(1.5*labelSize.width), top + baseline), cv::Scalar(255, 255, 255), cv::FILLED);
+        cv::putText(visImg, label, cv::Point(left, top), cv::FONT_ITALIC, 0.75, cv::Scalar(0,0,0),1);
+    }
+
+    string windowName = "Object Classification";
+    cv::namedWindow(windowName, 1);
+    cv::imshow(windowName, visImg);
+    cv::waitKey(10);
+}

@@ -42,11 +42,16 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data1"; // File path for linux
+    string baseDataFolderPath = "/ssd/Projects/Data/KITTI-Dataset3"; // File path for linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
   #endif
 
+
+  string modelBasePath = "/model/yolo/";
+  string modelWeightsPath = modelBasePath + "yolov3.weights";
+  string modelClassesPath = modelBasePath + "coco.names";
+  string modelConfigurationPath = modelBasePath + "yolov3.cfg";
 
   string pclDataFolderPath = "/velodyne_points/data/";
   string imageDataFolderPath = "/image_02/data/";

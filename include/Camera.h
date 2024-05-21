@@ -13,6 +13,7 @@
 #include <future>
 
 #include <opencv2/core.hpp>
+#include<opencv2/dnn.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d.hpp>
@@ -98,6 +99,10 @@ namespace CameraProcessing
         //void matchKeyPoints(cv::Mat &currImage, cv::Mat &prevImage);
         void matchKeyPoints(std::vector<cv::KeyPoint> &keyPointsSource, std::vector<cv::KeyPoint> &keyPointRef, cv::Mat &descSource, cv::Mat &descRef, std::vector<cv::DMatch> &matches,
                                               std::string descType, std::string matcherType, std::string selectorType);
+        
+        void detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath);
+        void createBoundingBox(cv::Mat &inputImage);
+        
         private:
         
             cv::Mat inputImage;
