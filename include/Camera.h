@@ -20,7 +20,10 @@
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/xfeatures2d/nonfree.hpp>
 
+#include "data_structure.h"
+
 using namespace std;
+using namespace DataStructure;
 namespace CameraProcessing
 {
     class Camera
@@ -52,7 +55,10 @@ namespace CameraProcessing
                                 std::vector<cv::DMatch> &matches, 
                                 std::promise<std::vector<cv::DMatch>> &&matchesPromise, 
                                 string &matchDescriptorsType,
-                                uint16_t &count);
+                                uint16_t &count,
+                                std::string &modelWeightsPath,
+                                std::string &modelClassesPath, 
+                                std::string &modelConfigurationPath);
         //Setters & Getters
         void setImage(cv::Mat &inputImage);
         cv::Mat getImage();

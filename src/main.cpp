@@ -42,7 +42,8 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/ssd/Projects/Data/KITTI-Dataset3"; // File path for linux
+    //string baseDataFolderPath = "/ssd/Projects/Data/KITTI-Dataset3"; // File path for linux
+    string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // Linux HP
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
   #endif
@@ -236,7 +237,10 @@ int main(int argv, char **argc)
                                                   std::ref(matches),
                                                   std::move(matchesPromise), 
                                                   std::ref(matchDescriptorsType), 
-                                                  std::ref(cameraCount));
+                                                  std::ref(cameraCount),
+                                                  std::ref(modelWeightsPath),
+                                                  std::ref(modelClassesPath),
+                                                  std::ref(modelConfigurationPath));
           // Update previous Key Points and Descriptors - Get data from other thread to use it in next iteration - Pending
           // In Development /////
           prevKeyPoints = prevKeyPointsFuture.get();

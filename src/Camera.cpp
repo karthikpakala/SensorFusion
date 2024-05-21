@@ -97,7 +97,10 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
                                                 std::vector<cv::DMatch> &matches,
                                                 std::promise<std::vector<cv::DMatch>> &&matchesPromise, 
                                                 string &matchDescriptorsType, 
-                                                uint16_t &count)
+                                                uint16_t &count,
+                                                std::string &modelWeightsPath,
+                                                std::string &modelClassesPath,
+                                                std::string &modelConfigurationPath)
 {
     cameraDataLock.lock();
     // Detect Key Points
@@ -509,7 +512,7 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
 
 void CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath)
 {
-    std::vector<BoundingBox> bBoxes {};
+    std::vector<DataStructure::DataStructure::BoundingBox> bBoxes {};
     float nmsThreshold = 0.8;
 
     // Step 1: Retrieve and load neural network
@@ -596,7 +599,7 @@ void CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &m
 
     for(auto it = indices.begin(); it != indices.end(); ++it)
     {
-        BoundingBox bBox;
+        DataStructure::DataStructure::BoundingBox bBox;
         bBox.roi = boundingBoxes[*it];
         bBox.classID = classIds[*it];
         bBox.confidence = confidences[*it];
@@ -618,7 +621,7 @@ void CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &m
         height = (*it).roi.height;
         cv::rectangle(visImg, cv::Point(left, top), cv::Point(left+width, top+height), cv::Scalar(0, 255, 0), 2);
 
-        string label = cv::format(".2f", (*it).confidence);
+        string label = cv::format("%f", (*it).confidence);
         label = classes[((*it).classID)] + ":" + label;
 
         // Display label at the top of the bounding box
