@@ -1,7 +1,7 @@
 #include "Lidar.h"
 
 //using namespace std;
-using namespace LidarProcessing;
+using namespace Perception::LidarProcessing;
 using namespace Tooling;
 
 // Create Tools object
@@ -9,13 +9,13 @@ Tools *tools;
 
 // Default Constructor
 template<typename PointT>
-LidarProcessing::Lidar<PointT>::Lidar() : pointCloud (new pcl::PointCloud<pcl::PointXYZI>)
+Perception::LidarProcessing::Lidar<PointT>::Lidar() : pointCloud (new pcl::PointCloud<pcl::PointXYZI>)
 {
 }
 
 // Constructor
 template<typename PointT>
-LidarProcessing::Lidar<PointT>::Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud)
+Perception::LidarProcessing::Lidar<PointT>::Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud)
 {
   std::cout << "Inside Lidar constructor" << std::endl;
   pointCloud = std::move(inputCloud);
@@ -23,7 +23,7 @@ LidarProcessing::Lidar<PointT>::Lidar(typename pcl::PointCloud<PointT>::Ptr &inp
 
 // Destructor
 template<typename PointT>
-LidarProcessing::Lidar<PointT>::~Lidar() 
+Perception::LidarProcessing::Lidar<PointT>::~Lidar() 
 {
   //delete pointCloud;
   //std::cout << "Lidar class object destroyed" << std::endl;
@@ -31,14 +31,14 @@ LidarProcessing::Lidar<PointT>::~Lidar()
 
 // Copy Constructor
 template<typename PointT>
-LidarProcessing::Lidar<PointT>::Lidar(const Lidar<PointT> &lidarObject)
+Perception::LidarProcessing::Lidar<PointT>::Lidar(const Lidar<PointT> &lidarObject)
 {
 
 }
 
 // Copy Assignment Operator
 template<typename PointT>
-LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(const Lidar<PointT> &lidarObject)
+Perception::LidarProcessing::Lidar<PointT> &Perception::LidarProcessing::Lidar<PointT>::operator=(const Lidar<PointT> &lidarObject)
 {
   if(this == &lidarObject)
   {
@@ -54,12 +54,12 @@ LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(const 
 
 // Move constructor
 template<typename PointT>
-LidarProcessing::Lidar<PointT>::Lidar(Lidar<PointT> &&lidarObject) noexcept
+Perception::LidarProcessing::Lidar<PointT>::Lidar(Lidar<PointT> &&lidarObject) noexcept
 {}
 
 // Move assignment operator
 template<typename PointT>
-LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(Lidar<PointT> &&lidarObject) noexcept
+Perception::LidarProcessing::Lidar<PointT> &Perception::LidarProcessing::Lidar<PointT>::operator=(Lidar<PointT> &&lidarObject) noexcept
 {
   if(this == &lidarObject)
   {
@@ -72,7 +72,7 @@ LidarProcessing::Lidar<PointT> &LidarProcessing::Lidar<PointT>::operator=(Lidar<
 
 // PointCloud setter
 template<typename PointT>
-void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputPointCloud)
+void Perception::LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputPointCloud)
 {
    pointCloud = std::move(inputPointCloud);
   //processPointCloud(pointCloud);
@@ -82,7 +82,7 @@ void LidarProcessing::Lidar<PointT>::setPointCloud(typename pcl::PointCloud<Poin
 // TODO : Update function to populate class point cloud object instead of using a sepaerate object 
 template<typename PointT>
 //typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer)
-void LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer)
+void Perception::LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl::visualization::PCLVisualizer::Ptr &viewer)
 
 {   
     lidarDataLock.lock();
@@ -130,38 +130,38 @@ void LidarProcessing::Lidar<PointT>::readPCLDataFile(std::string inputFile, pcl:
 
 // Point Cloud getter
 template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::getPointCloud()
+typename pcl::PointCloud<PointT>::Ptr Perception::LidarProcessing::Lidar<PointT>::getPointCloud()
 {
   return pointCloud;
 } 
 
 
 template<typename PointT>
-void LidarProcessing::Lidar<PointT>::setNumberOfIterations(int &numOfIterations)
+void Perception::LidarProcessing::Lidar<PointT>::setNumberOfIterations(int &numOfIterations)
 {
   numberOfIterations = numOfIterations;
 }
 
 template<typename PointT>
-int LidarProcessing::Lidar<PointT>::getNumberOfIterations()
+int Perception::LidarProcessing::Lidar<PointT>::getNumberOfIterations()
 {
   return numberOfIterations;
 }
 
 template<typename PointT>
-void LidarProcessing::Lidar<PointT>::setDistanceThreshold(float &distThreshold)
+void Perception::LidarProcessing::Lidar<PointT>::setDistanceThreshold(float &distThreshold)
 {
   distanceThreshold = distThreshold;
 }
 
 template<typename PointT>
-float LidarProcessing::Lidar<PointT>::getDistanceThreshold()
+float Perception::LidarProcessing::Lidar<PointT>::getDistanceThreshold()
 {
   return distanceThreshold;
 }
 
 template<typename PointT> 
-void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
+void Perception::LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<PointT>::Ptr &inputCloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
 { 
   std::mutex mtx;
   std::lock_guard<std::mutex> lck(mtx);
@@ -183,7 +183,7 @@ void LidarProcessing::Lidar<PointT>::processPointCloud(typename pcl::PointCloud<
 
 // Filter point cloud to remove unnecessary points
 template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::filterCloud(typename pcl::PointCloud<PointT>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint)
+typename pcl::PointCloud<PointT>::Ptr Perception::LidarProcessing::Lidar<PointT>::filterCloud(typename pcl::PointCloud<PointT>::Ptr &cloud, float filterRes, Vector4f minPoint, Vector4f maxPoint)
 {
     pcl::VoxelGrid<PointT> vg;
     typename pcl::PointCloud<PointT>::Ptr cloudFiltered(
@@ -229,7 +229,7 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::filterClou
 
 
 template<typename PointT>
-std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT>::ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
+std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> Perception::LidarProcessing::Lidar<PointT>::ransacPlaneSegmentation(typename pcl::PointCloud<PointT>::Ptr &cloud, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
 
     auto segStartTime = std::chrono::steady_clock::now();
@@ -365,7 +365,7 @@ typename pcl::PointCloud<PointT>::Ptr LidarProcessing::Lidar<PointT>::cropLidarP
 
 // Apply clustering on the point cloud to classify all the points in the cloud and create various objects out of the cloud. 
 template<typename PointT>
-std::vector<typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount, pcl::visualization::PCLVisualizer::Ptr &viewer)
+std::vector<typename pcl::PointCloud<PointT>::Ptr> Perception::LidarProcessing::Lidar<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr &cloud, float distThreshold, int minCount, int maxCount, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusteredObjects;
 
@@ -397,6 +397,6 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> LidarProcessing::Lidar<PointT
     }
     return clusteredObjects;
 }
-template class LidarProcessing::Lidar<pcl::PointXYZI>;
+template class Perception::LidarProcessing::Lidar<pcl::PointXYZI>;
 
 

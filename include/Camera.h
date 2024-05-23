@@ -22,8 +22,8 @@
 
 #include "data_structure.h"
 
-using namespace std;
-using namespace DataStructure;
+namespace Perception
+{
 namespace CameraProcessing
 {
     class Camera
@@ -44,17 +44,17 @@ namespace CameraProcessing
         void cameraProcessing(cv::Mat &inputImage, 
                                 int &detectorType, 
                                 int &descriptorsType, 
-                                string &selectorType, 
-                                string &matcherType, 
-                                vector<cv::KeyPoint> &keyPoints, 
+                                std::string &selectorType, 
+                                std::string &matcherType, 
+                                std::vector<cv::KeyPoint> &keyPoints, 
                                 cv::Mat &descriptors, 
-                                vector<cv::KeyPoint> &prevKeyPoints, 
+                                std::vector<cv::KeyPoint> &prevKeyPoints, 
                                 std::promise<std::vector<cv::KeyPoint>> &&prevKeyPointsPromise, 
                                 cv::Mat &prevDescriptors, 
                                 std::promise<cv::Mat> &&prevDescriptorsPromise, 
                                 std::vector<cv::DMatch> &matches, 
                                 std::promise<std::vector<cv::DMatch>> &&matchesPromise, 
-                                string &matchDescriptorsType,
+                                std::string &matchDescriptorsType,
                                 uint16_t &count,
                                 std::string &modelWeightsPath,
                                 std::string &modelClassesPath, 
@@ -115,7 +115,7 @@ namespace CameraProcessing
             cv::Rect regionOfInterest;
     };
 }
-
+}
 
 
 // Step 2: Convert image into a grey scale image

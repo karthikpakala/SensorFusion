@@ -32,12 +32,13 @@
 
 
 #include "Tools.h"
-//#include "data_structure.h"
 
 #include "eigen3/Eigen/Dense"
 
 using Eigen::Vector4f;
 // using namespace Tooling;
+namespace Perception
+{
 namespace LidarProcessing
 {
 
@@ -95,4 +96,5 @@ template <typename PointT>
   // template class Lidar<pcl::PointXYZI>;
 
 } // namespace LidarProcessing
+} // namespace Perception
 #endif

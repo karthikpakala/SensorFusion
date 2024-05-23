@@ -9,7 +9,7 @@
 #include <pcl/common/common.h>
 #include <fstream>
 
-namespace DataStructure
+namespace Perception
 {
     struct LidarPoint
     {

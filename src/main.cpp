@@ -23,7 +23,8 @@
 
 using namespace std;
 using namespace Tooling;
-using namespace LidarProcessing;
+using namespace Perception::LidarProcessing;
+using namespace Perception::CameraProcessing;
 
 int main(int argv, char **argc) 
 {
@@ -42,14 +43,17 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    //string baseDataFolderPath = "/ssd/Projects/Data/KITTI-Dataset3"; // File path for linux
-    string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // Linux HP
+    string baseDataFolderPath = "/ssd/Projects/Data/KITTI-Dataset3"; // File path for linux
+    //string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // Linux HP
+
+    string modelBasePath = "/ssd/Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
+    //string modelBasePath = "/home/karthikpakala/Pers-Projects/SensorFusion/model/yolo/"; // Office Linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
+    string modelBasePath = "/Users/karthikpakala/Projects/SensorFusion/model/yolo/";
   #endif
 
 
-  string modelBasePath = "/Users/karthikpakala/Projects/SensorFusion/model/yolo/";
   string modelWeightsPath = modelBasePath + "yolov3.weights";
   string modelClassesPath = modelBasePath + "coco.names";
   string modelConfigurationPath = modelBasePath + "yolov3.cfg";
@@ -162,7 +166,7 @@ int main(int argv, char **argc)
       {
         std::vector<std::future<void>> futures;
         Lidar<pcl::PointXYZI> lidarObject;
-        CameraProcessing::Camera cameraObject;
+        Camera cameraObject;
 
         // Camera Processing
         // Default Values
@@ -222,7 +226,7 @@ int main(int argv, char **argc)
           // std::cout << "Key Points before function call = " << keyPoints.size() << std::endl;
           // std::cout << "Prev Key Points before function call = " << prevKeyPoints.size() << std::endl;
           // std::cout << "//***********************//" << std::endl;
-          std::thread cameraThread = std::thread(&CameraProcessing::Camera::cameraProcessing, cameraObject, 
+          std::thread cameraThread = std::thread(&Perception::CameraProcessing::Camera::cameraProcessing, cameraObject, 
                                                   std::ref(inputImage), 
                                                   std::ref(detectorType), 
                                                   std::ref(descriptorType), 
@@ -248,6 +252,11 @@ int main(int argv, char **argc)
           std::vector<cv::DMatch> testMatches = matchesFuture.get();
           // In Development /////
 
+          std::thread objectDetectionThread = std::thread(&Perception::CameraProcessing::Camera::detectObjects, cameraObject, 
+                                                          std::ref(inputImage), 
+                                                          std::ref(modelWeightsPath),
+                                                          std::ref(modelClassesPath),
+                                                          std::ref(modelConfigurationPath));
           // std::cout << "//***********************//" << std::endl;          //std::cout << "Key Point Size = " <<  keyPoints.size() << std::endl;
           // std::cout << "Previous Key Point Size = " <<  prevKeyPoints.size() << std::endl;
           // std::cout << "Key Point Match count = " << matches.size() << std::endl;
@@ -266,6 +275,7 @@ int main(int argv, char **argc)
           lidarThread.join();
           //cameraThread.wait();
           cameraThread.join();
+          objectDetectionThread.join();
           cameraIterator++;
           pclIterator++;
           std::cout << "************* End of Processing Lidar and Camera ****************" << "\n" << std::endl;

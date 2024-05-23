@@ -11,19 +11,19 @@
 #include <opencv2/imgproc.hpp>
 #include <chrono>
 
-using namespace CameraProcessing;
-
-CameraProcessing::Camera::Camera(cv::Mat &image)
+using namespace std;
+using namespace Perception::CameraProcessing;
+Perception::CameraProcessing::Camera::Camera(cv::Mat &image)
 {
     inputImage = image;
 }
 
-CameraProcessing::Camera::Camera(const Camera &cameraObject)
+Perception::CameraProcessing::Camera::Camera(const Camera &cameraObject)
 {
     inputImage = std::move(cameraObject.inputImage);
 }
 
-CameraProcessing::Camera &Camera::operator=(const Camera &cameraObject)
+Perception::CameraProcessing::Camera &Perception::CameraProcessing::Camera::operator=(const Camera &cameraObject)
 {
     if (&cameraObject == this)
     {
@@ -34,12 +34,12 @@ CameraProcessing::Camera &Camera::operator=(const Camera &cameraObject)
     return *this;
 }
 
-CameraProcessing::Camera::Camera(Camera &&cameraObject)
+Perception::CameraProcessing::Camera::Camera(Camera &&cameraObject)
 {
     inputImage = std::move(cameraObject.inputImage);
 }
 
-CameraProcessing::Camera &Camera::operator=(Camera &&cameraObject)
+Perception::CameraProcessing::Camera &Camera::operator=(Camera &&cameraObject)
 {
     if (this == &cameraObject)
     {
@@ -51,11 +51,11 @@ CameraProcessing::Camera &Camera::operator=(Camera &&cameraObject)
     return *this;
 }
 
-CameraProcessing::Camera::~Camera()
+Perception::CameraProcessing::Camera::~Camera()
 {
 }
 
-void CameraProcessing::Camera::init(int &detectorType, int &descriptorType)
+void Perception::CameraProcessing::Camera::init(int &detectorType, int &descriptorType)
 {
 
           
@@ -83,7 +83,7 @@ void CameraProcessing::Camera::init(int &detectorType, int &descriptorType)
     cin >> descriptorType;
 }
 
-void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage, 
+void Perception::CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage, 
                                                 int &detectorType, 
                                                 int &descriptorType, 
                                                 string &selectorType, 
@@ -128,29 +128,11 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
     cv::rectangle(inputImage,regionOfInterest,cv::Scalar(255,0,0),1,8,0);
     //regionOfInterest = cv::Rect(inputImage, roiTopLeft, roiBottomRight, cv::Scalar(0, 255, 0), cv::LINE_8, 0);
 
-
-    // std::cout << "//***********************//" << std::endl;
-    // std::cout << "Key Point Count in cameraProcessing before processing : " << keyPoints.size() << std::endl;
-    // std::cout << "Descriptors count in cameraProcessing before processing: " << descriptors.size() << std::endl;
-    // std::cout << " Key Point MAtch Count in cameraProcessing before processing: " << matches.size() << std::endl;
-    // std::cout << "//***********************//" << std::endl;
     detectKeyPoints(detectorType, inputImage, keyPoints);
     
     // Descriptors for Key Points
     descriptorKeyPoints(inputImage, keyPoints, descriptorType, descriptors);
     
-    // std::cout << "Descriptor Type " << descriptors.type() << std::endl;
-    // std::cout << "//***********************//" << std::endl;
-    // std::cout << "Key Point Count in cameraProcessing before matching : " << keyPoints.size() << std::endl;
-    // std::cout << "Descriptors count in cameraProcessing before matching: " << descriptors.size() << std::endl;
-    // std::cout << " Key Point MAtch Count in cameraProcessing before matching: " << matches.size() << std::endl;
-    // std::cout << "//***********************//" << std::endl;
-
-    // std::cout << "//***********************//" << std::endl;
-    // std::cout << "Prev Key Point Count in cameraProcessing before matching : " << prevKeyPoints.size() << std::endl;
-    // std::cout << "Prev Descriptors count in cameraProcessing before matching: " << prevDescriptors.size() << std::endl;
-    // std::cout << "Prev Key Point MAtch Count in cameraProcessing before matching: " << matches.size() << std::endl;
-    // std::cout << "//***********************//" << std::endl;
     // Match Descriptors if count > 1
     if(count > 1)
     {
@@ -161,21 +143,12 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
                                               matchDescriptorsType, matcherType, selectorType);
     }
     
-    //std::cout << "Weights Path = " << modelWeightsPath << std::endl;
-    //std::cout << "model Classes Path = " << modelClassesPath << std::endl;
-    //std::cout << "model configuration path = " << modelConfigurationPath << std::endl;
-
     //detectObjects(inputImage, modelWeightsPath, modelClassesPath, modelConfigurationPath);
 
     prevKeyPointsPromise.set_value(keyPoints);
     prevDescriptorsPromise.set_value(descriptors);
     matchesPromise.set_value(matches);
-    
-    // std::cout << "//***********************//" << std::endl;
-    // std::cout << "Key Point Count in cameraProcessing after processing : " << keyPoints.size() << std::endl;
-    // std::cout << "Descriptors count in cameraProcessing after processing: " << descriptors.size() << std::endl;
-    // std::cout << "Key Point MAtch Count in cameraProcessing after processing: " << matches.size() << std::endl;
-    // std::cout << "\n" << std::endl;
+
     //prevKeyPoints = keyPoints;
     //prevDescriptors = descriptors;
 
@@ -183,7 +156,7 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
     cameraDataLock.unlock();
 }
 
-void CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv::Mat &image, std::vector<cv::KeyPoint> &keyPoints)
+void Perception::CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv::Mat &image, std::vector<cv::KeyPoint> &keyPoints)
 {
     switch (detectorType)
     {
@@ -214,7 +187,7 @@ void CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv::Mat &image
     }
 }
 
-void CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, int &descType, cv::Mat &descriptors)
+void Perception::CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, int &descType, cv::Mat &descriptors)
 {
     cv::Ptr<cv::DescriptorExtractor> extractor;
     if (descType == CameraProcessing::Camera::DESCRIPTOR_TYPE::BRISK_DESC)
@@ -268,7 +241,7 @@ void CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vec
     std::cout << "Descriptor Extraction in " << 1000 * time / 1.0 << "ms" << std::endl;
 }
 
-void CameraProcessing::Camera::detectorHARRIS(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+void Perception::CameraProcessing::Camera::detectorHARRIS(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
     cv::Mat dst, dst_norm, dst_norm_scaled;
 
@@ -353,7 +326,7 @@ void CameraProcessing::Camera::detectorHARRIS(cv::Mat &inputImage, std::vector<c
     // cv::waitKey(10);
 }
 
-void CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+void Perception::CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
     // compute detector parameters based on image size
     int blockSize = 4;
@@ -391,7 +364,7 @@ void CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage, std::vecto
     // cv::waitKey(0);
 }
 
-void CameraProcessing::Camera::detectorFAST(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+void Perception::CameraProcessing::Camera::detectorFAST(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
     cv::Mat greyImage;
     cv::cvtColor(inputImage, greyImage, cv::COLOR_RGB2GRAY);
@@ -409,7 +382,7 @@ void CameraProcessing::Camera::detectorFAST(cv::Mat &inputImage, std::vector<cv:
     // cv::waitKey(10);
 }
 
-void CameraProcessing::Camera::detectorBRISK(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+void Perception::CameraProcessing::Camera::detectorBRISK(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
     cv::Ptr<cv::BRISK> detector = cv::BRISK::create(10, true);
     double time = (double)cv::getTickCount();
@@ -424,7 +397,7 @@ void CameraProcessing::Camera::detectorBRISK(cv::Mat &inputImage, std::vector<cv
     // cv::waitKey(10);
 }
 
-void CameraProcessing::Camera::detectorAKAZE(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+void Perception::CameraProcessing::Camera::detectorAKAZE(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
     cv::Ptr<cv::AKAZE> detector = cv::AKAZE::create();
     double time = (double)cv::getTickCount();
@@ -439,7 +412,7 @@ void CameraProcessing::Camera::detectorAKAZE(cv::Mat &inputImage, std::vector<cv
     // cv::waitKey(10);
 }
 
-void CameraProcessing::Camera::detectorORB(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+void Perception::CameraProcessing::Camera::detectorORB(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
     cv::Ptr<cv::ORB> detector = cv::ORB::create();
     double time = (double)cv::getTickCount();
@@ -454,7 +427,7 @@ void CameraProcessing::Camera::detectorORB(cv::Mat &inputImage, std::vector<cv::
     // cv::waitKey(10);
 }
 
-void CameraProcessing::Camera::detectorSIFT(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+void Perception::CameraProcessing::Camera::detectorSIFT(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
 {
     cv::Ptr<cv::SiftFeatureDetector> detector = cv::SiftFeatureDetector::create();
     double time = (double)cv::getTickCount();
@@ -468,7 +441,7 @@ void CameraProcessing::Camera::detectorSIFT(cv::Mat &inputImage, std::vector<cv:
     // cv::waitKey(10);
 }
 
-void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoints, std::vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &descriptors, cv::Mat &prevDescriptors, std::vector<cv::DMatch> &matches,
+void Perception::CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoints, std::vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &descriptors, cv::Mat &prevDescriptors, std::vector<cv::DMatch> &matches,
                                               std::string matchDescriptorsType, std::string matcherType, std::string selectorType)
 {
     // configure matcher
@@ -516,9 +489,9 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
     std::cout << "Matches Count matcher function= " << matches.size() << std::endl;
 }
 
-void CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath)
+void Perception::CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath)
 {
-    std::vector<DataStructure::BoundingBox> bBoxes {};
+    std::vector<Perception::BoundingBox> bBoxes {};
     float nmsThreshold = 0.8;
 
     // Step 1: Retrieve and load neural network
@@ -605,7 +578,7 @@ void CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &m
 
     for(auto it = indices.begin(); it != indices.end(); ++it)
     {
-        DataStructure::BoundingBox bBox;
+        Perception::BoundingBox bBox;
         bBox.roi = boundingBoxes[*it];
         bBox.classID = classIds[*it];
         bBox.confidence = confidences[*it];
