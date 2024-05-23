@@ -160,6 +160,12 @@ void CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
         matchKeyPoints(keyPoints, prevKeyPoints, descriptors, prevDescriptors, matches,
                                               matchDescriptorsType, matcherType, selectorType);
     }
+    
+    //std::cout << "Weights Path = " << modelWeightsPath << std::endl;
+    //std::cout << "model Classes Path = " << modelClassesPath << std::endl;
+    //std::cout << "model configuration path = " << modelConfigurationPath << std::endl;
+
+    //detectObjects(inputImage, modelWeightsPath, modelClassesPath, modelConfigurationPath);
 
     prevKeyPointsPromise.set_value(keyPoints);
     prevDescriptorsPromise.set_value(descriptors);
@@ -512,7 +518,7 @@ void CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoin
 
 void CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath)
 {
-    std::vector<DataStructure::DataStructure::BoundingBox> bBoxes {};
+    std::vector<DataStructure::BoundingBox> bBoxes {};
     float nmsThreshold = 0.8;
 
     // Step 1: Retrieve and load neural network
@@ -599,7 +605,7 @@ void CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &m
 
     for(auto it = indices.begin(); it != indices.end(); ++it)
     {
-        DataStructure::DataStructure::BoundingBox bBox;
+        DataStructure::BoundingBox bBox;
         bBox.roi = boundingBoxes[*it];
         bBox.classID = classIds[*it];
         bBox.confidence = confidences[*it];

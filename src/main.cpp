@@ -49,7 +49,7 @@ int main(int argv, char **argc)
   #endif
 
 
-  string modelBasePath = "/model/yolo/";
+  string modelBasePath = "/Users/karthikpakala/Projects/SensorFusion/model/yolo/";
   string modelWeightsPath = modelBasePath + "yolov3.weights";
   string modelClassesPath = modelBasePath + "coco.names";
   string modelConfigurationPath = modelBasePath + "yolov3.cfg";
