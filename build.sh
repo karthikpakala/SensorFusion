@@ -2,4 +2,4 @@
 
 docker build -t sensorfusion .
 
-docker run -t sensorfusion -e DISPLAY=$DISPLAY 
+docker run -it --rm -e DISPLAY=$DISPLAY -v /Users/karthikpakala/Projects/data:/Data sensorfusion
