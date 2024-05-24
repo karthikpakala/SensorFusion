@@ -10,6 +10,7 @@ ARG OPEN_CV_VERSION=4.5.0
 
 ### TODO: Add multistagebuild with crosscompile image ###
 
+RUN mkdir /Data
 # 
 # install opencv deps
 #
