@@ -22,6 +22,7 @@
 
 #include "data_structure.h"
 
+using namespace std;
 namespace Perception
 {
 namespace CameraProcessing
@@ -106,7 +107,13 @@ namespace CameraProcessing
         void matchKeyPoints(std::vector<cv::KeyPoint> &keyPointsSource, std::vector<cv::KeyPoint> &keyPointRef, cv::Mat &descSource, cv::Mat &descRef, std::vector<cv::DMatch> &matches,
                                               std::string descType, std::string matcherType, std::string selectorType);
         
-        void detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath);
+        //void detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string &modelConfigurationPath, 
+        //                    std::promise<Perception::BoundingBox> &bBoxesPromise, std::promise<std::vector<string>> &classesPromise, std::promise<int> &classIdsPromise,
+        //                    std::promise<float> &confidencesPromise, std::promise<cv::Rect> &bondingBoxesPromise);
+
+        void detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath, 
+                                                        std::promise<vector<Perception::BoundingBox>> &bBoxesPromise, std::promise<vector<string>> &classesPromise, 
+                                                        std::promise<vector<int>> &classIdsPromise, std::promise<vector<float>> &confidencesPromise, std::promise<vector<cv::Rect>> &bondingBoxesPromise);
         void createBoundingBox(cv::Mat &inputImage);
         
         private:

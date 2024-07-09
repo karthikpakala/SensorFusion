@@ -252,21 +252,82 @@ int main(int argv, char **argc)
           std::vector<cv::DMatch> testMatches = matchesFuture.get();
           // In Development /////
 
+          vector<Perception::BoundingBox> bBoxes {};
+          vector<string> classes{};
+          vector<int> classIds{};
+          vector<float> confidences{};
+          vector<cv::Rect> boundingBoxes {};
+
+          std::promise<vector<Perception::BoundingBox>> bBoxesPromise;
+          std::promise<vector<string>> classesPromise;
+          std::promise<vector<int>> classIdsPromise;
+          std::promise<vector<float>> confidencesPromise;
+          std::promise<vector<cv::Rect>> boundingBoxesPromise;
+
+          std::future<vector<Perception::BoundingBox>> bBoxesFuture = bBoxesPromise.get_future();
+          std::future<vector<string>> classesFuture = classesPromise.get_future();
+          std::future<vector<int>> classIdsFuture = classIdsPromise.get_future();
+          std::future<vector<float>> confidencesFuture = confidencesPromise.get_future();
+          std::future<vector<cv::Rect>> boundingBoxesFuture = boundingBoxesPromise.get_future();
+
+
           std::thread objectDetectionThread = std::thread(&Perception::CameraProcessing::Camera::detectObjects, cameraObject, 
                                                           std::ref(inputImage), 
                                                           std::ref(modelWeightsPath),
                                                           std::ref(modelClassesPath),
-                                                          std::ref(modelConfigurationPath));
+                                                          std::ref(modelConfigurationPath),
+                                                          std::ref(bBoxesPromise),
+                                                          std::ref(classesPromise),
+                                                          std::ref(classIdsPromise),
+                                                          std::ref(confidencesPromise),
+                                                          std::ref(boundingBoxesPromise));
           // std::cout << "//***********************//" << std::endl;          //std::cout << "Key Point Size = " <<  keyPoints.size() << std::endl;
           // std::cout << "Previous Key Point Size = " <<  prevKeyPoints.size() << std::endl;
           // std::cout << "Key Point Match count = " << matches.size() << std::endl;
           // std::cout << "Matches Count from Camera Thread = " << testMatches.size() << std::endl;
           // std::cout << "//***********************//" << std::endl;    
 
+          bBoxes = bBoxesFuture.get();
+          classes = classesFuture.get();
+          classIds = classIdsFuture.get();
+          confidences = confidencesFuture.get();
+          boundingBoxes = boundingBoxesFuture.get();
+
+          // Visualize Key Point Detection Visualization
           cv::Mat visImage = inputImage.clone();
           cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
-          std::string windowName = "Corner Detection and Detector Results";
+
+
+          // Visualize Object Detection
+          for(auto it = bBoxes.begin(); it != bBoxes.end(); ++it)
+          {
+
+            // Draw Rectangle displaying the boundinh box
+            int top, left, width, height;
+            top = (*it).roi.y;
+            left = (*it).roi.x;
+            width = (*it).roi.width;
+            height = (*it).roi.height;
+            cv::rectangle(visImage, cv::Point(left, top), cv::Point(left+width, top+height), cv::Scalar(0, 255, 0), 2);
+
+            string label = cv::format("%f", (*it).confidence);
+            label = classes[((*it).classID)] + ":" + label;
+
+            // Display label at the top of the bounding box
+            int baseline;
+            cv::Size labelSize = getTextSize(label, cv::FONT_ITALIC, 0.5, 1, &baseline);
+            top = max(top, labelSize.height);
+            rectangle(visImage, cv::Point(left, top - round(1.5*labelSize.height)), cv::Point(left + round(1.5*labelSize.width), top + baseline), cv::Scalar(255, 255, 255), cv::FILLED);
+            cv::putText(visImage, label, cv::Point(left, top), cv::FONT_ITALIC, 0.75, cv::Scalar(0,0,0),1);
+          }
+
+          //string windowName = "Object Classification";
+          //cv::namedWindow(windowName, 1);
+          //cv::imshow(windowName, visImage);
+          //cv::waitKey(10);
+
+          std::string windowName = "Object classification and Corner Detection and Detector Results";
           cv::namedWindow(windowName, 6);
           imshow(windowName, visImage);
           cv::waitKey(10);
