@@ -1,0 +1,3 @@
+/ssd/Projects/SensorFusion/build/CMakeFiles/rebuild_cache.dir
+/ssd/Projects/SensorFusion/build/CMakeFiles/edit_cache.dir
+/ssd/Projects/SensorFusion/build/CMakeFiles/SensorFusion.dir
