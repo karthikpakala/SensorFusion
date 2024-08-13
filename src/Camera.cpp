@@ -1,15 +1,5 @@
 #include "Camera.h"
-#include <opencv2/core.hpp>
-#include <opencv2/core/base.hpp>
-#include <opencv2/core/hal/interface.h>
-#include <opencv2/core/matx.hpp>
-#include <opencv2/core/types.hpp>
-#include <opencv2/core/utility.hpp>
-#include <opencv2/features2d.hpp>
-#include <opencv2/highgui.hpp>
-#include <numeric>
-#include <opencv2/imgproc.hpp>
-#include <chrono>
+
 
 using namespace std;
 using namespace Perception::CameraProcessing;
@@ -104,7 +94,7 @@ void Perception::CameraProcessing::Camera::cameraProcessing(cv::Mat &inputImage,
 {
     cameraDataLock.lock();
     // Detect Key Points
-    // std::cout << "Image dimensions = " << " | " << "Rows = " << inputImage.rows << " | " << "Cols = " << inputImage.cols << std::endl;
+    std::cout << "Image dimensions = " << " | " << "Rows = " << inputImage.rows << " | " << "Cols = " << inputImage.cols << std::endl;
     // Create ROI for the image.
     int roiRows = inputImage.rows;
     int roiCols = inputImage.cols;
@@ -319,11 +309,6 @@ void Perception::CameraProcessing::Camera::detectorHARRIS(cv::Mat &inputImage, s
     std::cout << "Harris Key Point Count = " << keyPoints.size() << std::endl;
     windowName = "Harris corner Detection Results";
     cv::namedWindow(windowName);
-
-    // cv::Mat visImage = dst_norm_scaled.clone();
-    // cv::drawKeypoints(greyImage, keyPoints, visImage);
-    // cv::imshow(windowName, visImage);
-    // cv::waitKey(10);
 }
 
 void Perception::CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
@@ -355,13 +340,6 @@ void Perception::CameraProcessing::Camera::detectorSHITOMASI(cv::Mat &inputImage
 
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     std::cout << " Shi-To-Masi detection with n =" << keyPoints.size() << "key points in " << 1000 * t / 1.0 << "ms" << std::endl;
-
-    // cv::Mat visImage = inputImage.clone();
-    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    // std::string windowName = "Shi-To Masi Corner Detector Results";
-    // cv::namedWindow(windowName, 6);
-    // imshow(windowName, visImage);
-    // cv::waitKey(0);
 }
 
 void Perception::CameraProcessing::Camera::detectorFAST(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
@@ -374,12 +352,6 @@ void Perception::CameraProcessing::Camera::detectorFAST(cv::Mat &inputImage, std
     detector->detect(greyImage, keyPoints);
     time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
     std::cout << "FAST Detector Extraction time : " << 1000 * time / 1.0 << " ms " << std::endl;
-    // std::string windowName = "FAST FEatue Detection";
-    // cv::namedWindow(windowName, 5);
-    // cv::Mat visImage = inputImage.clone();
-    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    // cv::imshow(windowName, visImage);
-    // cv::waitKey(10);
 }
 
 void Perception::CameraProcessing::Camera::detectorBRISK(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
@@ -389,12 +361,6 @@ void Perception::CameraProcessing::Camera::detectorBRISK(cv::Mat &inputImage, st
     detector->detect(inputImage, keyPoints);
     time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
     std::cout << "BRISK key point detection extraction in " << 1000 * time / 1.0 << "ms" << std::endl;
-    // std::string windowName = "BRISK Detection Results" ;
-    // cv::namedWindow(windowName, 5);
-    // cv::Mat visImage = inputImage.clone();
-    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    // cv::imshow(windowName, visImage);
-    // cv::waitKey(10);
 }
 
 void Perception::CameraProcessing::Camera::detectorAKAZE(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
@@ -404,12 +370,6 @@ void Perception::CameraProcessing::Camera::detectorAKAZE(cv::Mat &inputImage, st
     detector->detect(inputImage, keyPoints);
     time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
     std::cout << "AKAZE Detector Extraction" << 1000 * time / 1.0 << "ms" << std::endl;
-    // std::string windowName = "AKAZE Detection Results" ;
-    // cv::namedWindow(windowName, 5);
-    // cv::Mat visImage = inputImage.clone();
-    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    // cv::imshow(windowName, visImage);
-    // cv::waitKey(10);
 }
 
 void Perception::CameraProcessing::Camera::detectorORB(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
@@ -419,12 +379,6 @@ void Perception::CameraProcessing::Camera::detectorORB(cv::Mat &inputImage, std:
     detector->detect(inputImage, keyPoints);
     time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
     std::cout << "ORB Detection extraction time = " << 1000 * time / 1.0 << "ms" << std::endl;
-    // std::string windowName = "ORB Detection";
-    // cv::namedWindow(windowName, 5);
-    // cv::Mat visImage = inputImage.clone();
-    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    // cv::imshow(windowName, visImage);
-    // cv::waitKey(10);
 }
 
 void Perception::CameraProcessing::Camera::detectorSIFT(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
@@ -434,11 +388,6 @@ void Perception::CameraProcessing::Camera::detectorSIFT(cv::Mat &inputImage, std
     detector->detect(inputImage, keyPoints);
     time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
     std::cout << "SIFT feature detection time = " << 1000 * time / 1.0 << "ms" << std::endl;
-    // std::string windowName = "SIFT Detection Results";
-    // cv::Mat visImage = inputImage.clone();
-    // cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    // cv::imshow(windowName, visImage);
-    // cv::waitKey(10);
 }
 
 void Perception::CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoint> &keyPoints, std::vector<cv::KeyPoint> &prevKeyPoints, cv::Mat &descriptors, cv::Mat &prevDescriptors, std::vector<cv::DMatch> &matches,
@@ -471,20 +420,15 @@ void Perception::CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoi
         std::vector<std::vector<cv::DMatch>> knnMatch ;
         matcher->knnMatch(descriptors, prevDescriptors, knnMatch, k);
         
-        //std::cout << "KNN Matches Count = " << knnMatch.size() << std::endl;
-
         int counter = 0;
-        //std::cout << "Matches count before for loop = " << matches.size() << std::endl;
         for (const auto& it : knnMatch)
         {
             counter++;
-            //std::cout << "Counter = " << counter << " | " << "KNN Matches distances it[0] = " << it[0].distance << " | " << "it[1]" << it[1].distance << std::endl;
             if(it[0].distance < distRatio * it[1].distance)
             {
                 matches.push_back(it[0]);
             }
         }
-        //std::cout << "Matches Count matcher function inside loop = " << matches.size() << std::endl;
     }
     std::cout << "Matches Count matcher function= " << matches.size() << std::endl;
 }
@@ -540,7 +484,7 @@ void Perception::CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, st
     net.forward(netOutput, modelOutputNames);
 
     // scan through all bounding boxes and keep only the ones with high condfidence
-    float confidenceThreshold = 0.20;
+    float confidenceThreshold = 0.90;
     vector<int> classIds{};
     vector<float> confidences{};
     vector<cv::Rect> boundingBoxes {};
@@ -594,33 +538,4 @@ void Perception::CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, st
     classIdsPromise.set_value(classIds);
     confidencesPromise.set_value(confidences);
     bondingBoxesPromise.set_value(boundingBoxes);
-
-    // // show results
-    // cv::Mat visImg = inputImage.clone();
-    // for(auto it = bBoxes.begin(); it != bBoxes.end(); ++it)
-    // {
-
-    //     // Draw Rectangle displaying the boundinh box
-    //     int top, left, width, height;
-    //     top = (*it).roi.y;
-    //     left = (*it).roi.x;
-    //     width = (*it).roi.width;
-    //     height = (*it).roi.height;
-    //     cv::rectangle(visImg, cv::Point(left, top), cv::Point(left+width, top+height), cv::Scalar(0, 255, 0), 2);
-
-    //     string label = cv::format("%f", (*it).confidence);
-    //     label = classes[((*it).classID)] + ":" + label;
-
-    //     // Display label at the top of the bounding box
-    //     int baseline;
-    //     cv::Size labelSize = getTextSize(label, cv::FONT_ITALIC, 0.5, 1, &baseline);
-    //     top = max(top, labelSize.height);
-    //     rectangle(visImg, cv::Point(left, top - round(1.5*labelSize.height)), cv::Point(left + round(1.5*labelSize.width), top + baseline), cv::Scalar(255, 255, 255), cv::FILLED);
-    //     cv::putText(visImg, label, cv::Point(left, top), cv::FONT_ITALIC, 0.75, cv::Scalar(0,0,0),1);
-    // }
-
-    // string windowName = "Object Classification";
-    // cv::namedWindow(windowName, 1);
-    // cv::imshow(windowName, visImg);
-    // cv::waitKey(10);
 }

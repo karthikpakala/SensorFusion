@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <algorithm>
-#include <opencv2/core/types.hpp>
 #include <sstream>
 #include <iomanip>
 #include <vector>
@@ -11,14 +10,28 @@
 #include <limits>
 #include <thread>
 #include <future>
+#include <numeric>
 
 #include <opencv2/core.hpp>
-#include<opencv2/dnn.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/base.hpp>
+#include <opencv2/core/hal/interface.h>
+#include <opencv2/core/matx.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/core/utility.hpp>
 #include <opencv2/features2d.hpp>
+#include <opencv2/highgui.hpp>
+#include<opencv2/dnn.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/xfeatures2d/nonfree.hpp>
+
+#include <opencv2/objdetect.hpp>
+
+#include "vpi/algo/ORB.h"
+#include "vpi/VPI.h"
+#include "vpi/Types.h"
+#include "vpi/Image.h"
+#include "vpi/ImageFormat.h"
 
 #include "data_structure.h"
 
@@ -106,10 +119,6 @@ namespace CameraProcessing
         // void matchKeyPoints(cv::Mat &currImage, cv::Mat &prevImage);
         void matchKeyPoints(std::vector<cv::KeyPoint> &keyPointsSource, std::vector<cv::KeyPoint> &keyPointRef, cv::Mat &descSource, cv::Mat &descRef, std::vector<cv::DMatch> &matches,
                                               std::string descType, std::string matcherType, std::string selectorType);
-        
-        //void detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string &modelConfigurationPath, 
-        //                    std::promise<Perception::BoundingBox> &bBoxesPromise, std::promise<std::vector<string>> &classesPromise, std::promise<int> &classIdsPromise,
-        //                    std::promise<float> &confidencesPromise, std::promise<cv::Rect> &bondingBoxesPromise);
 
         void detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath, 
                                                         std::promise<vector<Perception::BoundingBox>> &bBoxesPromise, std::promise<vector<string>> &classesPromise, 
