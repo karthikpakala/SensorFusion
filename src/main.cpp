@@ -43,10 +43,10 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/karthik/Projects/Data/KITTI-data3"; // File path for linux
+    string baseDataFolderPath = "/home/ubuntu/Projects/Data/KITTI-data3"; // File path for linux
     //string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // Linux HP
 
-    string modelBasePath = "/home/karthik/Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
+    string modelBasePath = "/home/ubuntu/Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
     //string modelBasePath = "/home/karthikpakala/Pers-Projects/SensorFusion/model/yolo/"; // Office Linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
@@ -195,6 +195,7 @@ int main(int argv, char **argc)
         Tools *tools;
         pcl::visualization::PCLVisualizer::Ptr viewer(
             new pcl::visualization::PCLVisualizer("3D Viewer"));
+        viewer->getRenderWindow()->GlobalWarningDisplayOff();
         while (!viewer->wasStopped()) 
         {
           std::cout << "*************** Start of Lidar and Camera Processing **************" << std::endl;
@@ -281,8 +282,6 @@ int main(int argv, char **argc)
           // Visualize Key Point Detection Visualization
           cv::Mat visImage = inputImage.clone();
           cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-
-
 
           // Visualize Object Detection
           for(auto it = bBoxes.begin(); it != bBoxes.end(); ++it)

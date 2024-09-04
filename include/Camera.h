@@ -33,6 +33,12 @@
 #include "vpi/Image.h"
 #include "vpi/ImageFormat.h"
 
+#include <opencv2/core/cuda.hpp>
+#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudafeatures2d.hpp>
+#include <opencv2/cudaarithm.hpp>
+#include <opencv2/cudaobjdetect.hpp>
+
 #include "data_structure.h"
 
 using namespace std;
@@ -91,6 +97,8 @@ namespace CameraProcessing
         void detectorORB(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
         void detectorSIFT(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
 
+        void detectorGPUFAST(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints);
+
         enum DETECTOR_TYPE : int
         {
             HARRIS = 1,
@@ -99,7 +107,8 @@ namespace CameraProcessing
             BRISK = 4,
             AKAZE = 5,
             ORB = 6,
-            SIFT = 7
+            SIFT = 7,
+            GPU_FAST = 8
         };
 
         enum DESCRIPTOR_TYPE : int

@@ -170,11 +170,32 @@ void Perception::CameraProcessing::Camera::detectKeyPoints(int &detectorType, cv
         break;
     case SIFT:
         detectorSIFT(image, keyPoints);
+    case GPU_FAST:
+        detectorGPUFAST(image, keyPoints);
         break;
 
     default:
         std::cout << "Invalid Detector Selected" << std::endl;
     }
+}
+
+void Perception::CameraProcessing::Camera::detectorGPUFAST(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints)
+{
+    cv::Mat greyImage, img_cv16fc3, img_cv16fc3_gpu{};
+    cv::cvtColor(inputImage, greyImage, cv::COLOR_RGB2GRAY);
+    inputImage.convertTo(img_cv16fc3, CV_16FC3);
+    cv::cuda::GpuMat gpuMat{}, gpuMat_cv32fc3{}, gpuMat_cv16fc3;
+    gpuMat.upload(img_cv16fc3);
+    gpuMat.convertTo(gpuMat_cv32fc3, CV_32FC3);
+    cv::cuda::convertFp16(gpuMat_cv32fc3, gpuMat_cv16fc3);
+    gpuMat_cv16fc3.download(img_cv16fc3_gpu);
+
+
+    cv::Ptr<cv::cuda::FastFeatureDetector> detector = cv::cuda::FastFeatureDetector::create(10, true);
+    double time = (double)cv::getTickCount();
+    detector->detect(img_cv16fc3, keyPoints);
+    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
+    std::cout << "GPU FAST Detector Extraction time : " << 1000 * time / 1.0 << " ms " << std::endl;
 }
 
 void Perception::CameraProcessing::Camera::descriptorKeyPoints(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, int &descType, cv::Mat &descriptors)
@@ -451,8 +472,8 @@ void Perception::CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, st
 
     // Step 2: load neural network
     cv::dnn::Net net = cv::dnn::readNetFromDarknet(modelConfigurationPath, modelWeightsPath);
-    net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
-    net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU); // Update to use GPU
+    net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA); //CPU: DNN_BACKEND_OPENCV | GPU: DNN_BACKEND_CUDA
+    net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA); //DNN_TARGET_CPU | GPU: DNN_TARGET_CUDA | DNN_TARGET_CUDA_FP16
 
     // Step 3:Create Blob out of input image to pass into YOLO model. 
     cv::Mat blob;
@@ -478,11 +499,13 @@ void Perception::CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, st
         modelOutputNames[i] = layerNames[modelOutputLayers[i] - 1];
     }
 
+    double time = (double)cv::getTickCount();
     // invoke forward propagation through network
     vector<cv::Mat> netOutput{};
     net.setInput(blob);
     net.forward(netOutput, modelOutputNames);
-
+    time = ((double)cv::getTickCount() - time) / cv::getTickFrequency();
+    std::cout << "Object Detection time = " << 1000 * time / 1.0 << "ms" << std::endl;
     // scan through all bounding boxes and keep only the ones with high condfidence
     float confidenceThreshold = 0.90;
     vector<int> classIds{};
