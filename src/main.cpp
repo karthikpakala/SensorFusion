@@ -43,7 +43,7 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/ubuntu/Projects/Data/KITTI-data3"; // File path for linux
+    string baseDataFolderPath = "/home/ubuntu/Projects/Data/KITTI-data1"; // File path for linux
     //string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // Linux HP
 
     string modelBasePath = "/home/ubuntu/Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
@@ -66,7 +66,7 @@ int main(int argv, char **argc)
   string imageFileType = ".png";
   string egoFileType = ".txt";
   
-
+  Perception::DataStructure::InputStructure inputDataStructure{};
 
   string fullPCLFolderPath = baseDataFolderPath + pclDataFolderPath;
   string fullImageFolderPath = baseDataFolderPath + imageDataFolderPath;
@@ -243,19 +243,19 @@ int main(int argv, char **argc)
           std::vector<cv::DMatch> testMatches = matchesFuture.get();
           // In Development /////
 
-          vector<Perception::BoundingBox> bBoxes {};
+          vector<Perception::DataStructure::BoundingBox> bBoxes {};
           vector<string> classes{};
           vector<int> classIds{};
           vector<float> confidences{};
           vector<cv::Rect> boundingBoxes {};
 
-          std::promise<vector<Perception::BoundingBox>> bBoxesPromise;
+          std::promise<vector<Perception::DataStructure::BoundingBox>> bBoxesPromise;
           std::promise<vector<string>> classesPromise;
           std::promise<vector<int>> classIdsPromise;
           std::promise<vector<float>> confidencesPromise;
           std::promise<vector<cv::Rect>> boundingBoxesPromise;
 
-          std::future<vector<Perception::BoundingBox>> bBoxesFuture = bBoxesPromise.get_future();
+          std::future<vector<Perception::DataStructure::BoundingBox>> bBoxesFuture = bBoxesPromise.get_future();
           std::future<vector<string>> classesFuture = classesPromise.get_future();
           std::future<vector<int>> classIdsFuture = classIdsPromise.get_future();
           std::future<vector<float>> confidencesFuture = confidencesPromise.get_future();

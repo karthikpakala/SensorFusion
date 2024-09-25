@@ -130,7 +130,7 @@ namespace CameraProcessing
                                               std::string descType, std::string matcherType, std::string selectorType);
 
         void detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath, 
-                                                        std::promise<vector<Perception::BoundingBox>> &bBoxesPromise, std::promise<vector<string>> &classesPromise, 
+                                                        std::promise<vector<Perception::DataStructure::BoundingBox>> &bBoxesPromise, std::promise<vector<string>> &classesPromise, 
                                                         std::promise<vector<int>> &classIdsPromise, std::promise<vector<float>> &confidencesPromise, std::promise<vector<cv::Rect>> &bondingBoxesPromise);
         void createBoundingBox(cv::Mat &inputImage);
         

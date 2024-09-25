@@ -1,14 +1,15 @@
 #include <string>
-//#include <opencv4/opencv2/core.hpp>
-#include <opencv2/core.hpp>
-//#include <opencv4/opencv2/core.hpp>
 #include <vector>
 #include <map>
+
+#include <opencv2/core.hpp>
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
 
 namespace Perception
 {
+    namespace DataStructure
+    {
     // OXTS Data
     struct OxtsData
     {
@@ -88,4 +89,5 @@ namespace Perception
         CameraImageStruct imageStructLeft {}; // Camera Image Left
         CameraImageStruct imageStructRight {}; // Camera Image Right
     };
-}
+    } // DataStructure
+} // Perception

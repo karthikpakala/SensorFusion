@@ -455,10 +455,10 @@ void Perception::CameraProcessing::Camera::matchKeyPoints(std::vector<cv::KeyPoi
 }
 
 void Perception::CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, std::string &modelWeightsPath, std::string &modelClassesPath, std::string modelConfigurationPath, 
-                                                        std::promise<vector<Perception::BoundingBox>> &bBoxesPromise, std::promise<vector<string>> &classesPromise, 
+                                                        std::promise<vector<Perception::DataStructure::BoundingBox>> &bBoxesPromise, std::promise<vector<string>> &classesPromise, 
                                                         std::promise<vector<int>> &classIdsPromise, std::promise<vector<float>> &confidencesPromise, std::promise<vector<cv::Rect>> &bondingBoxesPromise)
 {
-    std::vector<Perception::BoundingBox> bBoxes {};
+    std::vector<Perception::DataStructure::BoundingBox> bBoxes {};
     float nmsThreshold = 0.8;
 
     // Step 1: Retrieve and load neural network
@@ -547,7 +547,7 @@ void Perception::CameraProcessing::Camera::detectObjects(cv::Mat &inputImage, st
 
     for(auto it = indices.begin(); it != indices.end(); ++it)
     {
-        Perception::BoundingBox bBox;
+        Perception::DataStructure::BoundingBox bBox;
         bBox.roi = boundingBoxes[*it];
         bBox.classID = classIds[*it];
         bBox.confidence = confidences[*it];
