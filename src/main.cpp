@@ -25,6 +25,7 @@ using namespace std;
 using namespace Tooling;
 using namespace Perception::LidarProcessing;
 using namespace Perception::CameraProcessing;
+using namespace Perception::DataStructure;
 
 int main(int argv, char **argc) 
 {
@@ -43,10 +44,10 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/ubuntu/Projects/Data/KITTI-data1"; // File path for linux
+    string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/KITTI-data1"; // File path for linux
     //string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // Linux HP
 
-    string modelBasePath = "/home/ubuntu/Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
+    string modelBasePath = "/home/karthikpakala/Pers-Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
     //string modelBasePath = "/home/karthikpakala/Pers-Projects/SensorFusion/model/yolo/"; // Office Linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
@@ -59,20 +60,23 @@ int main(int argv, char **argc)
   string modelConfigurationPath = modelBasePath + "yolov3.cfg";
 
   string pclDataFolderPath = "/velodyne_points/data/";
-  string imageDataFolderPath = "/image_02/data/";
+  string imageRightDataFolderPath = "/image_02/data/"; // Right Image from Color Streo Camera
+  string imageLeftDataFolderPath = "/image_01/data"; // Left Image from Color Stereo Camera
   string egoFolderPath = "/oxts/data/";
   string fileNamePre = "000000";
   string pclFileType = ".bin";
   string imageFileType = ".png";
   string egoFileType = ".txt";
   
-  Perception::DataStructure::InputStructure inputDataStructure{};
+  InputStructure inputDataStructure{};
 
   string fullPCLFolderPath = baseDataFolderPath + pclDataFolderPath;
-  string fullImageFolderPath = baseDataFolderPath + imageDataFolderPath;
+  string fullRightImageFolderPath = baseDataFolderPath + imageRightDataFolderPath;
+  string fullLeftImageFolderPath = baseDataFolderPath + imageLeftDataFolderPath;
   string fullEgoFolderPath = baseDataFolderPath + egoFolderPath;
 
-  uint16_t imageFileCount = 0;
+  uint16_t imageRightFileCount = 0;
+  uint16_t imageLeftFileCount = 0;
   uint16_t pclFileCount = 0;
   uint16_t egoFileCount = 0;
   uint16_t fileCount = 0;
@@ -87,9 +91,15 @@ int main(int argv, char **argc)
   }
 
   // Image File Counter
-  for (auto &file : std::filesystem::directory_iterator(fullImageFolderPath)) 
+  for (auto &file : std::filesystem::directory_iterator(fullRightImageFolderPath)) 
   {
-    ++imageFileCount;
+    ++imageRightFileCount;
+  }
+
+    // Image File Counter
+  for (auto &file : std::filesystem::directory_iterator(fullLeftImageFolderPath)) 
+  {
+    ++imageLeftFileCount;
   }
 
     // Ego File Counter
@@ -102,12 +112,13 @@ int main(int argv, char **argc)
   // synchronously at the same frequency and are being used accordingly. If a
   // different association technique(ex: assiciating every other camerra frame
   // with Lidar frame) is to be used, this logic needs to change.
-  if (imageFileCount != pclFileCount || egoFileCount != imageFileCount || egoFileCount != pclFileCount) 
+  if (imageLeftFileCount != pclFileCount || egoFileCount != imageRightFileCount || egoFileCount != pclFileCount || imageLeftFileCount != imageRightFileCount) 
   {
     std::cerr << "Number of image files is not Equal to number of pcl files"
               << "\n"
               << "PCL File Count = " << pclFileCount << "\n"
-              << "Image File Count" << imageFileCount << "\n"
+              << "Right Image File Count" << imageRightFileCount << "\n"
+              << "Left Image File Count" << imageLeftFileCount << "\n"
               << "Ego File Count" << egoFileCount << "\n"
               << endl;
     return 0;
@@ -126,10 +137,16 @@ int main(int argv, char **argc)
     // ********************Lidar Data Sort*************************** //
 
     // ********************** Camera data files sort **************** //
-    std::set<filesystem::path> sortedCameraFiles;
-    for (auto &file : filesystem::directory_iterator(fullImageFolderPath)) 
+    std::set<filesystem::path> sortedRightCameraFiles;
+    for (auto &file : filesystem::directory_iterator(fullRightImageFolderPath)) 
     {
-      sortedCameraFiles.insert(file.path());
+      sortedRightCameraFiles.insert(file.path());
+    }
+
+    std::set<filesystem::path> sortedLeftCameraFiles;
+    for (auto &file : filesystem::directory_iterator(fullLeftImageFolderPath)) 
+    {
+      sortedLeftCameraFiles.insert(file.path());
     }
     // *********************** Camera Data Sort *********************** //
 
@@ -158,11 +175,13 @@ int main(int argv, char **argc)
     if(useLidar && useCamera)
     {
       fileCount = pclFileCount;
-      auto cameraIterator = sortedCameraFiles.begin();
+      auto cameraRightIterator = sortedRightCameraFiles.begin();
+      auto cameraLeftIterator = sortedLeftCameraFiles.begin();
       auto pclIterator = sortedPCLFiles.begin();
+      auto egoIterator = sortedEgoFiles.begin();
 
       uint16_t cameraCount = 0;
-      while(cameraIterator != sortedCameraFiles.end() && pclIterator != sortedPCLFiles.end())
+      while(cameraRightIterator != sortedRightCameraFiles.end() && pclIterator != sortedPCLFiles.end() && cameraLeftIterator != sortedLeftCameraFiles.end())
       {
         std::vector<std::future<void>> futures;
         Lidar<pcl::PointXYZI> lidarObject;
@@ -205,10 +224,15 @@ int main(int argv, char **argc)
           viewer->removeAllShapes();
 
           std::thread lidarThread = std::thread(&Lidar<pcl::PointXYZI>::readPCLDataFile, &lidarObject, (*pclIterator).string(), std::ref(viewer));
-          cv::Mat inputImage = cv::imread((*cameraIterator).string());
+          cv::Mat inputRightImage = cv::imread((*cameraRightIterator).string());
+          cv::Mat inputLeftImage = cv::imread((*cameraLeftIterator).string());
 
           cameraCount++;
 
+          inputDataStructure.imageStructLeft.image = inputLeftImage;
+          inputDataStructure.imageStructRight.image = inputRightImage;
+
+          // Right Image Processing
           std::promise<std::vector<cv::KeyPoint>> prevKeyPointsPromise;
           std::promise<cv::Mat> prevDescriptorsPromise;
           std::promise<std::vector<cv::DMatch>> matchesPromise;
@@ -218,7 +242,7 @@ int main(int argv, char **argc)
           std::future<std::vector<cv::DMatch>> matchesFuture = matchesPromise.get_future();
 
           std::thread cameraThread = std::thread(&Perception::CameraProcessing::Camera::cameraProcessing, cameraObject, 
-                                                  std::ref(inputImage), 
+                                                  std::ref(inputRightImage), 
                                                   std::ref(detectorType), 
                                                   std::ref(descriptorType), 
                                                   std::ref(selectorType), 
@@ -261,9 +285,8 @@ int main(int argv, char **argc)
           std::future<vector<float>> confidencesFuture = confidencesPromise.get_future();
           std::future<vector<cv::Rect>> boundingBoxesFuture = boundingBoxesPromise.get_future();
 
-
           std::thread objectDetectionThread = std::thread(&Perception::CameraProcessing::Camera::detectObjects, cameraObject, 
-                                                          std::ref(inputImage), 
+                                                          std::ref(inputRightImage), 
                                                           std::ref(modelWeightsPath),
                                                           std::ref(modelClassesPath),
                                                           std::ref(modelConfigurationPath),
@@ -280,8 +303,8 @@ int main(int argv, char **argc)
           boundingBoxes = boundingBoxesFuture.get();
 
           // Visualize Key Point Detection Visualization
-          cv::Mat visImage = inputImage.clone();
-          cv::drawKeypoints(inputImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+          cv::Mat visImage = inputRightImage.clone();
+          cv::drawKeypoints(inputRightImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
           // Visualize Object Detection
           for(auto it = bBoxes.begin(); it != bBoxes.end(); ++it)
@@ -316,7 +339,7 @@ int main(int argv, char **argc)
           //cameraThread.wait();
           cameraThread.join();
           objectDetectionThread.join();
-          cameraIterator++;
+          cameraRightIterator++;
           pclIterator++;
           std::cout << "************* End of Processing Lidar and Camera ****************" << "\n" << std::endl;
         }
@@ -326,36 +349,7 @@ int main(int argv, char **argc)
     // Use Ego Data
     if(useEgoData)
     {
-        float_t  lat;
-        float_t  lon;
-        float_t  alt;
-        float_t  roll;
-        float_t  pitch;
-        float_t  yaw;
-        float_t  vel_north;
-        float_t  vel_east;
-        float_t  vel_forward;
-        float_t  vel_left;
-        float_t  vel_up;
-        float_t  ax;
-        float_t  ay;
-        float_t  az;
-        float_t  a_forward;
-        float_t  a_left;
-        float_t  a_upward;
-        float_t  ang_rate_x;
-        float_t  ang_rate_y;
-        float_t  ang_rate_z;
-        float_t  ang_rate_forward;
-        float_t  ang_rate_left;
-        float_t  ang_rate_upward;
-        float_t  pos_accuracy;
-        float_t  vel_accuracy;
-        int32_t     navstat;
-        int32_t     numstats;
-        int32_t     posmode;
-        int32_t     velmode;
-        int32_t     orimode;
+
     }
   }
 }
