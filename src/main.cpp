@@ -44,10 +44,10 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/KITTI-data1"; // File path for linux
+    string baseDataFolderPath = "/home/ubuntu/Projects/Data/KITTI-data2"; // File path for linux
     //string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // Linux HP
 
-    string modelBasePath = "/home/karthikpakala/Pers-Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
+    string modelBasePath = "/home/ubuntu/Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
     //string modelBasePath = "/home/karthikpakala/Pers-Projects/SensorFusion/model/yolo/"; // Office Linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
@@ -168,6 +168,8 @@ int main(int argv, char **argc)
     bool useCamera = true;
     bool useEgoData = false;
 
+    bool detectKeyPoints = true;
+    bool detectObjects = true;
     // RANSAC Segmentation parameters
     int numIterations = 50;
     float distThreshold = 0.359;
@@ -232,16 +234,23 @@ int main(int argv, char **argc)
           inputDataStructure.imageStructLeft.image = inputLeftImage;
           inputDataStructure.imageStructRight.image = inputRightImage;
 
-          // Right Image Processing
-          std::promise<std::vector<cv::KeyPoint>> prevKeyPointsPromise;
-          std::promise<cv::Mat> prevDescriptorsPromise;
-          std::promise<std::vector<cv::DMatch>> matchesPromise;
+          // std::thread cameraThread;
+          // std::thread objectDetectionThread;
+          // Clone Image for visualization
+          cv::Mat visImage = inputRightImage.clone();
 
-          std::future<std::vector<cv::KeyPoint>> prevKeyPointsFuture = prevKeyPointsPromise.get_future();
-          std::future<cv::Mat> prevDescriptorsFuture = prevDescriptorsPromise.get_future();
-          std::future<std::vector<cv::DMatch>> matchesFuture = matchesPromise.get_future();
+          //if(detectKeyPoints)
+          //{
+            // Right Image Processing
+            std::promise<std::vector<cv::KeyPoint>> prevKeyPointsPromise;
+            std::promise<cv::Mat> prevDescriptorsPromise;
+            std::promise<std::vector<cv::DMatch>> matchesPromise;
 
-          std::thread cameraThread = std::thread(&Perception::CameraProcessing::Camera::cameraProcessing, cameraObject, 
+            std::future<std::vector<cv::KeyPoint>> prevKeyPointsFuture = prevKeyPointsPromise.get_future();
+            std::future<cv::Mat> prevDescriptorsFuture = prevDescriptorsPromise.get_future();
+            std::future<std::vector<cv::DMatch>> matchesFuture = matchesPromise.get_future();
+
+            std::thread cameraThread = std::thread(&Perception::CameraProcessing::Camera::cameraProcessing, cameraObject, 
                                                   std::ref(inputRightImage), 
                                                   std::ref(detectorType), 
                                                   std::ref(descriptorType), 
@@ -260,32 +269,37 @@ int main(int argv, char **argc)
                                                   std::ref(modelWeightsPath),
                                                   std::ref(modelClassesPath),
                                                   std::ref(modelConfigurationPath));
-          // Update previous Key Points and Descriptors - Get data from other thread to use it in next iteration - Pending
+            // Update previous Key Points and Descriptors - Get data from other thread to use it in next iteration - Pending
+            // In Development /////
+            prevKeyPoints = prevKeyPointsFuture.get();
+            prevDescriptors = prevDescriptorsFuture.get();
+
+            // Visualize Key Point Detection Visualization
+            cv::drawKeypoints(inputRightImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+          //}
           // In Development /////
-          prevKeyPoints = prevKeyPointsFuture.get();
-          prevDescriptors = prevDescriptorsFuture.get();
-          std::vector<cv::DMatch> testMatches = matchesFuture.get();
-          // In Development /////
+          /*
+          //if(detectObjects)
+          //{
+            vector<Perception::DataStructure::BoundingBox> bBoxes {};
+            vector<string> classes{};
+            vector<int> classIds{};
+            vector<float> confidences{};
+            vector<cv::Rect> boundingBoxes {};
 
-          vector<Perception::DataStructure::BoundingBox> bBoxes {};
-          vector<string> classes{};
-          vector<int> classIds{};
-          vector<float> confidences{};
-          vector<cv::Rect> boundingBoxes {};
+            std::promise<vector<Perception::DataStructure::BoundingBox>> bBoxesPromise;
+            std::promise<vector<string>> classesPromise;
+            std::promise<vector<int>> classIdsPromise;
+            std::promise<vector<float>> confidencesPromise;
+            std::promise<vector<cv::Rect>> boundingBoxesPromise;
 
-          std::promise<vector<Perception::DataStructure::BoundingBox>> bBoxesPromise;
-          std::promise<vector<string>> classesPromise;
-          std::promise<vector<int>> classIdsPromise;
-          std::promise<vector<float>> confidencesPromise;
-          std::promise<vector<cv::Rect>> boundingBoxesPromise;
+            std::future<vector<Perception::DataStructure::BoundingBox>> bBoxesFuture = bBoxesPromise.get_future();
+            std::future<vector<string>> classesFuture = classesPromise.get_future();
+            std::future<vector<int>> classIdsFuture = classIdsPromise.get_future();
+            std::future<vector<float>> confidencesFuture = confidencesPromise.get_future();
+            std::future<vector<cv::Rect>> boundingBoxesFuture = boundingBoxesPromise.get_future();
 
-          std::future<vector<Perception::DataStructure::BoundingBox>> bBoxesFuture = bBoxesPromise.get_future();
-          std::future<vector<string>> classesFuture = classesPromise.get_future();
-          std::future<vector<int>> classIdsFuture = classIdsPromise.get_future();
-          std::future<vector<float>> confidencesFuture = confidencesPromise.get_future();
-          std::future<vector<cv::Rect>> boundingBoxesFuture = boundingBoxesPromise.get_future();
-
-          std::thread objectDetectionThread = std::thread(&Perception::CameraProcessing::Camera::detectObjects, cameraObject, 
+            std::thread objectDetectionThread = std::thread(&Perception::CameraProcessing::Camera::detectObjects, cameraObject, 
                                                           std::ref(inputRightImage), 
                                                           std::ref(modelWeightsPath),
                                                           std::ref(modelClassesPath),
@@ -296,49 +310,45 @@ int main(int argv, char **argc)
                                                           std::ref(confidencesPromise),
                                                           std::ref(boundingBoxesPromise));  
 
-          bBoxes = bBoxesFuture.get();
-          classes = classesFuture.get();
-          classIds = classIdsFuture.get();
-          confidences = confidencesFuture.get();
-          boundingBoxes = boundingBoxesFuture.get();
+            bBoxes = bBoxesFuture.get();
+            classes = classesFuture.get();
+            classIds = classIdsFuture.get();
+            confidences = confidencesFuture.get();
+            boundingBoxes = boundingBoxesFuture.get();
 
-          // Visualize Key Point Detection Visualization
-          cv::Mat visImage = inputRightImage.clone();
-          cv::drawKeypoints(inputRightImage, keyPoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+            // Visualize Object Detection
+            for(auto it = bBoxes.begin(); it != bBoxes.end(); ++it)
+            {
 
-          // Visualize Object Detection
-          for(auto it = bBoxes.begin(); it != bBoxes.end(); ++it)
-          {
+              // Draw Rectangle displaying the boundinh box
+              int top, left, width, height;
+              top = (*it).roi.y;
+              left = (*it).roi.x;
+              width = (*it).roi.width;
+              height = (*it).roi.height;
+              cv::rectangle(visImage, cv::Point(left, top), cv::Point(left+width, top+height), cv::Scalar(0, 255, 0), 2);
 
-            // Draw Rectangle displaying the boundinh box
-            int top, left, width, height;
-            top = (*it).roi.y;
-            left = (*it).roi.x;
-            width = (*it).roi.width;
-            height = (*it).roi.height;
-            cv::rectangle(visImage, cv::Point(left, top), cv::Point(left+width, top+height), cv::Scalar(0, 255, 0), 2);
+              string label = cv::format("%f", (*it).confidence);
+              label = classes[((*it).classID)] + ":" + label;
 
-            string label = cv::format("%f", (*it).confidence);
-            label = classes[((*it).classID)] + ":" + label;
-
-            // Display label at the top of the bounding box
-            int baseline;
-            cv::Size labelSize = getTextSize(label, cv::FONT_ITALIC, 0.5, 1, &baseline);
-            top = max(top, labelSize.height);
-            rectangle(visImage, cv::Point(left, top - round(1.5*labelSize.height)), cv::Point(left + round(1.5*labelSize.width), top + baseline), cv::Scalar(255, 255, 255), cv::FILLED);
-            cv::putText(visImage, label, cv::Point(left, top), cv::FONT_ITALIC, 0.75, cv::Scalar(0,0,0),1);
-          }
-
+              // Display label at the top of the bounding box
+              int baseline;
+              cv::Size labelSize = getTextSize(label, cv::FONT_ITALIC, 0.5, 1, &baseline);
+              top = max(top, labelSize.height);
+              rectangle(visImage, cv::Point(left, top - round(1.5*labelSize.height)), cv::Point(left + round(1.5*labelSize.width), top + baseline), cv::Scalar(255, 255, 255), cv::FILLED);
+              cv::putText(visImage, label, cv::Point(left, top), cv::FONT_ITALIC, 0.75, cv::Scalar(0,0,0),1);
+            }
+          //}
+          */
           std::string windowName = "Object classification and Corner Detection and Detector Results";
           cv::namedWindow(windowName, 6);
           imshow(windowName, visImage);
           cv::waitKey(1);
 
-          //lidarThread.wait();
           lidarThread.join();
           //cameraThread.wait();
           cameraThread.join();
-          objectDetectionThread.join();
+          //objectDetectionThread.join();
           cameraRightIterator++;
           pclIterator++;
           std::cout << "************* End of Processing Lidar and Camera ****************" << "\n" << std::endl;

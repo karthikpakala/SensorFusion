@@ -101,5 +101,9 @@
         "/usr/local/include/opencv4/opencv2/tracking.hpp",
         "/usr/local/include/opencv4/opencv2/videoio.hpp",
         "/usr/local/include/opencv4/opencv2/xfeatures.hpp"
+    ],
+    "cSpell.words": [
+        "SHITOMASI",
+        "xfeatures"
     ]
 }

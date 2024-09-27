@@ -123,7 +123,13 @@ namespace CameraProcessing
 
         // Identify Key Point Descriptors
         void descriptorKeyPoints(cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, int &descType, cv::Mat &descriptors);
-
+        
+        void descriptorSIFT(cv::Ptr<cv::DescriptorExtractor> &extractor);
+        void descriptorAKAZE(cv::Ptr<cv::DescriptorExtractor> &extractor);
+        void descriptorORB(cv::Ptr<cv::DescriptorExtractor> &extractor);
+        void descriptorFREAK(cv::Ptr<cv::DescriptorExtractor> &extractor);
+        void descriptorBRISK(cv::Ptr<cv::DescriptorExtractor> &extractor);
+        void descriptorBRIEF(cv::Ptr<cv::DescriptorExtractor> &extractor);
         // Match Key Points
         // void matchKeyPoints(cv::Mat &currImage, cv::Mat &prevImage);
         void matchKeyPoints(std::vector<cv::KeyPoint> &keyPointsSource, std::vector<cv::KeyPoint> &keyPointRef, cv::Mat &descSource, cv::Mat &descRef, std::vector<cv::DMatch> &matches,
