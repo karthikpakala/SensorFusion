@@ -29,10 +29,11 @@
         {
             "name": "Linux",
             "includePath": [
-                "/home/ubuntu/Projects/SensorFusion/**",
+                "/home/karthik/Projects/SensorFusion/**",
                 "/usr/local/lib/**",
                 "/usr/include/opencv4",
                 "/usr/local/include/opencv4",
+                "/opt/nvidia/vpi3",
                 "/usr/include/pcl-1.12",
                 "/usr/include/eigen3"
             ],
@@ -45,7 +46,7 @@
             "mergeConfigurations": false,
             "browse": {
                 "path": [
-                    "/home/karthikpakala/Pers-Projects/SensorFusion/**",
+                    "/home/karthik/Projects/SensorFusion/**",
                     "${workspaceFolder}"
                 ],
                 "limitSymbolsToIncludedHeaders": true

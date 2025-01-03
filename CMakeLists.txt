@@ -2,14 +2,6 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 add_definitions(-std=c++17)
 
-# Enable clang check
-#set(CMAKE_CXX_CLANG_TIDY
-#    clang-tidy;
-#    -header-filter=.;
-#    -checks=*;)
-
-    ##set(CXX_FLAGS "-Wall -lpthread") ## -w disable all diagnostics
-##set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_THREAD_LIBS_INIT "-lpthread")
@@ -18,9 +10,7 @@ set(CMAKE_HAVE_THREADS_LIBRARY 1)
 set(CMAKE_USE_PTHREADS_INIT 1)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-
-project(SensorFusion CXX)
-
+project(SensorFusion CXX CUDA)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -29,14 +19,19 @@ if(MACOS)
     set(OpenCV_DIR /opt/homebrew/opt/opencv/include)
 elseif(LINUX)
     find_package(CUDA REQUIRED)
+    find_package(vpi 3.2 REQUIRED)
+    enable_language(CUDA)
+    set(CUDA_SEPARABLE_COMPILATION ON)
+    set(CUDA_PTX_COMPILATION ON)
+    include_directories(${CUDA_INCLUDE_DIRS})
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -arch=sm_61")
     set(PCL_DIR /usr/local/share/pcl-1.13/PCLConfig.cmake)
     set(PCL_INCLUDE_DIRS /usr/local/include/pcl-1.13/pcl)
     set(PCL_LIBRARIES /usr/local/lib)
-    include_directories($(CUDA_PTX_COMPILATION ON))
+    include_directories(${CUDA_INCLUDE_DIRS})
 endif()
 
 find_package(PCL 1.3 REQUIRED)
-
 
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -49,7 +44,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 add_definitions(${OpenCV_DEFINITIONS})
 
+add_executable(SensorFusion src/Camera.cpp src/Lidar.cpp src/Radar.cpp src/KalmanFilter.cpp src/Tools.cpp src/Calibration.cpp include/cuda-test.h include/Camera.h include/Lidar.h include/Radar.h include/KalmanFilter.h src/main.cpp src/test.cu include/Tools.h include/Calibration.h)
 
-add_executable (SensorFusion src/Camera.cpp src/Lidar.cpp src/Radar.cpp src/KalmanFilter.cpp src/Tools.cpp src/Calibration.cpp include/Camera.h include/Lidar.h include/Radar.h include/KalmanFilter.h src/main.cpp src/main.cu include/Tools.h include/Calibration.h)
-
-target_link_libraries(SensorFusion ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} z ssl)
+target_link_libraries(SensorFusion ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} z ssl ${CUDA_LIBRARIES} vpi)

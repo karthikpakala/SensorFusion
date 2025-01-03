@@ -44,10 +44,10 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/ubuntu/Projects/Data/KITTI-data2"; // File path for linux
+    string baseDataFolderPath = "/home/karthik/Projects/Data/kitti-data-1"; // File path for linux
     //string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // Linux HP
 
-    string modelBasePath = "/home/ubuntu/Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
+    string modelBasePath = "/home//Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
     //string modelBasePath = "/home/karthikpakala/Pers-Projects/SensorFusion/model/yolo/"; // Office Linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx
@@ -164,8 +164,8 @@ int main(int argv, char **argc)
     unsigned int nCores =  std::thread::hardware_concurrency();
 
     // Enable / Disable using Camera / Lidar
-    bool useLidar = true;
-    bool useCamera = true;
+    bool useLidar = false;
+    bool useCamera = false;
     bool useEgoData = false;
 
     bool detectKeyPoints = true;
