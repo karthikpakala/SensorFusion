@@ -164,8 +164,8 @@ int main(int argv, char **argc)
     unsigned int nCores =  std::thread::hardware_concurrency();
 
     // Enable / Disable using Camera / Lidar
-    bool useLidar = false;
-    bool useCamera = false;
+    bool useLidar = true;
+    bool useCamera = true;
     bool useEgoData = false;
 
     bool detectKeyPoints = true;

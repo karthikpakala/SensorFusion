@@ -28,7 +28,6 @@ elseif(LINUX)
     set(PCL_DIR /usr/local/share/pcl-1.13/PCLConfig.cmake)
     set(PCL_INCLUDE_DIRS /usr/local/include/pcl-1.13/pcl)
     set(PCL_LIBRARIES /usr/local/lib)
-    include_directories(${CUDA_INCLUDE_DIRS})
 endif()
 
 find_package(PCL 1.3 REQUIRED)
@@ -46,4 +45,4 @@ add_definitions(${OpenCV_DEFINITIONS})
 
 add_executable(SensorFusion src/Camera.cpp src/Lidar.cpp src/Radar.cpp src/KalmanFilter.cpp src/Tools.cpp src/Calibration.cpp include/cuda-test.h include/Camera.h include/Lidar.h include/Radar.h include/KalmanFilter.h src/main.cpp src/test.cu include/Tools.h include/Calibration.h)
 
-target_link_libraries(SensorFusion ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} z ssl ${CUDA_LIBRARIES} vpi)
+target_link_libraries(SensorFusion ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} z ssl ${CUDA_LIBRARIES} nvvpi)
