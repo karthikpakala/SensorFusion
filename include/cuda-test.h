@@ -12,9 +12,34 @@
 #include <vpi/Stream.h>
 #include <iostream>
 
-//#include <thrust/memory/detail/device_system_resource.h>
+#include <vpi/OpenCVInterop.hpp>
+#include <opencv2/cudaarithm.hpp>
+#include <opencv2/cudaimgproc.hpp>
 
+//#include <thrust/memory/detail/device_system_resource.h>
+using namespace std;
+using namespace cv;
+using namespace cv::cuda;
+//using namespace cv::cuda::device;
+
+
+class CudaTest
+{
+    public:
+        CudaTest();
+        ~CudaTest();
+        void test_cuda();
+        void test_cuda_vpi();
+    private:
+        VPIImage vpiImage;
+        VPIStream vpiStream;
+        cv::cuda::GpuMat gpuMat;
+        cv::Mat cpuMat;
+        cv::Mat cpuMat2;
+        
+};
 
 void test_cuda_vpi();
+
 
 #endif 
