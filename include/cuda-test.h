@@ -16,6 +16,7 @@
 #include <opencv2/cudaarithm.hpp>
 #include <opencv2/cudaimgproc.hpp>
 
+
 //#include <thrust/memory/detail/device_system_resource.h>
 using namespace std;
 using namespace cv;

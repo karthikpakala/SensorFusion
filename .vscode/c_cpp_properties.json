@@ -35,7 +35,8 @@
                 "/usr/local/include/opencv4",
                 "/opt/nvidia/vpi3",
                 "/usr/include/pcl-1.12",
-                "/usr/include/eigen3"
+                "/usr/include/eigen3",
+                "/opt/nvidia/vpi3/include"
             ],
             "defines": [],
             "cStandard": "c17",
