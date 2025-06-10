@@ -29,7 +29,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "/home/ubuntu/Projects/SensorFusion/**",
+                "${workspaceFolder}/**",
                 "/usr/local/lib/**",
                 "/usr/include/opencv4",
                 "/usr/local/include/opencv4",
