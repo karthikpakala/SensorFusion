@@ -59,8 +59,10 @@ class Perception
         const bool assertValidInput();
         void init();
         std::set<std::filesystem::path> sortFiles(string &filePath);
-        void processCameraData();
-        void processLidarData();
+        void processCameraData(std::set<std::filesystem::path> &cameraFilesPath, 
+                               CameraProcessing::Camera *cameraObject);
+        void processLidarData(std::set<std::filesystem::path> *lidarFilesPath, 
+                              LidarProcessing::Lidar<pcl::PointXYZI> *lidarObject);
         void processRadarData();
         void processEgoData();
         void processSensorFusion(); 
@@ -87,8 +89,6 @@ class Perception
         string rightImageFolderPath {};
         string lidarFolderPath {};
         // Move all of this into calibration class
-
-
         
 };
 } // namespace Perception

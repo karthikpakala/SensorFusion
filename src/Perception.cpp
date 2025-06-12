@@ -136,6 +136,7 @@ std::set<std::filesystem::path> Perception::Perception::sortFiles(string &folder
     }
     return sortedFiles;
 }
+
 // 1. Sort the files in folder.  
 // 2. create the list of files in the list of files.
 // 3. Process each of the files in the list of files. 
@@ -156,9 +157,16 @@ void Perception::Perception::init()
     // Process each of the files list to be processed in a different thread. 
     std::mutex perceptionMutex;
     std::lock_guard<std::mutex> perceptionLock(perceptionMutex);
+    // Create individual threads for of the objects to process data. 
     processCameraData();
     processLidarData(); 
     // Create separate threads for each of the Camera and Lidar objects.
     // Instantiate each of the Camera and Lidar objects to start processing them. 
+}
+
+void Perception::Perception::processCameraData(std::set<std::filesystem::path> *cameraFilesPath)
+{
+    // Initiate a new thread to start processing the camera data. 
+    std::thread cameraThread = std::thread(&Perception::CameraProcessing::Camera::cameraProcessing, leftCameraObject)
 
 }
