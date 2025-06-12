@@ -3,9 +3,15 @@
 
 using namespace std;
 using namespace Perception::CameraProcessing;
-Perception::CameraProcessing::Camera::Camera(cv::Mat &image)
+Perception::CameraProcessing::Camera::Camera(cv::Mat &image, int &imageWidth, int &imageHeight)
 {
     inputImage = image;
+    imageWidth = image.cols;
+    imageHeight = image.rows;
+
+    std::cout << "Camera Constructor initiated with image dimensions: "
+              << "Width = " << imageWidth << " | "
+              << "Height = " << imageHeight << std::endl;
 }
 
 Perception::CameraProcessing::Camera::Camera(const Camera &cameraObject)
@@ -47,7 +53,7 @@ Perception::CameraProcessing::Camera::~Camera()
 
 void Perception::CameraProcessing::Camera::init(int &detectorType, int &descriptorType)
 {
-
+    inputImage = cv::Mat();
           
     std::cout << "HOG Detectors : HARRIS | Shi-Tomasi | SIFT | SURF" << std::endl;
     std::cout << "Binary Detectors : FAST | BRIEF | ORB | BRISK | FREAK" << std::endl;

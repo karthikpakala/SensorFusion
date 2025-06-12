@@ -15,7 +15,7 @@ Perception::LidarProcessing::Lidar<PointT>::Lidar() : pointCloud (new pcl::Point
 
 // Constructor
 template<typename PointT>
-Perception::LidarProcessing::Lidar<PointT>::Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud)
+Perception::LidarProcessing::Lidar<PointT>::Lidar(typename pcl::PointCloud<PointT>::Ptr &inputCloud) : pointCloud(new pcl::PointCloud<PointT>)
 {
   std::cout << "Inside Lidar constructor" << std::endl;
   pointCloud = std::move(inputCloud);

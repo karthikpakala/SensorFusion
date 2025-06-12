@@ -53,7 +53,7 @@ namespace CameraProcessing
         std::mutex cameraDataLock;
         // Default Constructor
         Camera() {}
-        Camera(cv::Mat& image); // Default constructor
+        Camera(cv::Mat& image, int &imageWidth, int &imageHeight); // Default constructor
         Camera(const Camera& cameraObject); // Copy constructor
         Camera &operator=(const Camera& cameraObject); // Copy assignment constructor
         Camera (Camera &&cameraObject); // Move constructor
@@ -144,6 +144,8 @@ namespace CameraProcessing
         
             cv::Mat inputImage;
             cv::Rect regionOfInterest;
+            int imageWidth = 0;
+            int imageHeight = 0;
     };
 }
 }

@@ -12,11 +12,13 @@
 
 #ifndef PERCEPTION_H
 #define PERCEPTION_H
+
 #include "Calibration.h"
 #include "Camera.h"
 #include "Lidar.h"
 #include "Radar.h"
 #include "Tools.h"
+// #include "data_structure.h"
 
 #include <chrono>
 #include <filesystem>
@@ -25,16 +27,68 @@
 #include <thread>
 #include <mutex>
 #include <future>
-namespace Perception {
-class Perception {
-    public:
-        Perception() = default;
-        ~Perception() = default;
 
-        Perception(const &Perception); // Copy Constructor
-        Perception &operator=(const &Perception); // Copy assignment operator
-        Perception (Perception &&); // Move Constructor
-        Perception &operator=(Perception &&); // Move assignment operator
+using namespace std;
+namespace Perception 
+{
+// singleton class
+// 1. Create a default class to initialize all the variables with default values. Also, create a singleton class behavior 
+// 2. Create a parameterized class constructor to take in different image width and image height values. Also, create a singleton class behavior.(Different camera)
+// 3. Create a copy constructor to create a copy of the Perception object. 
+// 4. Create a move constructor to move it to the new object.
+class Perception 
+{
+    public:
+        Perception();
+        ~Perception();
+
+        // Parametrized Constructor
+        // TODO: Update with correct initialization variables. 
+        Perception(string &parentFolderPath);
+
+        // Copy Constructor
+        Perception(const Perception &perception);
+        // Copy Assignment operator
+        Perception &operator=(const Perception &perception);
+        // Move constructor
+        Perception(Perception &&perception);
+        // move assignment operator
+        Perception &operator=(Perception &&perception);
+
+        // Member functions
+        const bool assertValidInput();
+        void init();
+        std::set<std::filesystem::path> sortFiles(string &filePath);
+        void processCameraData();
+        void processLidarData();
+        void processRadarData();
+        void processEgoData();
+        void processSensorFusion(); 
+        void logSensorData();
+
+    private:
+        CameraProcessing::Camera *leftCameraObject;
+        CameraProcessing::Camera *rightCameraObject;
+        LidarProcessing::Lidar<pcl::PointXYZI> *lidarObject;
+        Calibration *calibrationObject;
+        DataStructure::InputStructure *inputDataStructure;
+        // RadarProcessing::Radar *radarObject;
+
+        // Move all of this into calibration class
+        string imageLeftFilePath = "/image_01/data/"; // Path to the left camera images
+        string imageRightFilePath = "/image_02/data/"; // Path to the right camera images
+        string lidarFilePath = "/velodyne_points/data/"; // Path to the lidar point cloud data
+        string fileNamePre = "000000";
+        string pclFileType = ".bin";
+        string imageFileType = ".png";
+        string egoFileType = ".txt";
+
+        string leftImageFolderPath {};
+        string rightImageFolderPath {};
+        string lidarFolderPath {};
+        // Move all of this into calibration class
+
+
         
 };
 } // namespace Perception

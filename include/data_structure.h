@@ -1,3 +1,8 @@
+// #pragma once
+
+#ifndef DATA_STRUCTURE_H
+#define DATA_STRUCTURE_H
+
 #include <string>
 #include <vector>
 #include <map>
@@ -90,7 +95,7 @@ namespace Perception
         {
             pcl::PointCloud<LidarPoint> cloud {}; // Lidar Point Cloud
             std::pair<pcl::PointCloud<LidarPoint>, pcl::PointCloud<LidarPoint>> segmentedPointCloud {}; // Segmented road surface and objects
-            std::vector<pcl::PointCloud<LidarPoint>> objects {}; // segmented objects
+            std::vector<pcl::PointCloud<LidarPoint>> segmentedObjects {}; // segmented objects
 
             // Stereo Camera Images
             CameraImageStruct imageStructLeft {}; // Camera Image Left
@@ -98,3 +103,5 @@ namespace Perception
         };
     } // DataStructure
 } // Perception
+
+#endif // DATA_STRUCTURE_H
