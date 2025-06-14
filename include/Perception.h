@@ -45,7 +45,6 @@ class Perception
         // Parametrized Constructor
         // TODO: Update with correct initialization variables. 
         Perception(string &parentFolderPath);
-
         // Copy Constructor
         Perception(const Perception &perception);
         // Copy Assignment operator
@@ -59,10 +58,8 @@ class Perception
         const bool assertValidInput();
         void init();
         std::set<std::filesystem::path> sortFiles(string &filePath);
-        void processCameraData(std::set<std::filesystem::path> &cameraFilesPath, 
-                               CameraProcessing::Camera *cameraObject);
-        void processLidarData(std::set<std::filesystem::path> *lidarFilesPath, 
-                              LidarProcessing::Lidar<pcl::PointXYZI> *lidarObject);
+        void processCameraData(std::set<std::filesystem::path> &cameraFilesPath);
+        void processLidarData(std::set<std::filesystem::path> &lidarFilesPath);
         void processRadarData();
         void processEgoData();
         void processSensorFusion(); 

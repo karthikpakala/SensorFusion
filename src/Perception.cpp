@@ -51,8 +51,9 @@ Perception::Perception::Perception(string &parentFolderPath)
     // Process data.
     // Set image height and width from the left and right camera objects
     // Change this to use calibration object based image width and height.
-    int imageLeftWidth = leftCameraObject->inputImage.rows; // Get the image width from the left camera object
-    int imageLeftHeight = leftCameraObject->inputImage.cols; // Get the image height from the left camera object
+    
+    //int imageLeftWidth = leftCameraObject->inputImage.rows; // Get the image width from the left camera object
+    //int imageLeftHeight = leftCameraObject->inputImage.cols; // Get the image height from the left camera object
 
     // Initialize image Left Structure
     inputDataStructure->imageStructLeft.image = cv::Mat::zeros(1, 1, CV_8UC3); // Initialize with zeroes
@@ -60,8 +61,8 @@ Perception::Perception::Perception(string &parentFolderPath)
     inputDataStructure->imageStructLeft.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
     inputDataStructure->imageStructLeft.boundingBoxes.clear(); // Clear Bounding Boxes
 
-    int imageRightWidth = rightCameraObject->inputImage.rows; // Get the image width from the right camera object
-    int imageRightHeight = rightCameraObject->inputImage.cols; // Get the image height from the right camera object
+    //int imageRightWidth = rightCameraObject->inputImage.rows; // Get the image width from the right camera object
+    //int imageRightHeight = rightCameraObject->inputImage.cols; // Get the image height from the right camera object
 
     // Initialize image Right structure
     inputDataStructure->imageStructRight.image = cv::Mat::zeros(1, 1, CV_8UC3); // Initialize with zeroes
@@ -158,15 +159,15 @@ void Perception::Perception::init()
     std::mutex perceptionMutex;
     std::lock_guard<std::mutex> perceptionLock(perceptionMutex);
     // Create individual threads for of the objects to process data. 
-    processCameraData();
-    processLidarData(); 
+    // processCameraData(&sortedCameraFilesLeft);
+    // processLidarData(&sortedLidarFiles); 
     // Create separate threads for each of the Camera and Lidar objects.
     // Instantiate each of the Camera and Lidar objects to start processing them. 
 }
 
-void Perception::Perception::processCameraData(std::set<std::filesystem::path> *cameraFilesPath)
+void Perception::Perception::processCameraData(std::set<std::filesystem::path> &cameraFilesPath)
 {
     // Initiate a new thread to start processing the camera data. 
-    std::thread cameraThread = std::thread(&Perception::CameraProcessing::Camera::cameraProcessing, leftCameraObject)
+    //std::thread cameraThread = std::thread(&Perception::CameraProcessing::Camera::cameraProcessing, leftCameraObject)
 
 }

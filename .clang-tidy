@@ -1,0 +1,25 @@
+Checks: 'clang-analyzer-*,bugprone-*,cert-*,misc-*,performance-*,readability-*,-clang-diagnostic-*'
+CheckOptions:
+  cert-dcl03-c.StaticAssert: true
+  cert-dcl16-c.NewSuffixes: 'L;LL;LU;LLU'
+  cert-dcl37-c.AggressiveDependentMemberLookup: false
+  cert-dcl51-cpp.AggressiveDependentMemberLookup: false
+  cert-dcl54-cpp.WarnOnlyIfThisHasSuspiciousField: false
+  cert-err09-cpp.WarnOnLargeObject: false
+  cert-err61-cpp.MaxSize: 104857600
+  cert-oop11-cpp.IncludeStyle: llvm
+  cert-oop54-cpp.WarnOnlyIfThisHasSuspiciousField: false
+  google-readability-braces-around-statements.ShortStatementLines: 1
+  google-readability-function-size.StatementThreshold: 800
+  google-readability-namespace-comments.ShortNamespaceLines: 10
+  google-readability-namespace-comments.SpacesBeforeComments: 2
+  llvm-namespace-comment.ShortNamespaceLines: 1
+  llvm-namespace-comment.SpacesBeforeComments: 1
+  misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true
+  readability-braces-around-statements.ShortStatementLines: 0
+  readability-function-size.BranchThreshold: 4294967295
+  readability-function-size.LineThreshold: 4294967295
+  readability-function-size.NestingThreshold: 4294967295
+  readability-function-size.ParameterThreshold: 4294967295
+  readability-function-size.StatementThreshold: 4294967295
+  readability-identifier-naming.IgnoreFailedSplit: false
