@@ -124,7 +124,7 @@ const bool Perception::Perception::assertValidInput()
         lidarFileCount++;
     }
 
-    if(imageLeftFileCount != imageRightFileCount || imageLeftFileCount != lidarFileCount)
+    if(imageLeftFileCount != imageRightFileCount || imageLeftFileCount != lidarFileCount || imageRightFileCount != lidarFileCount)
     {
         std::cerr << "Number of image files is not Equal to number of pcl files"
                   << "\n"
@@ -168,10 +168,42 @@ void Perception::Perception::init()
     auto cameraLeftIterator = sortedCameraFilesLeft.begin();
     auto cameraRightIterator = sortedCameraFilesRight.begin();
     auto lidarIterator = sortedLidarFiles.begin();
-
     
+    int detectorType {};
+    int descriptorType {};
 
+    string matcherType = "MAT_FLANN";        // MAT_BF, MAT_FLANN
+    string matchDescriptorsType = "DES_BINARY"; // DES_BINARY, DES_HOG
+    string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN // TODO: Fix SEL_NN algorithm - Matches coming out to be 0
+    
+    // Initialize camera parameters
+    leftCameraObject->init(detectorType, descriptorType);
+    rightCameraObject->init(detectorType, descriptorType);
 
+    while(cameraLeftIterator != sortedCameraFilesLeft.end() && cameraRightIterator != sortedCameraFilesRight.end() 
+           && lidarIterator != sortedLidarFiles.end())
+    {
+        // Create a thread for each of the Cameras and Lidar processing. 
+        std::thread cameraLeftThread(&Perception::Perception::processCameraData, leftCameraObject,
+                                                  std::ref(cameraLeftIterator->string()), 
+                                                  std::ref(detectorType), 
+                                                  std::ref(descriptorType), 
+                                                  std::ref(selectorType), 
+                                                  std::ref(matcherType), 
+                                                  std::ref(inputDataStructure->imageStructLeft.keyPoints), 
+                                                  std::ref(inputDataStructure->imageStructLeft.descriptors), 
+                                                  std::ref(prevKeyPoints), 
+                                                  std::move(prevKeyPointsPromise), 
+                                                  std::ref(prevDescriptors), 
+                                                  std::move(prevDescriptorsPromise), 
+                                                  std::ref(matches),
+                                                  std::move(matchesPromise), 
+                                                  std::ref(matchDescriptorsType), 
+                                                  std::ref(cameraCount),
+                                                  std::ref(modelWeightsPath),
+                                                  std::ref(modelClassesPath),
+                                                  std::ref(modelConfigurationPath));
+    }
     // Process each of the files list to be processed in a different thread. 
 
     // Create individual threads for of the objects to process data. 

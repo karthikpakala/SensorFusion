@@ -111,8 +111,8 @@ class Perception
         string lidarFolderPath {};
         // Move all of this into calibration class
 
-        std::mutex perceptionMutex;
-        std::lock_guard<std::mutex> perceptionLock(perceptionMutex);
+        //std::mutex perceptionMutex;
+        //std::lock_guard<std::mutex> perceptionLock(perceptionMutex);
 
         
         

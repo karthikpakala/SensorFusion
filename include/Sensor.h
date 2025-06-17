@@ -5,7 +5,29 @@
 #define SENSOR_H
 #include <iostream>
 #include <string>
-#include <vector>                                                                                                                                            
+#include <vector>     
 
+#include "DataQueue.h"
+
+namespace Perception
+{
+class Sensor
+{
+    public:
+        Sensor(); // Default constructor
+        Sensor(const Sensor &sensorObject);
+        Sensor &operator=(const Sensor &sensorObject); // Copy Assignment 
+        Sensor(Sensor &&sensorObject); // Move Constructor
+        Sensor &operator=(Sensor &&sensorObject); // Move Assignment
+        virtual ~Sensor(); // virtual destructor
+
+        // Member Functions
+        virtual void init() = 0; // initialize the sensor.
+
+    private:
+        int dataBufferSize; // size of the data buffer
+
+}; // Sensor Class
+} // namespace Perception 
 
 #endif
