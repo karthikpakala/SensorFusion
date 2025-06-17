@@ -10,6 +10,11 @@
 
 // Methods
 
+// Use Facade Design pattern to make sure this class only serves as a framework upon which other class 
+// objects are built and used. This enables a clearly defined interface to manage sensor fusion modules. 
+// the class objects created within this class are all based on the class objects that are inherited from
+// a different Sensor class that defines the interface for other new classes (Camera, Lidar, Radar) to be 
+// created for different sensors.  
 #ifndef PERCEPTION_H
 #define PERCEPTION_H
 
@@ -39,20 +44,28 @@ namespace Perception
 class Perception 
 {
     public:
-        Perception();
-        ~Perception();
 
         // Parametrized Constructor
         // TODO: Update with correct initialization variables. 
         Perception(string &parentFolderPath);
+        // constructor for different camera Resolution
+        Perception(string &parentFolderPath, int &imageWidth, int &imageHeight);
+
         // Copy Constructor
-        Perception(const Perception &perception);
+        // Delete copy constructor to avoid copying the object.
+        Perception(const Perception &perception) = delete; 
         // Copy Assignment operator
-        Perception &operator=(const Perception &perception);
+        // Delete copy assignment operator to avoid copying the object.
+        Perception &operator=(const Perception &perception) = delete; 
         // Move constructor
-        Perception(Perception &&perception);
+        // Delete move constructor to avoid moving the object.
+        Perception(Perception &&perception) = delete; 
         // move assignment operator
-        Perception &operator=(Perception &&perception);
+        // Delete move assignment operator to avoid moving the object.
+        Perception &operator=(Perception &&perception) = delete; 
+
+        // Destructor
+        ~Perception();
 
         // Member functions
         const bool assertValidInput();
@@ -65,7 +78,18 @@ class Perception
         void processSensorFusion(); 
         void logSensorData();
 
+        static Perception* getInstance(); // Returns the class instance. 
+
+        static Perception* getInstance(string &parentFolderPath); // Returns the overloaded class instance. 
+        static Perception* getInstance(string &parentFolderPath, int &imageWidth, int &imageHeight); // Returns the overloaded class instance. 
+        
+        static Perception* instance; // Singleton instance of the class
     private:
+
+        // Making this constructor private to enforce it 
+        // not being available for use outside of the class. 
+        Perception();
+
         CameraProcessing::Camera *leftCameraObject;
         CameraProcessing::Camera *rightCameraObject;
         LidarProcessing::Lidar<pcl::PointXYZI> *lidarObject;
@@ -86,6 +110,11 @@ class Perception
         string rightImageFolderPath {};
         string lidarFolderPath {};
         // Move all of this into calibration class
+
+        std::mutex perceptionMutex;
+        std::lock_guard<std::mutex> perceptionLock(perceptionMutex);
+
+        
         
 };
 } // namespace Perception

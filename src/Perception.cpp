@@ -2,6 +2,7 @@
 
 using namespace Perception;
 
+Perception::Perception* Perception::Perception::instance = nullptr;
 // using namespace Perception::Tools;
 
 // Default Constructor
@@ -12,8 +13,8 @@ using namespace Perception;
 
 Perception::Perception::Perception()
 {
-    // Initialize input data objects
-
+    // Initialize input data objects to default values.
+    std::cout << "Default constructor called" << std::endl;
     // Initialize image Left Structure
     inputDataStructure->imageStructLeft.image = cv::Mat::zeros(1242, 375, CV_8UC3); // Initialize with zeroes
     inputDataStructure->imageStructLeft.keyPoints.clear(); // Clear Key Points
@@ -31,71 +32,79 @@ Perception::Perception::Perception()
     inputDataStructure->segmentedPointCloud.first.clear(); // Clear Segmented Road Surface
     inputDataStructure->segmentedPointCloud.second.clear(); // Clear Segmented Objects
     inputDataStructure->segmentedObjects.clear(); // Clear segmented objects
-
 }
 
 // Parametrized Constructor
-// Initialize with corresponding image width and image height.
-// Update this constructor to enable more precise handling on the input from the main function.  
-Perception::Perception::Perception(string &parentFolderPath)
+Perception::Perception::Perception(string &parentFolderPath) : Perception()
 {
     // Initialize input data objects
+    std::cout << "Delegated constructor calling" << std::endl;
 
-    // create folder paths and initialize input data structure.
+    // create folder paths
     leftImageFolderPath = parentFolderPath + imageLeftFilePath;
     rightImageFolderPath = parentFolderPath + imageRightFilePath;
     lidarFolderPath = parentFolderPath + lidarFilePath;
-
-    // assert the validity of input
-    // Create camera objects and lidar objects
-    // Process data.
-    // Set image height and width from the left and right camera objects
-    // Change this to use calibration object based image width and height.
-    
-    //int imageLeftWidth = leftCameraObject->inputImage.rows; // Get the image width from the left camera object
-    //int imageLeftHeight = leftCameraObject->inputImage.cols; // Get the image height from the left camera object
-
-    // Initialize image Left Structure
-    inputDataStructure->imageStructLeft.image = cv::Mat::zeros(1, 1, CV_8UC3); // Initialize with zeroes
-    inputDataStructure->imageStructLeft.keyPoints.clear(); // Clear Key Points
-    inputDataStructure->imageStructLeft.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
-    inputDataStructure->imageStructLeft.boundingBoxes.clear(); // Clear Bounding Boxes
-
-    //int imageRightWidth = rightCameraObject->inputImage.rows; // Get the image width from the right camera object
-    //int imageRightHeight = rightCameraObject->inputImage.cols; // Get the image height from the right camera object
-
-    // Initialize image Right structure
-    inputDataStructure->imageStructRight.image = cv::Mat::zeros(1, 1, CV_8UC3); // Initialize with zeroes
-    inputDataStructure->imageStructRight.keyPoints.clear(); // Clear Key Points
-    inputDataStructure->imageStructRight.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
-    inputDataStructure->imageStructRight.boundingBoxes.clear(); // Clear Bounding Boxes
-
-    // Initialize Lidar Point Cloud
-    inputDataStructure->cloud.clear(); // Clear Lidar Point Cloud
-    inputDataStructure->segmentedPointCloud.first.clear(); // Clear Segmented Road Surface
-    inputDataStructure->segmentedPointCloud.second.clear(); // Clear Segmented Objects
-    inputDataStructure->segmentedObjects.clear(); // Clear segmented objects
-
-    init(); // Initialize the perception object
-
-
 }
 
+// Parametrized constructor for different image resolution.
+Perception::Perception::Perception(std::string &parentFolderPath, int &imageWidth, int &imageHeight) : 
+                                    Perception(parentFolderPath)
+{
+    // Initialize data objects
+    std::cout << "Parametrized constructor called for different image resolution" << std::endl;
+
+    // Set input image size to the appropriate values. 
+    inputDataStructure->imageStructLeft.image = 
+            cv::Mat::zeros(imageWidth, imageHeight, CV_8UC3); // Initialize with input camera resolution.
+    inputDataStructure->imageStructRight.image =
+            cv::Mat::zeros(imageWidth, imageHeight, CV_8UC3); // Initialize with input camera resolution.
+}
+
+// Destructor
 Perception::Perception::~Perception()
 {
+    cout << 
+        "Perception Destructor Called - Killing Left Camera, Right Camera, Lidar and Calibration Objects" 
+        << endl;
+    // kill all objects by calling their respective destructors. 
+    delete leftCameraObject;
+    delete rightCameraObject;
+    delete lidarObject;
+    delete calibrationObject;
 
 }
 
-Perception::Perception::Perception(const Perception &perception)
+// Singleton Instance Getter
+Perception::Perception* Perception::Perception::getInstance()
 {
-    // Copy constructor implementation
-    if (this != &perception)
+    if(instance == nullptr)
     {
-
+        instance = new Perception();
     }
-
+    return instance;
 }
 
+// Parametrized Singleton Instance Getter
+Perception::Perception* Perception::Perception::getInstance(string &parentFolderPath)
+{
+    if(instance == nullptr)
+    {
+        instance = new Perception(parentFolderPath);
+    }
+    return instance;
+}
+
+// Parametrized Singleton Instance Getter for a different image resolution 
+Perception::Perception* Perception::Perception::getInstance(string &parentFolderPath, int &imageWidth, int &imageHeight)
+{
+    if(instance == nullptr)
+    {
+        instance = new Perception(parentFolderPath, imageWidth, imageHeight);
+    }
+    return instance;
+}
+
+// Assert validity of input data
 const bool Perception::Perception::assertValidInput()
 {
     bool isValid = true;
@@ -128,6 +137,7 @@ const bool Perception::Perception::assertValidInput()
     return isValid;
 }
 
+// Sort files in the given folder path. 
 std::set<std::filesystem::path> Perception::Perception::sortFiles(string &folderPath)
 {
     std::set<std::filesystem::path> sortedFiles {};
@@ -155,9 +165,15 @@ void Perception::Perception::init()
     std::set<std::filesystem::path> sortedCameraFilesRight = sortFiles(rightImageFolderPath);
     std::set<std::filesystem::path> sortedLidarFiles = sortFiles(lidarFolderPath);
 
+    auto cameraLeftIterator = sortedCameraFilesLeft.begin();
+    auto cameraRightIterator = sortedCameraFilesRight.begin();
+    auto lidarIterator = sortedLidarFiles.begin();
+
+    
+
+
     // Process each of the files list to be processed in a different thread. 
-    std::mutex perceptionMutex;
-    std::lock_guard<std::mutex> perceptionLock(perceptionMutex);
+
     // Create individual threads for of the objects to process data. 
     // processCameraData(&sortedCameraFilesLeft);
     // processLidarData(&sortedLidarFiles); 
