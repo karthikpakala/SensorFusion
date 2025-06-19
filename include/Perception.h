@@ -68,9 +68,9 @@ class Perception
         ~Perception();
 
         // Member functions
-        const bool assertValidInput();
+        const bool assertValidInput(); // Assert
         void init();
-        std::set<std::filesystem::path> sortFiles(string &filePath);
+        inline std::set<std::filesystem::path> sortFiles(string &filePath); // inline to allow for faster processing of sorting operation. 
         void processCameraData(std::set<std::filesystem::path> &cameraFilesPath);
         void processLidarData(std::set<std::filesystem::path> &lidarFilesPath);
         void processRadarData();

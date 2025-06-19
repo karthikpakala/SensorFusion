@@ -80,6 +80,7 @@ namespace Perception
             std::vector<cv::KeyPoint> keyPoints {}; // Image KeyPoints
             std::vector<cv::KeyPoint> prevKeyPoints{}; // Prev Image Keypoints
             cv::Mat descriptors {}; // Descriptors
+            cv::Mat prevDescriptors {}; // Previous Descriptors
             std::vector<cv::DMatch> keyPointMatches {}; // Bounding Box Key point matches
             std::vector<BoundingBox> boundingBoxes {}; // bounding boxes
             std::map<int, int> bbMatches {}; // bounding box matches

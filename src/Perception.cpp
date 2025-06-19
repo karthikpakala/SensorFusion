@@ -185,7 +185,7 @@ void Perception::Perception::init()
     {
         // Create a thread for each of the Cameras and Lidar processing. 
         std::thread cameraLeftThread(&Perception::Perception::processCameraData, leftCameraObject,
-                                                  std::ref(cameraLeftIterator->string()), 
+                                                  std::ref(*(cameraLeftIterator)->string()), 
                                                   std::ref(detectorType), 
                                                   std::ref(descriptorType), 
                                                   std::ref(selectorType), 
