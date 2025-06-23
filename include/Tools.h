@@ -12,6 +12,7 @@ struct Color {
 
   Color(float setR, float setG, float setB) : r(setR), g(setG), b(setB) {}
 };
+
 enum CameraAngle { XY, TopDown, Side, FPS };
 
 class Tools {

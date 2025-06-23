@@ -29,9 +29,9 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
-#include <thread>
-#include <mutex>
-#include <future>
+// #include <thread>
+// #include <mutex>
+// #include <future>
 
 using namespace std;
 namespace Perception 
@@ -94,6 +94,7 @@ class Perception
         CameraProcessing::Camera *rightCameraObject;
         LidarProcessing::Lidar<pcl::PointXYZI> *lidarObject;
         Calibration *calibrationObject;
+        Tooling::Tools *toolsObject;
         DataStructure::InputStructure *inputDataStructure;
         // RadarProcessing::Radar *radarObject;
 
@@ -106,9 +107,17 @@ class Perception
         string imageFileType = ".png";
         string egoFileType = ".txt";
 
+
+        // Can be removed once the application is updated to use reltime data.
         string leftImageFolderPath {};
         string rightImageFolderPath {};
         string lidarFolderPath {};
+
+        // Path to the perception model configuration files. 
+        string modelWeightsPath {};
+        string modelClassesPath {};
+        string modelConfigurationPath {};
+
         // Move all of this into calibration class
 
         //std::mutex perceptionMutex;

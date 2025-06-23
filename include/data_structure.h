@@ -94,9 +94,9 @@ namespace Perception
         // Input Data Structure
         struct InputStructure
         {
-            pcl::PointCloud<LidarPoint> cloud {}; // Lidar Point Cloud
-            std::pair<pcl::PointCloud<LidarPoint>, pcl::PointCloud<LidarPoint>> segmentedPointCloud {}; // Segmented road surface and objects
-            std::vector<pcl::PointCloud<LidarPoint>> segmentedObjects {}; // segmented objects
+            pcl::PointCloud<pcl::PointXYZI> cloud {}; // Lidar Point Cloud
+            std::pair<pcl::PointCloud<pcl::PointXYZI>, pcl::PointCloud<pcl::PointXYZI>> segmentedPointCloud {}; // Segmented road surface and objects
+            std::vector<pcl::PointCloud<pcl::PointXYZI>> segmentedObjects {}; // segmented objects
 
             // Stereo Camera Images
             CameraImageStruct imageStructLeft {}; // Camera Image Left
