@@ -53,7 +53,6 @@ Perception::CameraProcessing::Camera::~Camera()
 
 void Perception::CameraProcessing::Camera::init(int &detectorType, int &descriptorType)
 {
-    inputImage = cv::Mat();
           
     std::cout << "HOG Detectors : HARRIS | Shi-Tomasi | SIFT | SURF" << std::endl;
     std::cout << "Binary Detectors : FAST | BRIEF | ORB | BRISK | FREAK" << std::endl;

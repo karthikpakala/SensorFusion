@@ -18,28 +18,28 @@ Perception::Perception::Perception()
     // Initialize input data objects to default values.
     std::cout << "Default Perception constructor called" << std::endl;
     // Initialize image Left Structure
-    // inputDataStructure->imageStructLeft.image = cv::Mat::zeros(1242, 375, CV_8UC3); // Initialize with zeroes
-    // inputDataStructure->imageStructLeft.image = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
+    // inputDataStructure.imageStructLeft.image = cv::Mat::zeros(1242, 375, CV_8UC3); // Initialize with zeroes
+    // inputDataStructure.imageStructLeft.image = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
 
-    // inputDataStructure->imageStructLeft.keyPoints.clear(); // Clear Key Points
-    // // inputDataStructure->imageStructLeft.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
-    // // inputDataStructure->imageStructLeft.descriptors = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
+    // inputDataStructure.imageStructLeft.keyPoints.clear(); // Clear Key Points
+    // // inputDataStructure.imageStructLeft.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
+    // // inputDataStructure.imageStructLeft.descriptors = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
 
-    // inputDataStructure->imageStructLeft.boundingBoxes.clear(); // Clear Bounding Boxes
+    // inputDataStructure.imageStructLeft.boundingBoxes.clear(); // Clear Bounding Boxes
 
     // // Initialize image Right structure
-    // // inputDataStructure->imageStructRight.image = cv::Mat::zeros(1242, 375, CV_8UC3); // Initialize with zeroes
-    // // inputDataStructure->imageStructRight.image = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
-    // inputDataStructure->imageStructRight.keyPoints.clear(); // Clear Key Points
-    // // inputDataStructure->imageStructRight.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
-    // // inputDataStructure->imageStructRight.descriptors = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
-    // inputDataStructure->imageStructRight.boundingBoxes.clear(); // Clear Bounding Boxes
+    // // inputDataStructure.imageStructRight.image = cv::Mat::zeros(1242, 375, CV_8UC3); // Initialize with zeroes
+    // // inputDataStructure.imageStructRight.image = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
+    // inputDataStructure.imageStructRight.keyPoints.clear(); // Clear Key Points
+    // // inputDataStructure.imageStructRight.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
+    // // inputDataStructure.imageStructRight.descriptors = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
+    // inputDataStructure.imageStructRight.boundingBoxes.clear(); // Clear Bounding Boxes
 
     // // Initialize Lidar Point Cloud
-    // inputDataStructure->cloud.clear(); // Clear Lidar Point Cloud
-    // inputDataStructure->segmentedPointCloud.first.clear(); // Clear Segmented Road Surface
-    // inputDataStructure->segmentedPointCloud.second.clear(); // Clear Segmented Objects
-    // inputDataStructure->segmentedObjects.clear(); // Clear segmented objects
+    // inputDataStructure.cloud.clear(); // Clear Lidar Point Cloud
+    // inputDataStructure.segmentedPointCloud.first.clear(); // Clear Segmented Road Surface
+    // inputDataStructure.segmentedPointCloud.second.clear(); // Clear Segmented Objects
+    // inputDataStructure.segmentedObjects.clear(); // Clear segmented objects
 }
 
 // Parametrized Constructor
@@ -63,9 +63,9 @@ Perception::Perception::Perception(std::string &parentFolderPath, int &imageWidt
     std::cout << "Parametrized Perception constructor called for different image resolution" << std::endl;
 
     // Set input image size to the appropriate values. 
-    inputDataStructure->imageStructLeft.image = 
+    inputDataStructure.imageStructLeft.image = 
             cv::Mat::zeros(imageWidth, imageHeight, CV_8UC3); // Initialize with input camera resolution.
-    inputDataStructure->imageStructRight.image =
+    inputDataStructure.imageStructRight.image =
             cv::Mat::zeros(imageWidth, imageHeight, CV_8UC3); // Initialize with input camera resolution.
     init();
 }
@@ -81,7 +81,7 @@ Perception::Perception::~Perception()
     delete rightCameraObject;
     delete lidarObject;
     delete calibrationObject;
-    delete inputDataStructure;
+   //  delete inputDataStructure;
 
 }
 
@@ -218,9 +218,16 @@ void Perception::Perception::init()
            && lidarIterator != sortedLidarFiles.end())
     {
         // Set Left and Right Camera images
-        inputDataStructure->imageStructLeft.image = cv::imread((*cameraLeftIterator).string());
-        inputDataStructure->imageStructRight.image = cv::imread((*cameraRightIterator).string());
+        std::cout << "Camera processing file Path : " << (*cameraLeftIterator).string() << std::endl;
+        //cv::Mat leftImage = cv::imread((*cameraLeftIterator).string());
+        //std::cout << "INput Camera ImageLeft Size: " << leftImage.size() << std::endl;
+        //inputDataStructure.imageStructLeft.image = leftImage;
+        std::cout << "After Assignment" << std::endl;
+        //inputDataStructure.imageStructLeft.image = cv::imread((*cameraLeftIterator).string());
+        //inputDataStructure.imageStructRight.image = cv::imread((*cameraRightIterator).string());
 
+        inputDataStructure.imageStructLeft.image = cv::imread((*cameraLeftIterator).string());
+        inputDataStructure.imageStructRight.image = cv::imread((*cameraRightIterator).string());
         // Create a viewer object and initilaize the viewer.
         pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer("PCL Viewer"));
 
@@ -240,24 +247,24 @@ void Perception::Perception::init()
             viewer->removeAllShapes();
             
             // Create a image clone for visualization. 
-            cv::Mat leftImageClone = inputDataStructure->imageStructLeft.image.clone();
-            cv::Mat rightImageClone = inputDataStructure->imageStructRight.image.clone();
+            cv::Mat leftImageClone = inputDataStructure.imageStructLeft.image.clone();
+            cv::Mat rightImageClone = inputDataStructure.imageStructRight.image.clone();
 
             // Initialize the camera and lidar onjects on individual threads. 
             // Left Camera thread
             std::thread cameraLeftThread = std::thread(&CameraProcessing::Camera::cameraProcessing, leftCameraObject,
-                                                   std::ref(inputDataStructure->imageStructLeft.image),
+                                                   std::ref(inputDataStructure.imageStructLeft.image),
                                                    std::ref(detectorType),
                                                    std::ref(descriptorType),
                                                    std::ref(selectorType),
                                                    std::ref(matcherType),
-                                                   std::ref(inputDataStructure->imageStructLeft.keyPoints),
-                                                   std::ref(inputDataStructure->imageStructLeft.descriptors),
-                                                   std::ref(inputDataStructure->imageStructLeft.prevKeyPoints),
+                                                   std::ref(inputDataStructure.imageStructLeft.keyPoints),
+                                                   std::ref(inputDataStructure.imageStructLeft.descriptors),
+                                                   std::ref(inputDataStructure.imageStructLeft.prevKeyPoints),
                                                    std::move(prevKeyPointsPromiseLeft),
-                                                   std::ref(inputDataStructure->imageStructLeft.prevDescriptors),
+                                                   std::ref(inputDataStructure.imageStructLeft.prevDescriptors),
                                                    std::move(prevDescriptorsPromiseLeft),
-                                                   std::ref(inputDataStructure->imageStructLeft.keyPointMatches),
+                                                   std::ref(inputDataStructure.imageStructLeft.keyPointMatches),
                                                    std::move(matchesPromiseLeft),
                                                    std::ref(matchDescriptorsType),
                                                    std::ref(count),
@@ -266,24 +273,24 @@ void Perception::Perception::init()
                                                    std::ref(modelConfigurationPath));
             
             // Capture previous keypoints, descriptors and matches for left camera. 
-            inputDataStructure->imageStructLeft.prevKeyPoints = prevKeyPointsFutureLeft.get(); // Get previous keypoints for left camera
-            inputDataStructure->imageStructLeft.prevDescriptors = prevDescriptorsFutureLeft.get(); // Get previous descriptors for left camera
-            inputDataStructure->imageStructLeft.keyPointMatches = matchesFutureLeft.get(); // Get matches for left camera
+            inputDataStructure.imageStructLeft.prevKeyPoints = prevKeyPointsFutureLeft.get(); // Get previous keypoints for left camera
+            inputDataStructure.imageStructLeft.prevDescriptors = prevDescriptorsFutureLeft.get(); // Get previous descriptors for left camera
+            inputDataStructure.imageStructLeft.keyPointMatches = matchesFutureLeft.get(); // Get matches for left camera
 
             // Right Camera thread
             std::thread cameraRightThread = std::thread(&CameraProcessing::Camera::cameraProcessing, rightCameraObject,
-                                                   std::ref(inputDataStructure->imageStructRight.image),
+                                                   std::ref(inputDataStructure.imageStructRight.image),
                                                    std::ref(detectorType),
                                                    std::ref(descriptorType),
                                                    std::ref(selectorType),
                                                    std::ref(matcherType),
-                                                   std::ref(inputDataStructure->imageStructRight.keyPoints),
-                                                   std::ref(inputDataStructure->imageStructRight.descriptors),
-                                                   std::ref(inputDataStructure->imageStructRight.prevKeyPoints),
+                                                   std::ref(inputDataStructure.imageStructRight.keyPoints),
+                                                   std::ref(inputDataStructure.imageStructRight.descriptors),
+                                                   std::ref(inputDataStructure.imageStructRight.prevKeyPoints),
                                                    std::move(prevKeyPointsPromiseRight),
-                                                   std::ref(inputDataStructure->imageStructRight.prevDescriptors),
+                                                   std::ref(inputDataStructure.imageStructRight.prevDescriptors),
                                                    std::move(prevDescriptorsPromiseRight),
-                                                   std::ref(inputDataStructure->imageStructRight.keyPointMatches),
+                                                   std::ref(inputDataStructure.imageStructRight.keyPointMatches),
                                                    std::move(matchesPromiseRight),
                                                    std::ref(matchDescriptorsType),
                                                    std::ref(count),
@@ -292,9 +299,9 @@ void Perception::Perception::init()
                                                    std::ref(modelConfigurationPath));
             
             // Capture previous keypoints, descriptors and matches for right camera.
-            inputDataStructure->imageStructRight.prevKeyPoints = prevKeyPointsFutureRight.get(); // Get previous keypoints for right camera
-            inputDataStructure->imageStructRight.prevDescriptors = prevDescriptorsFutureRight.get(); // Get previous descriptors for right camera
-            inputDataStructure->imageStructRight.keyPointMatches = matchesFutureRight.get(); // Get matches for right camera
+            inputDataStructure.imageStructRight.prevKeyPoints = prevKeyPointsFutureRight.get(); // Get previous keypoints for right camera
+            inputDataStructure.imageStructRight.prevDescriptors = prevDescriptorsFutureRight.get(); // Get previous descriptors for right camera
+            inputDataStructure.imageStructRight.keyPointMatches = matchesFutureRight.get(); // Get matches for right camera
 
             count++; // Increment the count for camera files processed.
             
@@ -303,10 +310,10 @@ void Perception::Perception::init()
                                                (*lidarIterator).string(),
                                                std::ref(viewer));
 
-            cv::drawKeypoints(inputDataStructure->imageStructLeft.image, inputDataStructure->imageStructLeft.keyPoints, 
+            cv::drawKeypoints(inputDataStructure.imageStructLeft.image, inputDataStructure.imageStructLeft.keyPoints, 
                                 leftImageClone, cv::Scalar(-1,-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
-            cv::drawKeypoints(inputDataStructure->imageStructRight.image, inputDataStructure->imageStructRight.keyPoints, 
+            cv::drawKeypoints(inputDataStructure.imageStructRight.image, inputDataStructure.imageStructRight.keyPoints, 
                                 rightImageClone, cv::Scalar(-1,-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
             std::string windowNameLeft = "Left Camera Image";

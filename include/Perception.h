@@ -95,7 +95,7 @@ class Perception
         LidarProcessing::Lidar<pcl::PointXYZI> *lidarObject;
         Calibration *calibrationObject;
         Tooling::Tools *toolsObject;
-        DataStructure::InputStructure *inputDataStructure;
+        DataStructure::InputStructure inputDataStructure;
         // RadarProcessing::Radar *radarObject;
 
         // Move all of this into calibration class
