@@ -19,27 +19,27 @@ Perception::Perception::Perception()
     std::cout << "Default Perception constructor called" << std::endl;
     // Initialize image Left Structure
     // inputDataStructure->imageStructLeft.image = cv::Mat::zeros(1242, 375, CV_8UC3); // Initialize with zeroes
-    //inputDataStructure->imageStructLeft.image = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
+    // inputDataStructure->imageStructLeft.image = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
 
-    inputDataStructure->imageStructLeft.keyPoints.clear(); // Clear Key Points
-    // inputDataStructure->imageStructLeft.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
-    // inputDataStructure->imageStructLeft.descriptors = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
+    // inputDataStructure->imageStructLeft.keyPoints.clear(); // Clear Key Points
+    // // inputDataStructure->imageStructLeft.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
+    // // inputDataStructure->imageStructLeft.descriptors = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
 
-    inputDataStructure->imageStructLeft.boundingBoxes.clear(); // Clear Bounding Boxes
+    // inputDataStructure->imageStructLeft.boundingBoxes.clear(); // Clear Bounding Boxes
 
-    // Initialize image Right structure
-    // inputDataStructure->imageStructRight.image = cv::Mat::zeros(1242, 375, CV_8UC3); // Initialize with zeroes
-    // inputDataStructure->imageStructRight.image = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
-    inputDataStructure->imageStructRight.keyPoints.clear(); // Clear Key Points
-    // inputDataStructure->imageStructRight.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
-    // inputDataStructure->imageStructRight.descriptors = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
-    inputDataStructure->imageStructRight.boundingBoxes.clear(); // Clear Bounding Boxes
+    // // Initialize image Right structure
+    // // inputDataStructure->imageStructRight.image = cv::Mat::zeros(1242, 375, CV_8UC3); // Initialize with zeroes
+    // // inputDataStructure->imageStructRight.image = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
+    // inputDataStructure->imageStructRight.keyPoints.clear(); // Clear Key Points
+    // // inputDataStructure->imageStructRight.descriptors = cv::Mat::zeros(0, 0, CV_32F); // Initialize with zeroes
+    // // inputDataStructure->imageStructRight.descriptors = cv::Mat::zeros(cv::Size(1242, 375), CV_8UC1);
+    // inputDataStructure->imageStructRight.boundingBoxes.clear(); // Clear Bounding Boxes
 
-    // Initialize Lidar Point Cloud
-    inputDataStructure->cloud.clear(); // Clear Lidar Point Cloud
-    inputDataStructure->segmentedPointCloud.first.clear(); // Clear Segmented Road Surface
-    inputDataStructure->segmentedPointCloud.second.clear(); // Clear Segmented Objects
-    inputDataStructure->segmentedObjects.clear(); // Clear segmented objects
+    // // Initialize Lidar Point Cloud
+    // inputDataStructure->cloud.clear(); // Clear Lidar Point Cloud
+    // inputDataStructure->segmentedPointCloud.first.clear(); // Clear Segmented Road Surface
+    // inputDataStructure->segmentedPointCloud.second.clear(); // Clear Segmented Objects
+    // inputDataStructure->segmentedObjects.clear(); // Clear segmented objects
 }
 
 // Parametrized Constructor
@@ -339,27 +339,3 @@ void Perception::Perception::init()
     // Create separate threads for each of the Camera and Lidar objects.
     // Instantiate each of the Camera and Lidar objects to start processing them. 
 }
-
-// void Perception::Perception::processCameraData(int &detectorType, int &descriptorType, int &count, DataStructure::InputStructure::CameraImageStruct &cameraStruct,
-//                                                std::string &selectorType, std::string &matcherType, std::string &matchDescriptorType)
-// {
-//     // Call the camera processing function to process the camera data. 
-//     leftCameraObject->cameraProcessing(std::ref(cameraStruct.image),
-//                                         std::ref(detectorType),
-//                                         std::ref(descriptorType),
-//                                         std::ref(selectorType),
-//                                         std::ref(matcherType),
-//                                         std::ref(cameraStruct.keyPoints),
-//                                         std::ref(cameraStruct.descriptors),
-//                                         std::ref(cameraStruct.prevKeyPoints),
-//                                         std::move(prevKeyPointsPromise),
-//                                         std::ref(cameraStruct.prevDescriptors),
-//                                         std::move(prevDescriptorsPromise),
-//                                         std::ref(cameraStruct.keyPointMatches),
-//                                         std::move(matchesPromise),
-//                                         std::ref(matchDescriptorType),
-//                                         std::ref(count),
-//                                         std::ref(modelWeightsPath),
-//                                         std::ref(modelClassesPath),
-//                                         std::ref(modelConfigurationPath));
-// }
