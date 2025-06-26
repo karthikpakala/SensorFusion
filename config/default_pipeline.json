@@ -1,0 +1,170 @@
+{
+    "system": {
+        "name": "SensorFusion Plugin System",
+        "version": "1.0.0",
+        "plugin_directory": "./plugins",
+        "log_level": "INFO",
+        "performance_monitoring": true
+    },
+    "pipeline": {
+        "sensors": [
+            {
+                "id": "camera_left",
+                "plugin": "camera_sensor.so",
+                "enabled": true,
+                "config": {
+                    "device_id": "0",
+                    "width": "1920",
+                    "height": "1080",
+                    "fps": "30",
+                    "exposure": "auto",
+                    "gain": "auto",
+                    "format": "BGR"
+                }
+            },
+            {
+                "id": "camera_right",
+                "plugin": "camera_sensor.so",
+                "enabled": true,
+                "config": {
+                    "device_id": "1",
+                    "width": "1920",
+                    "height": "1080",
+                    "fps": "30",
+                    "exposure": "auto",
+                    "gain": "auto",
+                    "format": "BGR"
+                }
+            },
+            {
+                "id": "lidar_main",
+                "plugin": "lidar_sensor.so",
+                "enabled": true,
+                "config": {
+                    "data_path": "/data/kitti/velodyne",
+                    "min_range": "0.1",
+                    "max_range": "100.0",
+                    "vertical_fov_min": "-15.0",
+                    "vertical_fov_max": "15.0",
+                    "horizontal_fov_min": "-180.0",
+                    "horizontal_fov_max": "180.0"
+                }
+            }
+        ],
+        "processors": [
+            {
+                "id": "object_detector",
+                "plugin": "yolo_detector.so",
+                "enabled": true,
+                "config": {
+                    "model_path": "./model/yolo/yolov3.weights",
+                    "config_path": "./model/yolo/yolov3.cfg",
+                    "names_path": "./model/yolo/coco.names",
+                    "confidence_threshold": "0.5",
+                    "nms_threshold": "0.4",
+                    "input_size": "416",
+                    "use_gpu": "true"
+                }
+            },
+            {
+                "id": "feature_extractor",
+                "plugin": "orb_extractor.so",
+                "enabled": true,
+                "config": {
+                    "max_features": "1000",
+                    "scale_factor": "1.2",
+                    "levels": "8",
+                    "edge_threshold": "31",
+                    "first_level": "0",
+                    "wta_k": "2",
+                    "score_type": "0",
+                    "patch_size": "31"
+                }
+            },
+            {
+                "id": "point_cloud_processor",
+                "plugin": "pcl_processor.so",
+                "enabled": true,
+                "config": {
+                    "voxel_size": "0.1",
+                    "cluster_tolerance": "0.5",
+                    "min_cluster_size": "10",
+                    "max_cluster_size": "10000",
+                    "enable_ground_removal": "true",
+                    "ground_threshold": "0.2"
+                }
+            }
+        ],
+        "fusion": [
+            {
+                "id": "kalman_fusion",
+                "plugin": "kalman_fusion.so",
+                "enabled": true,
+                "config": {
+                    "process_noise": "0.1",
+                    "measurement_noise": "0.5",
+                    "prediction_steps": "5",
+                    "max_track_age": "10",
+                    "association_threshold": "0.7"
+                }
+            }
+        ],
+        "output": [
+            {
+                "id": "visualizer",
+                "plugin": "visualization.so",
+                "enabled": true,
+                "config": {
+                    "window_width": "1920",
+                    "window_height": "1080",
+                    "show_bounding_boxes": "true",
+                    "show_point_cloud": "true",
+                    "show_trajectories": "true",
+                    "color_scheme": "rainbow",
+                    "save_frames": "false",
+                    "output_directory": "./output"
+                }
+            },
+            {
+                "id": "logger",
+                "plugin": "data_logger.so",
+                "enabled": false,
+                "config": {
+                    "output_file": "./logs/sensor_data.log",
+                    "format": "json",
+                    "compression": "gzip",
+                    "buffer_size": "1000"
+                }
+            }
+        ],
+        "connections": [
+            {"from": "camera_left", "to": "object_detector"},
+            {"from": "camera_right", "to": "feature_extractor"},
+            {"from": "lidar_main", "to": "point_cloud_processor"},
+            {"from": "object_detector", "to": "kalman_fusion"},
+            {"from": "point_cloud_processor", "to": "kalman_fusion"},
+            {"from": "kalman_fusion", "to": "visualizer"},
+            {"from": "kalman_fusion", "to": "logger"}
+        ]
+    },
+    "performance": {
+        "target_fps": 30.0,
+        "max_latency_ms": 33.0,
+        "enable_parallel_processing": true,
+        "max_threads": 4,
+        "memory_pool_size": "100MB",
+        "gpu_memory_fraction": 0.8
+    },
+    "synchronization": {
+        "enable_timestamp_sync": true,
+        "sync_tolerance_ms": 10.0,
+        "master_clock": "lidar_main",
+        "sync_strategy": "nearest_neighbor"
+    },
+    "monitoring": {
+        "enable_health_monitoring": true,
+        "health_check_interval_ms": 1000,
+        "enable_performance_logging": true,
+        "log_file": "./logs/performance.log"
+    }
+}

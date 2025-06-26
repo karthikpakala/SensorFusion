@@ -77,10 +77,15 @@ Perception::Perception::~Perception()
         "Perception Destructor Called - Killing Left Camera, Right Camera, Lidar and Calibration Objects" 
         << endl;
     // kill all objects by calling their respective destructors. 
-    delete leftCameraObject;
-    delete rightCameraObject;
-    delete lidarObject;
-    delete calibrationObject;
+    // delete leftCameraObject;
+    // delete rightCameraObject;
+    // delete lidarObject;
+    // delete calibrationObject;
+
+    leftCameraObject.~Camera();
+    rightCameraObject.~Camera();
+    lidarObject.~Lidar<pcl::PointXYZI>();
+    calibrationObject.~Calibration();
    //  delete inputDataStructure;
 
 }
@@ -188,8 +193,8 @@ void Perception::Perception::init()
     string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN // TODO: Fix SEL_NN algorithm - Matches coming out to be 0
     
     // Initialize camera parameters
-    leftCameraObject->init(detectorType, descriptorType);
-    rightCameraObject->init(detectorType, descriptorType);
+    leftCameraObject.init(detectorType, descriptorType);
+    rightCameraObject.init(detectorType, descriptorType);
 
     // Initialize promises to get previous keypoints, descriptors and matches for left camera object.
     std::promise<std::vector<cv::KeyPoint>> prevKeyPointsPromiseLeft {};
@@ -273,9 +278,16 @@ void Perception::Perception::init()
                                                    std::ref(modelConfigurationPath));
             
             // Capture previous keypoints, descriptors and matches for left camera. 
-            inputDataStructure.imageStructLeft.prevKeyPoints = prevKeyPointsFutureLeft.get(); // Get previous keypoints for left camera
-            inputDataStructure.imageStructLeft.prevDescriptors = prevDescriptorsFutureLeft.get(); // Get previous descriptors for left camera
-            inputDataStructure.imageStructLeft.keyPointMatches = matchesFutureLeft.get(); // Get matches for left camera
+            std::vector<cv::KeyPoint> prevKeyPointsLEft = prevKeyPointsFutureLeft.get();
+            std::vector<cv::Mat> prevDescriptorsLeft = prevDescriptorsFutureLeft.get();
+            std::vector<cv::DMatch> matchesLeft = matchesFutureLeft.get();
+            std::cout << "Prev KeyPoints Left Size: " << prevKeyPointsLEft.size() << std::endl;
+            inputDataStructure.imageStructLeft.prevKeyPoints = prevKeyPointsLEft; // Get previous keypoints for left camera
+            inputDataStructure.imageStructLeft.prevDescriptors = prevDescriptorsLeft; // Get previous descriptors for left camera
+            inputDataStructure.imageStructLeft.keyPointMatches = matchesLeft; // Get matches for left
+            // inputDataStructure.imageStructLeft.prevKeyPoints = prevKeyPointsFutureLeft.get(); // Get previous keypoints for left camera
+            // inputDataStructure.imageStructLeft.prevDescriptors = prevDescriptorsFutureLeft.get(); // Get previous descriptors for left camera
+            // inputDataStructure.imageStructLeft.keyPointMatches = matchesFutureLeft.get(); // Get matches for left camera
 
             // Right Camera thread
             std::thread cameraRightThread = std::thread(&CameraProcessing::Camera::cameraProcessing, rightCameraObject,
@@ -299,9 +311,12 @@ void Perception::Perception::init()
                                                    std::ref(modelConfigurationPath));
             
             // Capture previous keypoints, descriptors and matches for right camera.
-            inputDataStructure.imageStructRight.prevKeyPoints = prevKeyPointsFutureRight.get(); // Get previous keypoints for right camera
-            inputDataStructure.imageStructRight.prevDescriptors = prevDescriptorsFutureRight.get(); // Get previous descriptors for right camera
-            inputDataStructure.imageStructRight.keyPointMatches = matchesFutureRight.get(); // Get matches for right camera
+            std::vector<cv::KeyPoint> prevKeyPointsRight = prevKeyPointsFutureRight.get();
+            std::vector<cv::Mat> prevDescriptorsRight = prevDescriptorsFutureRight.get();
+            std::vector<cv::DMatch> matchesRight = matchesFutureRight.get();
+            // inputDataStructure.imageStructRight.prevKeyPoints = prevKeyPointsFutureRight.get(); // Get previous keypoints for right camera
+            // inputDataStructure.imageStructRight.prevDescriptors = prevDescriptorsFutureRight.get(); // Get previous descriptors for right camera
+            // inputDataStructure.imageStructRight.keyPointMatches = matchesFutureRight.get(); // Get matches for right camera
 
             count++; // Increment the count for camera files processed.
             

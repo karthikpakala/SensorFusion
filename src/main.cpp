@@ -47,10 +47,10 @@ int main(int argv, char **argc)
 
   // Data file path definitions.
   #if __linux__ 
-    string baseDataFolderPath = "/home/karthik/Projects/Data/Kitti-Dataset1"; // File path for linux
+    string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/DataSet1"; // File path for linux
     //string baseDataFolderPath = "/home/karthikpakala/Pers-Projects/Data/Kitti-data3"; // Linux HP
 
-    string modelBasePath = "/home/karthik/Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
+    string modelBasePath = "/home/karthikpakala/Pers-Projects/SensorFusion/model/yolo/"; // File Path for Linux WS
     //string modelBasePath = "/home/karthikpakala/Pers-Projects/SensorFusion/model/yolo/"; // Office Linux
   #else
     string baseDataFolderPath = "/Users/karthikpakala/Projects/Data/KITTI-data3"; // File path for macosx

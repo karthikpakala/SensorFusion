@@ -1,0 +1,239 @@
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+
+add_definitions(-std=c++17)
+project(SensorFusionWithPlugins CXX)
+
+# Compiler and build settings
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Thread support
+set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_HAVE_THREADS_LIBRARY 1)
+set(CMAKE_USE_PTHREADS_INIT 1)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+
+# Enable Position Independent Code for shared libraries
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Include directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Platform-specific configurations
+if(APPLE)
+    set(PCL_DIR /opt/homebrew/opt/pcl/include)
+    set(OpenCV_DIR /opt/homebrew/opt/opencv/include)
+elseif(UNIX AND NOT APPLE)
+    find_package(CUDA REQUIRED)
+    set(PCL_DIR /usr/local/share/pcl-1.13/PCLConfig.cmake)
+    set(PCL_INCLUDE_DIRS /usr/local/include/pcl-1.13/pcl)
+    set(PCL_LIBRARIES /usr/local/lib)
+    include_directories(${CUDA_INCLUDE_DIRS})
+    set(CUDA_PTX_COMPILATION ON)
+endif()
+
+# Find required packages
+find_package(PCL 1.3 REQUIRED)
+find_package(OpenCV 4.1 REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+
+# Include and link directories
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
+
+include_directories(${OpenCV_INCLUDE_DIRS})
+link_directories(${OpenCV_LIBRARY_DIRS})
+add_definitions(${OpenCV_DEFINITIONS})
+
+# Create core library for shared functionality
+add_library(SensorFusionCore SHARED
+    src/Perception.cpp
+    src/Camera.cpp
+    src/Lidar.cpp
+    src/Radar.cpp
+    src/KalmanFilter.cpp
+    src/Tools.cpp
+    src/Calibration.cpp
+    src/DataQueue.cpp
+)
+
+target_link_libraries(SensorFusionCore 
+    ${PCL_LIBRARIES} 
+    ${OpenCV_LIBRARIES} 
+    ${JSONCPP_LIBRARIES}
+    dl  # Dynamic linking library
+    z 
+    ssl
+)
+
+# Main executable
+add_executable(SensorFusion 
+    src/main.cpp
+    src/main.cu
+)
+
+target_link_libraries(SensorFusion SensorFusionCore)
+
+# Plugin system executable
+add_executable(PluginExample
+    src/PluginExample.cpp
+)
+
+target_link_libraries(PluginExample SensorFusionCore)
+
+# Plugin macro for easier plugin creation
+macro(add_sensor_plugin plugin_name sources)
+    add_library(${plugin_name} SHARED ${sources})
+    set_target_properties(${plugin_name} PROPERTIES
+        PREFIX ""
+        SUFFIX ".so"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins/sensors"
+    )
+    target_link_libraries(${plugin_name} SensorFusionCore)
+    target_include_directories(${plugin_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endmacro()
+
+macro(add_processor_plugin plugin_name sources)
+    add_library(${plugin_name} SHARED ${sources})
+    set_target_properties(${plugin_name} PROPERTIES
+        PREFIX ""
+        SUFFIX ".so"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins/processors"
+    )
+    target_link_libraries(${plugin_name} SensorFusionCore)
+    target_include_directories(${plugin_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endmacro()
+
+macro(add_fusion_plugin plugin_name sources)
+    add_library(${plugin_name} SHARED ${sources})
+    set_target_properties(${plugin_name} PROPERTIES
+        PREFIX ""
+        SUFFIX ".so"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins/fusion"
+    )
+    target_link_libraries(${plugin_name} SensorFusionCore)
+    target_include_directories(${plugin_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endmacro()
+
+macro(add_output_plugin plugin_name sources)
+    add_library(${plugin_name} SHARED ${sources})
+    set_target_properties(${plugin_name} PROPERTIES
+        PREFIX ""
+        SUFFIX ".so"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins/output"
+    )
+    target_link_libraries(${plugin_name} SensorFusionCore)
+    target_include_directories(${plugin_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endmacro()
+
+# Create plugin directories
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/plugins/sensors)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/plugins/processors)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/plugins/fusion)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/plugins/output)
+
+# Example plugin implementations (to be created)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/plugins)
+    # Sensor plugins
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/plugins/CameraSensorPlugin.cpp)
+        add_sensor_plugin(camera_sensor plugins/CameraSensorPlugin.cpp)
+    endif()
+    
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/plugins/LidarSensorPlugin.cpp)
+        add_sensor_plugin(lidar_sensor plugins/LidarSensorPlugin.cpp)
+    endif()
+    
+    # Processor plugins
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/plugins/YOLODetectorPlugin.cpp)
+        add_processor_plugin(yolo_detector plugins/YOLODetectorPlugin.cpp)
+    endif()
+    
+    # Fusion plugins
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/plugins/KalmanFusionPlugin.cpp)
+        add_fusion_plugin(kalman_fusion plugins/KalmanFusionPlugin.cpp)
+    endif()
+    
+    # Output plugins
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/plugins/VisualizationPlugin.cpp)
+        add_output_plugin(visualization plugins/VisualizationPlugin.cpp)
+    endif()
+endif()
+
+# Install rules
+install(TARGETS SensorFusionCore
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
+install(TARGETS SensorFusion PluginExample
+    RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
+    DESTINATION lib/sensorfusion/plugins
+    FILES_MATCHING PATTERN "*.so"
+)
+
+install(DIRECTORY include/
+    DESTINATION include/sensorfusion
+    FILES_MATCHING PATTERN "*.h"
+)
+
+# Configuration files
+install(FILES config/default_pipeline.json
+    DESTINATION etc/sensorfusion
+    OPTIONAL
+)
+
+# Documentation
+install(DIRECTORY docs/
+    DESTINATION share/doc/sensorfusion
+    OPTIONAL
+)
+
+# Create uninstall target
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY
+)
+
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+)
+
+# Testing support
+enable_testing()
+
+# Add tests if test directory exists
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+    add_subdirectory(tests)
+endif()
+
+# Package configuration
+set(CPACK_PACKAGE_NAME "SensorFusionWithPlugins")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_DESCRIPTION "Modular Sensor Fusion System with Plugin Architecture")
+set(CPACK_PACKAGE_VENDOR "SensorFusion Team")
+
+include(CPack)
+
+# Print configuration summary
+message(STATUS "")
+message(STATUS "Configuration Summary:")
+message(STATUS "  Build Type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "  C++ Standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "  Install Prefix: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "  OpenCV Version: ${OpenCV_VERSION}")
+message(STATUS "  PCL Version: ${PCL_VERSION}")
+if(CUDA_FOUND)
+    message(STATUS "  CUDA Version: ${CUDA_VERSION}")
+endif()
+message(STATUS "  Plugin Directory: ${CMAKE_BINARY_DIR}/plugins")
+message(STATUS "")

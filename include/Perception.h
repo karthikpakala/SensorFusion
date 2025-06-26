@@ -90,10 +90,10 @@ class Perception
         // not being available for use outside of the class. 
         Perception();
 
-        CameraProcessing::Camera *leftCameraObject;
-        CameraProcessing::Camera *rightCameraObject;
-        LidarProcessing::Lidar<pcl::PointXYZI> *lidarObject;
-        Calibration *calibrationObject;
+        CameraProcessing::Camera leftCameraObject;
+        CameraProcessing::Camera rightCameraObject;
+        LidarProcessing::Lidar<pcl::PointXYZI> lidarObject;
+        Calibration calibrationObject;
         Tooling::Tools *toolsObject;
         DataStructure::InputStructure inputDataStructure;
         // RadarProcessing::Radar *radarObject;
