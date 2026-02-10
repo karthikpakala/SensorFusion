@@ -1,0 +1,53 @@
+
+#!/bin/bash
+
+# Pre-commit hook for SensorFusion project
+# This hook runs clang-format check before allowing commits
+
+echo "Running pre-commit checks..."
+
+# Check if clang-format is available
+if ! command -v clang-format &> /dev/null; then
+    echo "Warning: clang-format not found. Skipping format check."
+    exit 0
+fi
+
+# Get list of changed C++ files
+CPP_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(cpp|h|cu)$')
+
+if [ -z "$CPP_FILES" ]; then
+    echo "No C++ files to check."
+    exit 0
+fi
+
+echo "Checking format for C++ files..."
+
+# Check if files need formatting
+NEEDS_FORMAT=false
+for file in $CPP_FILES; do
+    if [ -f "$file" ]; then
+        # Check if file would be changed by clang-format
+        if ! clang-format --dry-run --Werror -style=file "$file" > /dev/null 2>&1; then
+            echo "❌ $file needs formatting"
+            NEEDS_FORMAT=true
+        else
+            echo "✅ $file is properly formatted"
+        fi
+    fi
+done
+
+if [ "$NEEDS_FORMAT" = true ]; then
+    echo ""
+    echo "❌ Some files need formatting. Please run:"
+    echo "   ./format-and-lint.sh format"
+    echo ""
+    echo "Or format individual files:"
+    echo "   clang-format -i -style=file <filename>"
+    echo ""
+    echo "To bypass this check (not recommended):"
+    echo "   git commit --no-verify"
+    exit 1
+fi
+
+echo "✅ All C++ files are properly formatted!"
+exit 0
