@@ -1,0 +1,130 @@
+# SensorFusion YOLO Training Configuration
+# =====================================
+
+# Model configuration
+model:
+  architecture: yolov8n.pt  # yolov8n.pt, yolov8s.pt, yolov8m.pt, yolov8l.pt, yolov8x.pt
+  input_size: 640           # Input image size (square)
+  classes: 80               # Number of classes (will be overridden by dataset.yaml)
+
+# Training parameters
+training:
+  epochs: 100               # Number of training epochs
+  batch_size: 16           # Batch size (adjust based on GPU memory)
+  learning_rate: 0.01      # Initial learning rate
+  lrf: 0.01               # Final learning rate factor
+  momentum: 0.937          # SGD momentum
+  weight_decay: 0.0005     # Weight decay
+  patience: 10             # Early stopping patience
+  save_period: 10          # Save checkpoint every N epochs
+  workers: 8               # Number of data loading workers
+  cos_lr: false           # Use cosine learning rate scheduler
+  close_mosaic: 10        # Epochs to close mosaic augmentation before end
+
+# Data configuration
+data:
+  dataset_path: prepared-training-data/dataset.yaml
+  train_split: 0.8         # Training data ratio
+  val_split: 0.2          # Validation data ratio
+  cache: false            # Cache data in RAM (true/false/'ram'/'disk')
+  rect: false             # Rectangular training
+  single_cls: false       # Train as single-class dataset
+  copy_paste: 0.0         # Copy-paste augmentation probability
+
+# Data augmentation parameters
+augmentation:
+  # HSV color space augmentation
+  hsv_h: 0.015            # HSV hue augmentation
+  hsv_s: 0.7              # HSV saturation augmentation  
+  hsv_v: 0.4              # HSV value augmentation
+  
+  # Geometric augmentations
+  degrees: 0.0            # Rotation degrees (-degrees to +degrees)
+  translate: 0.1          # Translation (+/- fraction)
+  scale: 0.9              # Scaling (+/- gain)
+  shear: 0.0              # Shear (+/- degrees)  
+  perspective: 0.0        # Perspective transformation
+  
+  # Flip augmentations
+  flipud: 0.0             # Vertical flip probability
+  fliplr: 0.5             # Horizontal flip probability
+  
+  # Advanced augmentations
+  mosaic: 1.0             # Mosaic augmentation probability
+  mixup: 0.0              # Mixup augmentation probability
+  erasing: 0.4            # Random erasing probability
+  crop_fraction: 1.0      # Crop fraction for training
+
+# Validation parameters
+validation:
+  val_period: 1           # Validation every N epochs
+  save_json: false        # Save validation results as JSON
+  save_conf: false        # Save validation confidences
+  save_crop: false        # Save validation crops  
+  show_labels: true       # Show labels in validation plots
+  show_conf: true         # Show confidences in validation plots
+  visualize: false        # Visualize validation predictions
+
+# Model optimization  
+optimization:
+  amp: true               # Automatic Mixed Precision training
+  freeze: null            # Freeze layers: [0] or [0,1,2] or null
+  multi_scale: false      # Multi-scale training
+  overlap_mask: true      # Overlap masks during training
+  mask_ratio: 4           # Mask downsample ratio
+  dropout: 0.0            # Use dropout regularization
+  
+# Loss function weights
+loss_weights:
+  box: 7.5               # Box loss weight
+  cls: 0.5               # Classification loss weight  
+  dfl: 1.5               # Distribution focal loss weight
+  
+# Hardware configuration
+hardware:
+  device: ''              # Device to use: '' (auto), '0' (GPU 0), '0,1,2,3' (multi-GPU), 'cpu'
+  sync_bn: false         # Synchronized batch normalization
+  deterministic: false   # Deterministic training (reproducible results)
+  
+# Logging and visualization
+logging:
+  verbose: true          # Verbose output
+  save_txt: false        # Save results as txt
+  save_conf: false       # Save confidences in labels
+  plots: true           # Generate training plots
+  
+# Project organization
+project:
+  project: runs          # Project directory
+  name: yolo_training    # Experiment name
+  exist_ok: false       # Overwrite existing project
+  resume: false         # Resume training from checkpoint
+  nosave: false         # Save only final checkpoint
+  noval: false          # Skip validation
+  
+# Advanced options
+advanced:
+  profile: false        # Profile training speed
+  seed: 0              # Random seed for reproducibility (0 = random)
+  local_rank: -1       # Distributed training local rank
+  quad: false          # Quad dataloader (experimental)
+  
+# Custom callbacks (advanced users)
+callbacks:
+  on_pretrain_routine_end: []
+  on_train_start: []
+  on_train_epoch_start: []
+  on_train_batch_start: []
+  on_optimizer_step: []
+  on_before_zero_grad: []
+  on_train_batch_end: []
+  on_train_epoch_end: []
+  on_val_start: []
+  on_val_batch_start: []
+  on_val_image_end: []
+  on_val_batch_end: []
+  on_val_end: []
+  on_fit_epoch_end: []
+  on_model_save: []
+  on_train_end: []
+  on_params_update: []

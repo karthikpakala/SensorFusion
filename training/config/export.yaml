@@ -1,0 +1,186 @@
+# SensorFusion Model Export Configuration
+# ======================================
+
+# Export formats and their settings
+export_formats:
+  
+  # ONNX - Most widely supported format
+  onnx:
+    enabled: true
+    opset: 17              # ONNX opset version
+    simplify: true         # Simplify ONNX model
+    dynamic: false         # Export with dynamic axes
+    optimize: true         # Optimize for inference
+    
+  # TensorRT - NVIDIA GPU acceleration  
+  tensorrt:
+    enabled: false         # Requires TensorRT installation
+    workspace: 4          # Max workspace size (GB)
+    fp16: true           # Use FP16 precision
+    int8: false          # Use INT8 quantization
+    
+  # CoreML - Apple devices
+  coreml:
+    enabled: false
+    int8: false          # Use INT8 quantization
+    half: false          # Use FP16 precision
+    
+  # TensorFlow formats
+  tflite:
+    enabled: false
+    int8: false          # Use INT8 quantization
+    
+  edgetpu:
+    enabled: false       # Google Coral Edge TPU
+    
+  tfjs:
+    enabled: false       # TensorFlow.js for web
+    
+  # Intel OpenVINO
+  openvino:
+    enabled: false
+    fp16: true          # Use FP16 precision
+    
+  # Other formats
+  ncnn:
+    enabled: false      # Tencent NCNN mobile framework
+    
+  paddle:
+    enabled: false      # PaddlePaddle
+
+# Platform-specific optimizations
+platform_presets:
+  
+  # CPU deployment
+  cpu:
+    formats: ['onnx']
+    onnx:
+      optimize: true
+      simplify: true
+      
+  # GPU deployment  
+  gpu:
+    formats: ['tensorrt', 'onnx']
+    tensorrt:
+      fp16: true
+      workspace: 4
+    onnx:
+      optimize: true
+      
+  # Mobile deployment
+  mobile:
+    formats: ['coreml', 'tflite']
+    coreml:
+      int8: false
+      half: true
+    tflite:
+      int8: true
+      
+  # Edge devices  
+  edge:
+    formats: ['tflite', 'edgetpu']
+    tflite:
+      int8: true
+    edgetpu:
+      int8: true
+      
+  # Web deployment
+  web:
+    formats: ['tfjs', 'onnx']
+    tfjs: {}
+    onnx:
+      optimize: true
+
+# Benchmarking configuration
+benchmark:
+  enabled: true
+  
+  # Test parameters
+  warmup_runs: 5         # Warmup iterations
+  benchmark_runs: 100    # Benchmark iterations
+  input_sizes: [640]     # Test different input sizes
+  batch_sizes: [1]       # Test different batch sizes
+  
+  # Profiling
+  profile_memory: true   # Profile memory usage
+  profile_latency: true  # Profile inference latency
+  
+# Validation settings
+validation:
+  run_validation: true   # Run validation after export
+  tolerance: 1e-4       # Numerical tolerance for output comparison
+  test_images: 10       # Number of test images for validation
+  
+# Output organization
+output:
+  # Directory structure
+  base_dir: "exported_models"
+  organize_by_format: true    # Create subdirectories by format
+  organize_by_date: false     # Add date to directory names
+  
+  # File naming
+  include_timestamp: true     # Add timestamp to filenames  
+  include_config_hash: false  # Add config hash to filenames
+  
+  # Additional outputs
+  save_config: true          # Save export config with model
+  save_metadata: true        # Save model metadata
+  create_readme: true        # Create README for exported model
+  
+# Deployment package settings
+deployment_package:
+  enabled: false
+  
+  # Package contents
+  include_demo_scripts: true    # Include inference demo scripts
+  include_requirements: true    # Include requirements.txt
+  include_documentation: true   # Include usage documentation
+  include_test_images: true     # Include sample test images
+  
+  # Demo script languages
+  demo_languages: ['python']   # python, cpp, javascript
+  
+  # Package formats
+  formats: ['zip']            # zip, tar.gz
+  
+# Model optimization
+optimization:
+  
+  # Quantization
+  post_training_quantization: false
+  quantization_dataset_size: 100
+  
+  # Pruning (experimental)
+  structured_pruning: false
+  pruning_ratio: 0.0
+  
+  # Knowledge distillation (advanced)
+  knowledge_distillation: false
+  teacher_model: null
+  
+# Quality assurance
+quality_checks:
+  
+  # Accuracy validation
+  accuracy_threshold: 0.95    # Minimum accuracy retention (fraction of original)
+  
+  # Performance validation  
+  max_latency_increase: 1.5   # Maximum acceptable latency increase
+  max_memory_increase: 2.0    # Maximum acceptable memory increase
+  
+  # Output validation
+  check_output_shapes: true   # Verify output tensor shapes
+  check_output_ranges: true   # Verify output value ranges
+  
+# Debugging and development
+debug:
+  verbose_export: false       # Verbose export logging
+  save_intermediate: false    # Save intermediate representations
+  profile_export: false       # Profile export process
+  
+# Custom hooks (for advanced users)
+hooks:
+  pre_export: []             # Custom functions to run before export
+  post_export: []            # Custom functions to run after export
+  pre_validation: []         # Custom validation functions
+  post_validation: []        # Custom post-validation functions

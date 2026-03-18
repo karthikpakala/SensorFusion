@@ -6,6 +6,9 @@ example_dataset/
 runs/
 datasets/
 data/
+training/logs/
+training/experiments/
+exported_models/
 *.tar.gz
 *.tar.bz2 
 *.zip
