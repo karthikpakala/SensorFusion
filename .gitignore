@@ -1,0 +1,123 @@
+# ==============================================================================
+# DATASETS AND LARGE FILES - Download via ./download-datasets.sh
+# ==============================================================================
+prepared-training-data/
+example_dataset/
+runs/
+datasets/
+data/
+*.tar.gz
+*.tar.bz2 
+*.zip
+*.7z
+*.rar
+
+# Model files (download separately)
+*.pt
+*.pth
+*.weights
+*.onnx
+*.h5
+*.pb
+*.bin
+*.safetensors
+
+# Training outputs
+wandb/
+tensorboard/
+checkpoints/
+logs/
+
+# ==============================================================================
+# BUILD AND CACHE DIRECTORIES  
+# ==============================================================================
+build/
+cmake-build-debug/
+cmake-build-release/
+build-demo/
+.cmake/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+
+# ==============================================================================
+# PYTHON
+# ==============================================================================
+venv/
+env/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.pytest_cache/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ==============================================================================
+# IDE AND EDITOR FILES
+# ==============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.orig
+.project
+.cproject
+.settings/
+
+# ==============================================================================
+# OS GENERATED FILES
+# ==============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ==============================================================================
+# LOGS AND TEMPORARY FILES
+# ==============================================================================
+*.log
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# ==============================================================================
+# CUDA AND GPU FILES
+# ==============================================================================
+*.o
+*.so
+*.dylib
+*.dll
+
+# ==============================================================================
+# COMPILATION AND LINKING
+# ==============================================================================
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+a.out
